@@ -1,10 +1,6 @@
 ### Palmyra Ocean Health Index: Biodiversity 
 
-This folder describes the methods used to prepare the data layers for the Biodiversity goal. 
-
-*If the folder contains sub-goals include this*
-
-This goal is made up of 2 sub-goals, **Habitats** and **Species** 
+This folder describes the methods used to prepare the data layers for the Biodiversity goal. This goal is made up of 2 sub-goals, **Habitats** and **Species**.   
 
 This folder contains the following sub-folders:  
 
