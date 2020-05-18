@@ -6,13 +6,14 @@ This folder describes the methods used to prepare the data layers for the [name 
 
 This goal is made up of [number] sub-goals, **Sub-goal name** and **Sub-goal name** 
 
-*If the folder does not contain sub-goals include this* 
+This folder contains the following sub-folders:  
 
-Click on the layers to see data preparation:  
+- `sub-goal name` folder contains all data prep for the [sub-goal name] sub-goal  
+- `sub-goal name` folder contains all data prep for the [sub-goal name] sub-goal  
 
-[Link to each of the html data prep files]
+*If the folder does not contain sub-goals include this*  
 
-The folders in this file include the metadata, R scripts, and data for each assessement year (i.e., the year the assessment was conducted). The most current year represents the best available data and methods, and previous years are maintained for archival purposes. This folder contains the following sub-folders:  
+The folders in this file include the metadata, R scripts, and data for each assessment year (i.e., the year the assessment was conducted). The most current year represents the best available data and methods, and previous years are maintained for archival purposes. Each year folder contains the following sub-folders:  
 
 - `folder name` folder contains [description]
 - `folder name` folder contains [description]
