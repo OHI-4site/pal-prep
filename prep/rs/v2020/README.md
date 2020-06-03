@@ -1,4 +1,4 @@
-### Palmyra Ocean Health Index: Artisinal Opportunities 2020  
+### Palmyra Ocean Health Index: Research 2020  
 
 #### Data Prep
 

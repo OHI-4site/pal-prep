@@ -1,4 +1,4 @@
-### Palmyra Ocean Health Index: Livelihoods 2020  
+### Palmyra Ocean Health Index: Resource Access Opportunity 2020  
 
 #### Data Prep
 

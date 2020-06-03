@@ -1,6 +1,6 @@
-### Palmyra Ocean Health Index: Livelihoods 
+### Palmyra Ocean Health Index: Resource Access Opportunity 
 
-This folder describes the methods used to prepare the data layers for the Livelihoods goal. 
+This folder describes the methods used to prepare the data layers for the Resource Access Opportunity goal. 
 
 
 The folders in this file include the metadata, R scripts, and data for each assessement year (i.e., the year the assessment was conducted). The most current year represents the best available data and methods, and previous years are maintained for archival purposes. Each year folder contains the following sub-folders:   
