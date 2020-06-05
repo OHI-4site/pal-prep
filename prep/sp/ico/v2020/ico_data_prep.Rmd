@@ -1,0 +1,101 @@
+---
+title: 'OHI+ Palmyra 2020 - Iconic species subgoal'
+author: "*Compiled on `r date()` by `r Sys.info()['user']`*"
+output: 
+  html_document:
+    toc: true
+    number_sections: true
+    theme: cerulean
+    highlight: haddock
+    includes: 
+     #in_header: '../../../workflow/templates/ohi_hdr.html' - need to update this
+  pdf_document:
+    toc: true
+editor_options: 
+  chunk_output_type: console
+---
+
+# Summary:  Iconic Species Subgoal (Sense of Place)
+
+This script prepares scores (status and trend) for Iconic Species in Palmyra.  For each iconic marine species, extinction risk category is pulled based on current and past assessments; by tracking the assessed extinction risk over time, we can understand the trends of extinction risk for iconic species directly rather than using the "population trend" method from prior OHI assessments.
+
+The Iconic Species sub-goal model calculates status based upon an unweighted average of species health for all 'iconic' species found within the reporting region.
+
+From Halpern et al (2012):
+
+> Iconic species are those that are relevant to local cultural identity through a species’ relationship to one or more of the following: 1) traditional activities such as fishing, hunting or commerce; 2) local ethnic or religious practices; 3) existence value; and 4) locally-recognized aesthetic value (e.g., touristic attractions/common subjects for art such as whales). Habitat-forming species are not included in this definition of iconic species, nor are species that are harvested solely for economic or utilitarian purposes (even though they may be iconic to a sector or individual). ...
+> Ultimately, almost any species can be iconic to someone, and so the intent with this goal was to focus on those species widely seen as iconic within a country, and iconic from a cultural or existence value (rather than for a livelihoods or extractive reason). ...
+> The reference point is to have the risk status of all assessed species as Least Concern (i.e., a goal score = 1.0)
+The Status of this sub-goal (X~ICO~) is then the % of iconic species in each threat category (as defined by the IUCN Red List), such that:
+
+$$X_{ICO} = \frac{\displaystyle\sum_{category}S_{cat}*w_{cat}}{\displaystyle\sum_{category}S_{cat}}$$
+where for each IUCN threat category:
+* *S~cat~* is the number of assessed species in the category
+* *w~cat~* is the status weight assigned for that category (note, these are the inverse of the risk value used in the SPP calculations):
+    * 'LC' = 1.0, 'NT' = 0.8, 'VU' = 0.6, 'EN' = 0.4, 'CR' = 0.2, 'EX' = 0.0
+
+ICO trend is calculated in a similar manner, but weightings are assigned according to IUCN population trend: 'Decreasing' = -0.5, 'Stable' = 0.0, 'Increasing' = +0.5.  
+
+
+# Data Sources
+
+**List of iconic species:**
+
+This initial list of iconic species is compiled based on USFWS birds, mammals, reptiles, and invertebrates list.
+
+* __Reference__: 
+    * U.S. Fish and Wildlife Service. (2016, January 14). Wildlife and Habitat. Retrieved from <https://www.fws.gov/refuge/Palmyra_Atoll/wildlife_and_habitat/index.html> 
+        * __Accessed__: 04 June 2020   
+        
+Birds: brown booby (Sula leucogaster), masked booby (Sula dactylatra), red-footed booby (Sula sula), black noddy (Anous minutus),
+brown noddy (Anous stolidus), great frigatebird (Fregata minor),sooty tern (Onychoprion fuscata),
+bristle-thighed curlew (Numenius tahitiensis), pacific golden plover (Pluvialis fulva), wandering tattler (Heteroscelus incanus),
+ruddy turnstone (Arenaria interpres)   
+
+Mammals: pacific bottlenose dolphins (Tursiops aduncus), spinner dolphins (Stenella longirostris),
+melon-headed whales (Peponocephala electra)   
+
+Reptiles: green turtles (Chelonia mydas), hawksbill turtles (Eretmochelys imbricata)    
+
+Invertebrates: stony corals (many species), giant clams (Tridacna gigas), coconut crabs (Birgus latro)   
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(rredlist)
+library(tidyverse)
+library(dplyr)
+library(raster)
+library(here)
+
+source(here('src/R/common.R'))
+
+api_file <- file.path(dir_M, 'git-annex/globalprep/spp', 'api_key_gc.csv')
+api_key <- scan(api_file, what = 'character')
+```
+
+Get US Minor Outlying Islands species 
+```{r}
+spp_country_url <- 'http://apiv3.iucnredlist.org/api/v3/country/getspecies/id/%s?token=%s'
+
+countries <- rl_countries(key = api_key)$results
+
+#UM is United States Minor Outlying Islands country code
+# UM species risks (1532 species)
+spp_um <- rl_sp_country('UM', key = api_key)$result %>%
+  mutate(country_code = "UM") %>%
+  rename("iucn_sid" = "taxonid")
+
+# Create vector of iconic species from the USFWS webpage to cross reference (17 spp total)
+# Note this list excludes specific coral and fish species that weren't listed on the USFWS webpage
+ico <- c("Sula leucogaster", "Sula dactylatra", "Sula sula", "Anous minutus", "Anous stolidus",
+          "Fregata minor", "Onychoprion fuscata", "Numenius tahitiensis", "Pluvialis fulva",
+          "Heteroscelus incanus", "Arenaria interpres", "Tursiops aduncus", "Stenella longirostris",
+          "Chelonia mydas", "Eretmochelys imbricata", "Tridacna gigas", "Birgus latro")
+
+# Filter the UM spp data for Palmyra iconic spp 
+pal_ico <- spp_um %>% 
+  filter(scientific_name %in% ico) # 11 matching the ico spp list
+# list all birds (except tern and tattler) plus spinner dolphins and green turtles
+```
+
+
