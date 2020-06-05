@@ -1,0 +1,72 @@
+---
+title: "create_pal_region"
+author: "*Compiled on `r date()` by `r Sys.info()['user']`*"
+output: 
+  html_document:
+    code_folding: show
+    toc: true
+    toc_depth: 3
+    toc_float: yes
+    number_sections: false
+    theme: cerulean
+    highlight: haddock
+    includes: 
+     # in_header: '~/github/ne-prep/src/templates/ohi_hdr.html' # update with own header
+  pdf_document:
+    toc: true
+---
+
+## Summary
+
+This script shows how I created the shapefile for the Palmrya region. I used the following shapefiles:  
+
+ * USFWS Special Area Designations - Marine National Monument Boundary
+ * GADM country boundaries
+
+## Data Sources
+
+**Marine National Monument**  
+
+* __Reference__: 
+    * USFWS, NWRS, Division of Realty:. 2020. FWS Special Designation Areas - April 2020    <https://ecos.fws.gov/ServCat/Reference/Profile/116244>
+        * __Accessed__: 5 June 2020   
+* __Native data resolution__: Lands and waters administered by the USFWS in North America, U.S. Trust Territories and Possessions  
+* __Format__:  Shapefile  
+
+**Land Boundary**  
+
+
+```{r setup, message = F, warning = F, results = 'hide'}
+knitr::opts_chunk$set(message = FALSE, warning = FALSE)
+
+source('~/github/pal-prep/src/R/common.R') ### Palmyra common.R
+
+dir_git <- '~/github/pal-prep'
+library(tidyverse)
+library(sf)
+library(mapview)
+library(mapedit)
+library(leaflet)
+```
+
+
+# Marine National Monument Boundary Shapefile Prep
+
+The USFWS shapefile is for all of the U.S. and U.S. territories, we want to clip it to just include the National Marine Monument boundary and then save in a new folder  
+
+```{r}
+# Read in shapefile for all special areas designations
+usfws_sp_area <- st_read(file.path(dir_git, 'spatial/raw_data_/usfws_special_areas'), layer = "SpecialDesignation")
+
+# find only the pacific marine national monument palmyra unit 
+marine_monument <- usfws_sp_area %>% 
+  filter(CMPXNAME == "MARINE NATIONAL MONUMENTS OF THE PACIFIC") %>% 
+  filter(COMMENTS == "KINGMAN REEF & PALMYRA ATOLL UNIT")
+
+# View to make sure it's correct 
+mapview(marine_monument)
+
+
+
+```
+
