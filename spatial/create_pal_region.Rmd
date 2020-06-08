@@ -29,12 +29,24 @@ This script shows how I created the shapefile for the Palmrya region. I used the
 
 * __Reference__: 
     * USFWS, NWRS, Division of Realty:. 2020. FWS Special Designation Areas - April 2020    <https://ecos.fws.gov/ServCat/Reference/Profile/116244>
+        * __Date Created__: 25 February 2016
+        * __Date Updated__: 22 April 2020
         * __Accessed__: 5 June 2020   
-* __Native data resolution__: Lands and waters administered by the USFWS in North America, U.S. Trust Territories and Possessions  
-* __Format__:  Shapefile  
+* __Description__: Lands and waters administered by the USFWS in North America, U.S. Trust Territories and Possessions  
+* __Spatial Extent__: West Bounding Longitude: -179.150067, East Bounding Longitude: 179.77173, North Bounding Latitude: 70.329407, South Bounding Latitude: -14.559753
+* __Format__: Shapefile  
 
 **Land Boundary**  
 
+* __Reference__: 
+    * NOA, Office of Coast Surveys. 2018. Shoreline Palmyra Atoll <https://catalog.data.gov/dataset/shoreline-palmyra-atoll>  
+        * __Date Created__: 15 January 2016  
+        * __Date Updated__: 31 January 2018  
+        * __Metadata Updated__: 27 February 2019  <https://catalog.data.gov/harvest/object/98b61b2b-28e5-4382-bc98-9a655c6c67e1/html>   
+        * __Accessed__: 8 June 2020
+* __Description__: Shoreline of Palmyra Atoll 
+* __Spatial Extent__: West Bounding Longitude: -162.112, East Bounding Longitude: -162.049, North Bounding Latitude: 5.893, South Bounding Latitude: 5.871  
+* __Format__: Shapefile  
 
 ```{r setup, message = F, warning = F, results = 'hide'}
 knitr::opts_chunk$set(message = FALSE, warning = FALSE)
@@ -42,6 +54,8 @@ knitr::opts_chunk$set(message = FALSE, warning = FALSE)
 source('~/github/pal-prep/src/R/common.R') ### Palmyra common.R
 
 dir_git <- '~/github/pal-prep'
+dir_anx <- file.path(dir_M, 'git-annex/foursite/palmyra')
+
 library(tidyverse)
 library(sf)
 library(mapview)
@@ -50,23 +64,117 @@ library(leaflet)
 ```
 
 
-# Marine National Monument Boundary Shapefile Prep
+# Marine National Monument Boundary shapefile
 
-The USFWS shapefile is for all of the U.S. and U.S. territories, we want to clip it to just include the National Marine Monument boundary and then save in a new folder  
+The USFWS shapefile is for all of the U.S. and U.S. territories, we want to clip it to just include the National Marine Monument boundary around Palmyra and Kingman Reef.  
 
-```{r}
+```{r national-monument}
 # Read in shapefile for all special areas designations
-usfws_sp_area <- st_read(file.path(dir_git, 'spatial/raw_data_/usfws_special_areas'), layer = "SpecialDesignation")
+usfws_sp_area <- st_read(file.path(dir_anx, 'spatial/usfws_special_areas'), layer = "SpecialDesignation")
 
-# find only the pacific marine national monument palmyra unit 
+# Find only the pacific marine national monument palmyra unit and retain the geometry and an 'id' 
 marine_monument <- usfws_sp_area %>% 
   filter(CMPXNAME == "MARINE NATIONAL MONUMENTS OF THE PACIFIC") %>% 
-  filter(COMMENTS == "KINGMAN REEF & PALMYRA ATOLL UNIT")
+  filter(COMMENTS == "KINGMAN REEF & PALMYRA ATOLL UNIT") %>% 
+  mutate(id = "marine_monument") %>% 
+  dplyr::select(id, geometry) %>% 
+  st_transform(mollCRS)
 
 # View to make sure it's correct 
 mapview(marine_monument)
 
-
-
+# Write as shapefile:
+st_write(marine_monument, file.path(dir_git, 'spatial/shapefiles/marine_monument_boundary.shp'), driver = "ESRI Shapefile")
 ```
+
+# Palmyra shoreline
+
+Check the shapefile for Palmyra's shoreline  
+
+```{r pal-shoreline}
+# Read in shapefile for Palmyra shoreline and retain the geometry and an 'id'
+shoreline <- st_read(file.path(dir_anx, '_raw_data/PACIOOS_data/pat_ocs_all_shoreline'), layer = "pat_ocs_all_shorelinePolygon") %>% 
+  mutate(id = "shoreline") %>% 
+  dplyr::select(id, geometry) %>% 
+  st_transform(mollCRS) 
+
+# View to make sure it's correct 
+mapview(shoreline)
+
+# Write as shapefile:
+st_write(shoreline, file.path(dir_git, 'spatial/shapefiles/pal_shoreline.shp'), driver = "ESRI Shapefile")
+```
+
+
+# Create 3 nm buffer
+
+Create a 3 nautical mile buffer around the shoreline. Units for shoreline is in meters 3 nm = 5556 meters  
+
+```{r create-buffer}
+# create buffer 
+pal_buff <- st_buffer(shoreline, 5556) %>% 
+  mutate(id_buff = "buffer_3nm") %>% 
+  dplyr::select(id_buff, geometry) %>% 
+  rename(id = id_buff)
+
+# Check the buffer:
+mapview(pal_buff)
+
+# Write as shapefile:
+st_write(pal_buff, file.path(dir_git, 'spatial/shapefiles/pal_buffer_3nm.shp'), driver = "ESRI Shapefile")
+```
+
+
+# Join boundaries
+
+Join shapefiles so we have one shapefile with all three boundaries  
+
+```{r join-shoreline-monument}
+# Double check the crs match
+crs(marine_monument)
+crs(shoreline)
+crs(pal_buff)
+
+# Bind shapefiles and calculate area in square kilometers
+pal <- marine_monument %>%
+  rbind(shoreline) %>% 
+  rbind(pal_buff) %>% 
+  mutate(area_m2 = st_area(.),
+         area_km2 = area_m2/1000000) %>%
+  separate(area_km2, into = c("area_km2", "units"), sep = " ") %>%
+  dplyr::select(-area_m2, -units)
+
+# View all three layers:
+ggplot(pal) +
+  geom_sf(aes(fill = id)) +
+  theme_bw() +
+  labs(fill = "OHI Palmyra Boundaries")
+
+# View just the shoreline and buffer
+pal %>% 
+  filter(id != "marine_monument") %>% 
+  ggplot(.) +
+  geom_sf(aes(fill = id)) +
+  theme_bw() +
+  labs(fill = "OHI Palmyra Shoreline Buffer")
+
+# Using mapview
+mapview(pal, zcol="id")
+```
+
+# Check validity
+
+```{r check-validity}
+st_is_valid(pal) # all true 
+```
+
+# Save
+
+```{r save}
+st_write(pal, file.path(dir_git, 'spatial/shapefiles/pal_ohi_rgn.shp'), driver = "ESRI Shapefile")
+```
+
+
+
+
 
