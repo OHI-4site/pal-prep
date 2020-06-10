@@ -1,0 +1,56 @@
+comname,sciname,ico_gl,ico_rgn_id
+Brown booby,Sula leucogaster,FALSE,150
+Masked booby,Sula dactylatra,FALSE,150
+Red-footed booby,Sula sula,FALSE,150
+Black noddy,Anous minutus,FALSE,150
+Brown noddy,Anous stolidus,FALSE,150
+Great frigatebird,Fregata minor,FALSE,150
+Sooty tern,Onychoprion fuscata,FALSE,150
+Bristle-thighed curlew,Numenius tahitiensis,FALSE,150
+Pacific golden plover,Pluvialis fulva,FALSE,150
+Wandering tattler,Heteroscelus incanus,FALSE,150
+Ruddy ternstone,Arenaria interpres,FALSE,150
+Pacific bottlenose dolphin,Tursiops aduncus,FALSE,150
+Spinner dolphin,Stenella longirostris,FALSE,150
+Melon-headed whales,Peponocephala electra,FALSE,150
+Giant clam,Tridacna gigas,FALSE,150
+Coconut crab,Birgus latro,FALSE,150
+Blue Shark,Prionace glauca,TRUE,NA
+Whale Shark,Rhincodon typus,TRUE,NA
+Shortfin Mako,Isurus oxyrinchus,TRUE,NA
+Olive Ridley Turtle,Lepidochelys olivacea,TRUE,NA
+Irrawaddy Dolphin,Orcaella brevirostris,TRUE,NA
+"Humphead wrasse, Napoleon Wrasse",Cheilinus undulatus,TRUE,NA
+Great White Shark,Carcharodon carcharias,TRUE,NA
+Basking Shark,Cetorhinus maximus,TRUE,NA
+Blue whale,Balaenoptera musculus,TRUE,NA
+Green Turtle,Chelonia mydas,TRUE,NA
+Tiger Shark,Galeocerdo cuvier,TRUE,NA
+Humpback Whale,Megaptera novaeangliae,TRUE,NA
+Thresher Shark,Alopias vulpinus,TRUE,NA
+Minke whale,Balaenoptera acutorostrata,TRUE,NA
+Sei whale,Balaenoptera borealis,TRUE,NA
+Fin whale,Balaenoptera physalus,TRUE,NA
+Porbeagle,Lamna nasus,TRUE,NA
+Bowhead whale,Balaena mysticetus,TRUE,NA
+North Atlantic Right Whale,Eubalaena glacialis,TRUE,NA
+Polar bear,Ursus maritimus,TRUE,NA
+Gray Whale,Eschrichtius robustus,TRUE,NA
+North Pacific Right Whale,Eubalaena japonica,TRUE,NA
+Gray reef shark,Carcharhinus amblyrhynchos,TRUE,NA
+Loggerhead Turtle,Caretta caretta,TRUE,NA
+Leatherback Turtle,Dermochelys coriacea,TRUE,NA
+Hawksbill Turtle,Eretmochelys imbricata,TRUE,NA
+Megamouth Shark,Megachasma pelagios,TRUE,NA
+Whitetip reef shark,Triaenodon obesus,TRUE,NA
+Blacktip reef shark,Carcharhinus melanopterus,TRUE,NA
+Longfin Mako,Isurus paucus,TRUE,NA
+Franciscana,Pontoporia blainvillei,TRUE,NA
+Caribbean reef shark,Carcharhinus perezi,TRUE,NA
+Kemp's Ridley Turtle,Lepidochelys kempii,TRUE,NA
+Hector's Dolphin,Cephalorhynchus hectori,TRUE,NA
+Maui's Dolphin,Cephalorhynchus hectori ssp. maui,TRUE,NA
+Vaquita,Phocoena sinus,TRUE,NA
+Rough Toothed Dolphin,Steno bredanensis,TRUE,NA
+Flatback Turtle,Natator depressus,TRUE,NA
+Snubfin Dolphin,Orcaella heinsohni,TRUE,NA

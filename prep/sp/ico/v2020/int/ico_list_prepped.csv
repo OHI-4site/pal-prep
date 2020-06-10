@@ -1,0 +1,24 @@
+comname,sciname,ico_gl,ico_rgn_id,iucn_sid,category
+Brown booby,Sula leucogaster,FALSE,150,22696698,LC
+Masked booby,Sula dactylatra,FALSE,150,22736173,LC
+Red-footed booby,Sula sula,FALSE,150,22696694,LC
+Black noddy,Anous minutus,FALSE,150,22694799,LC
+Brown noddy,Anous stolidus,FALSE,150,22694794,LC
+Great frigatebird,Fregata minor,FALSE,150,22697733,LC
+Bristle-thighed curlew,Numenius tahitiensis,FALSE,150,22693182,VU
+Pacific golden plover,Pluvialis fulva,FALSE,150,22693735,LC
+Ruddy ternstone,Arenaria interpres,FALSE,150,22693336,LC
+Spinner dolphin,Stenella longirostris,FALSE,150,20733,LC
+Blue Shark,Prionace glauca,TRUE,NA,39381,NT
+Shortfin Mako,Isurus oxyrinchus,TRUE,NA,39341,EN
+"Humphead wrasse, Napoleon Wrasse",Cheilinus undulatus,TRUE,NA,4592,EN
+Basking Shark,Cetorhinus maximus,TRUE,NA,4292,EN
+Green Turtle,Chelonia mydas,TRUE,NA,4615,EN
+Tiger Shark,Galeocerdo cuvier,TRUE,NA,39378,NT
+Humpback Whale,Megaptera novaeangliae,TRUE,NA,13006,LC
+Sooty tern,Onychoprion fuscata,FALSE,150,NA,LC
+Wandering tattler,Heteroscelus incanus,FALSE,150,NA,LC
+Pacific bottlenose dolphin,Tursiops aduncus,FALSE,150,41714,NT
+Melon-headed whales,Peponocephala electra,FALSE,150,16564,LC
+Giant clam,Tridacna gigas,FALSE,150,22137,VU
+Coconut crab,Birgus latro,FALSE,150,2811,DD
