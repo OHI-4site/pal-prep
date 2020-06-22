@@ -32,6 +32,29 @@ if (Sys.info()[['sysname']] != 'Linux' & !file.exists(dir_M)){
 ## standard projection for OHI global data
 mollCRS=raster::crs('+proj=moll +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +units=m +no_defs')
 
+### OHI+
+
+## Palmyra shapefiles
+pal_buffer_3nm <- sf::st_read(dsn = here("spatial/shapefiles"), layer = "pal_buffer_3nm",
+                              quiet=T)
+
+pal_shoreline <- sf::st_read(dsn = here("spatial/shapefiles"), layer = "pal_shoreline",
+                              quiet=T)
+
+pal_monument <- sf::st_read(dsn = here("spatial/shapefiles"), layer = "marine_monument_boundary",
+                              quiet=T)
+
+
+
+
+
+
+
+
+
+
+
+
 
 ## OHI region files
 
