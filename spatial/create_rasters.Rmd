@@ -1,0 +1,126 @@
+---
+title: "create_rasters"
+author: "*Compiled on `r date()` by `r Sys.info()['user']`*"
+output: 
+  html_document:
+    code_folding: show
+    toc: true
+    toc_depth: 3
+    toc_float: yes
+    number_sections: false
+    theme: cerulean
+    highlight: haddock
+    includes: 
+     # in_header: '~/github/ne-prep/src/templates/ohi_hdr.html' # update with own header
+  pdf_document:
+    toc: true
+---
+
+Creating base rasters for data prep 
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(sf)
+library(raster)
+library(fasterize)
+library(mapview)
+library(utils)
+library(here)
+
+source(here('src/R/common.R'))
+
+# for updating spatial 
+pkgs <- c("sf", "raster", "fasterize")
+
+# projections and crs
+p4s_wgs84 <- '+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0'
+p4s_nad83 <- '+proj=longlat +ellps=GRS80 +datum=NAD83 +no_defs +towgs84=0,0,0'
+us_alb    <- raster::crs("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +datum=NAD83 +units=m +no_defs") 
+
+# Shapefiles
+pal_boundary <- pal_monument
+pal_buffer <- pal_buffer_3nm
+
+pal_shp_sp <- pal_boundary %>%
+  st_transform(crs = us_alb) %>% 
+  as(.,"Spatial") # otherwise wont work in mask function
+
+land <- pal_shoreline %>% 
+  st_transform(crs = us_alb) %>% 
+  as(., "Spatial") 
+
+# Transform both shapefiles to wgs and azim to save extents
+pal_boundary_wgs <- pal_boundary %>% 
+  st_transform(crs = p4s_wgs84)
+
+pal_boundary_alb <- pal_boundary %>% 
+  st_transform(crs = us_alb)
+
+pal_buffer_wgs <- pal_buffer %>% 
+  st_transform(crs = p4s_wgs84)
+
+pal_buffer_alb <- pal_buffer %>% 
+  st_transform(crs = us_alb)
+
+# Extents for 50 nm boundary
+wgs_ext_50nm <- raster::extent(pal_boundary_wgs)
+alb_ext_50nm <- raster::extent(pal_boundary_alb) #this is for us_albers projection only
+
+# Extents for 3 nm buffer
+wgs_ext_3nm <- raster::extent(pal_buffer_wgs)
+alb_ext_3nm <- raster::extent(pal_buffer_alb) #this is for us_albers projection only
+
+# Check boundary 
+plot(alb_ext_50nm)
+plot(pal_boundary_alb, add = T)
+
+# Check buffer
+plot(alb_ext_3nm)
+plot(pal_buffer_alb, add = T)
+```
+
+Create a base raster clipped to the extent for the marine monument boundary 
+```{r create_boundary_raster}
+# create a base raster with 100x100, crs = us_alb and pal extent defined above
+r_50nm <- raster(crs = us_alb, alb_ext_50nm, res = 100)
+r_50nm[r] <- 1 # this doesn't work when I switch from azim to us albers
+
+plot(r_50nm)
+plot(pal_boundary_alb, add = T)
+```
+
+
+Create a base raster clipped to the extent for the 3nm buffer
+```{r create_buffer_raster}
+# create a base raster with 100x100, crs = azim and pal extent defined above
+r_3nm <- raster(crs = azim_eq, azim_ext_3nm, res = 100)
+r_3nm[r] <- 1
+
+plot(r_3nm)
+plot(pal_buffer_azim, add = T)
+```
+
+Mask out land to create ocean raster at 50 nm 
+```{r}
+all_ras <- mask(r, pal_boundary_azim)
+ocean_ras <- mask(r, land, inverse = T) 
+
+plot(ocean_ras)
+plot(land, add = T) #this is still not working
+```
+
+Use fasterize - this is creating the same thing as above with just a different function
+```{r}
+ras <- fasterize(tet_shp, r)
+ras_2 <- fasterize(tet_shp, ocean_ras)
+#both these work but not sure how its different than the mask?
+```
+
+Write out both rasters
+```{r}
+writeRaster(ocean_ras, filename = "~/github/tet-prep/spatial/rasters/ocean_ras.tif", overwrite = T)
+writeRaster(all_ras, filename = "~/github/tet-prep/spatial/rasters/all_ras.tif", overwrite = T)
+```
