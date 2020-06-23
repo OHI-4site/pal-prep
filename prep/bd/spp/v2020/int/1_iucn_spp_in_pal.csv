@@ -86,7 +86,7 @@ iucn_sid,sciname,population,category,common
 192754,Conus coffeae,NA,LC,NA
 192567,Conus mitratus,NA,LC,NA
 192694,Conus varius,NA,LC,NA
-192789,Conus tulipa,NA,LC,NA
+192789,Conus tulipa,NA,LC,tulip cone
 192778,Conus vexillum,NA,LC,NA
 192812,Conus quercinus,NA,LC,NA
 192424,Conus obscurus,NA,LC,NA
@@ -95,9 +95,9 @@ iucn_sid,sciname,population,category,common
 192440,Conus circumactus,NA,LC,NA
 192521,Conus retifer,NA,LC,NA
 192593,Conus imperialis,NA,LC,NA
-192321,Conus striatus,NA,LC,NA
+192321,Conus striatus,NA,LC,striated cone
 192737,Conus canonicus,NA,LC,NA
-192316,Conus textile,NA,LC,NA
+192316,Conus textile,NA,LC,cloth-of-gold cone
 192367,Conus catus,NA,LC,NA
 192318,Conus nussatella,NA,LC,NA
 192460,Conus generalis,NA,LC,NA
@@ -116,7 +116,7 @@ iucn_sid,sciname,population,category,common
 192586,Conus terebra,NA,LC,NA
 192870,Conus arenatus,NA,LC,Sand-dusted Cone
 192563,Conus aulicus,NA,LC,NA
-192772,Conus geographus,NA,LC,NA
+192772,Conus geographus,NA,LC,geography cone
 192538,Conus ferrugineus,NA,LC,NA
 192378,Conus litoglyphus,NA,LC,NA
 192573,Conus magnificus,NA,LC,NA
