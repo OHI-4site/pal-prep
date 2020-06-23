@@ -18,7 +18,6 @@ output:
 
 Creating base rasters for data prep 
 
-
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 
@@ -52,7 +51,7 @@ land <- pal_shoreline %>%
   st_transform(crs = us_alb) %>% 
   as(., "Spatial") 
 
-# Transform both shapefiles to wgs and azim to save extents
+# Transform both shapefiles to wgs and us albers to save extents
 pal_boundary_wgs <- pal_boundary %>% 
   st_transform(crs = p4s_wgs84)
 
@@ -86,7 +85,7 @@ Create a base raster clipped to the extent for the marine monument boundary
 ```{r create_boundary_raster}
 # create a base raster with 100x100, crs = us_alb and pal extent defined above
 r_50nm <- raster(crs = us_alb, alb_ext_50nm, res = 100)
-r_50nm[r] <- 1 # this doesn't work when I switch from azim to us albers
+r_50nm[r_50nm] <- 1
 
 plot(r_50nm)
 plot(pal_boundary_alb, add = T)
@@ -96,31 +95,34 @@ plot(pal_boundary_alb, add = T)
 Create a base raster clipped to the extent for the 3nm buffer
 ```{r create_buffer_raster}
 # create a base raster with 100x100, crs = azim and pal extent defined above
-r_3nm <- raster(crs = azim_eq, azim_ext_3nm, res = 100)
-r_3nm[r] <- 1
+r_3nm <- raster(crs = us_alb, alb_ext_3nm, res = 100)
+r_3nm[r_3nm] <- 1
 
 plot(r_3nm)
-plot(pal_buffer_azim, add = T)
+plot(pal_buffer_alb, add = T)
 ```
 
 Mask out land to create ocean raster at 50 nm 
-```{r}
-all_ras <- mask(r, pal_boundary_azim)
-ocean_ras <- mask(r, land, inverse = T) 
+```{r mask_ocean_50nm}
+all_ras_50nm <- mask(r_50nm, pal_boundary_alb)
+ocean_ras_50nm <- mask(r_50nm, land, inverse = T) 
 
-plot(ocean_ras)
-plot(land, add = T) #this is still not working
+
+plot(ocean_ras_50nm)
+plot(land, add = T) 
+```
+Mask out land to create ocean raster at 3 nm 
+```{r mask_ocean_3nm}
+all_ras_3nm <- mask(r_3nm, pal_buffer_alb)
+ocean_ras_3nm <- mask(r_3nm, land, inverse = T) 
+
+plot(ocean_ras_3nm)
+plot(land, add = T) 
 ```
 
-Use fasterize - this is creating the same thing as above with just a different function
-```{r}
-ras <- fasterize(tet_shp, r)
-ras_2 <- fasterize(tet_shp, ocean_ras)
-#both these work but not sure how its different than the mask?
-```
 
-Write out both rasters
-```{r}
-writeRaster(ocean_ras, filename = "~/github/tet-prep/spatial/rasters/ocean_ras.tif", overwrite = T)
-writeRaster(all_ras, filename = "~/github/tet-prep/spatial/rasters/all_ras.tif", overwrite = T)
+Write out both ocean rasters for 50 nm boundary and the 3 nm buffer
+```{r write_rasters}
+writeRaster(ocean_ras_50nm, filename = "~/github/pal-prep/spatial/rasters/ocean_ras_50nm.tif", overwrite = T)
+writeRaster(ocean_ras_3nm, filename = "~/github/pal-prep/spatial/rasters/ocean_ras_3nm.tif", overwrite = T)
 ```
