@@ -50,6 +50,7 @@ library(here)
 
 # Set filepaths and source functions
 source(here('src/R/common.R'))
+source(ohicore)
 
 goal     <- 'lsp'
 scenario <- 'v2020'
@@ -67,12 +68,15 @@ Since 100% of Palmyra is a protected area, it would get a perfect score for the 
 Two output files are required: 
 
  * rgn_area_offshore3nm with the following columns: rgn_id, area ($km^2$)   
- * lsp_prot_area_offshore3nm with the following columns: rgn_id, year, a_prot_3nm ($km^2$)   
+ * rgn_area_inland1km with the following columns: rgn_id, area ($km^2$)   
+ * lsp_prot_area_offshore3nm with the following columns: rgn_id, year, a_prot_3nm ($km^2$)  
+ * lsp_prot_area_inland1km with the following columns: rgn_id, year, a_prot_1km ($km^2$)   
  
+Create the offshore region area output file:  
 ```{r create-rgn-area-offshore, eval=F}
 
 # Calculate region area from the 3nm buffer shapefile:
-buff_3nm <- st_read(file.path(dir_github, 'spatial/shapefiles'), layer = 'pal_buffer_3nm') %>% 
+buff_3nm <- pal_buffer_3nm %>% 
   mutate(area_m2 = st_area(.),
          area_km2 = area_m2/1000000) %>%
   separate(area_km2, into = c("area_km2", "units"), sep = " ") %>%
@@ -87,6 +91,27 @@ rgn_area_offshore3nm <- data.frame(rgn_id = 1, area = area_3nm)
 write_csv(rgn_area_offshore3nm, file.path(dir_github, 'prep/sp/lsp/v2020/output/rgn_area_offshore3nm'))
 ```
 
+Create inland region area output file:  
+```{r create-rgn-area-inland, eval=F}
+
+# Calculate region area from the land shapefile:
+land <- pal_shoreline %>% 
+  mutate(area_m2 = st_area(.),
+         area_km2 = area_m2/1000000) %>%
+  separate(area_km2, into = c("area_km2", "units"), sep = " ") %>%
+  dplyr::select(-area_m2, -units)
+
+# whole island is slightly over 2km so we can use the whole area 
+area_1km <- as.numeric(land$area_km2)
+
+# Create the output file
+rgn_area_inland1km <- data.frame(rgn_id = 1, area = area_1km)
+
+# Save to output folder:
+write_csv(rgn_area_inland1km, file.path(dir_github, 'prep/sp/lsp/v2020/output/rgn_area_inland1km'))
+```
+
+Create the offshore protected area file
 ```{r create-lsp-prot-area-offshore, eval=F}
 # global uses 2000-2019 for years
 # Wildlife Refuge was established in 2001 so I'll use years 2001-2019
@@ -100,5 +125,88 @@ lsp_prot_area_offshore3nm <- data.frame(rgn_id = rep(1, length(years)),
 
 # Save to output folder
 write_csv(lsp_prot_area_offshore3nm, file.path(dir_github, 'prep/sp/lsp/v2020/output/lsp_prot_area_offshore3nm'))
+```
+
+Create the inland protected area file
+```{r create-lsp-prot-area-inland, eval=F}
+# global uses 2000-2019 for years
+years <- seq(2001,2019,1)
+
+# Create output file
+lsp_prot_area_inland1km <- data.frame(rgn_id = rep(1, length(years)),
+                                        year = years,
+                                        a_prot_1km = rep(area_1km, length(years)))
+
+# Save to output folder
+write_csv(lsp_prot_area_inland1km, file.path(dir_github, 'prep/sp/lsp/v2020/output/lsp_prot_area_inland1km'))
+```
+
+# Calculate Status 
+
+```{r calc_status}
+# Read in the output data files:  
+rgn_area_inland1km <- read_csv(file.path(dir_github, 'prep/sp/lsp/v2020/output/rgn_area_inland1km')) %>% 
+  mutate(layer = "rgn_area_inland1km")
+
+rgn_area_offshore3nm <- read_csv(file.path(dir_github, 'prep/sp/lsp/v2020/output/rgn_area_offshore3nm')) %>% 
+  mutate(layer = "rgn_area_offshore3nm")
+
+lsp_prot_area_inland1km <- read_csv(file.path(dir_github, 'prep/sp/lsp/v2020/output/lsp_prot_area_inland1km'))
+
+lsp_prot_area_offshore3nm <- read_csv(file.path(dir_github, 'prep/sp/lsp/v2020/output/lsp_prot_area_offshore3nm'))
+
+# Set scenario year 
+scenario_year = 2020
+
+# Set reference points - 99% of all Palmyra area protected 
+ref_pct_cmpa <- 99
+ref_pct_cp <- 99
+
+# select data
+total_area <-
+  rbind(rgn_area_inland1km,
+        rgn_area_offshore3nm) %>% #total offshore/inland area 
+  dplyr::select(region_id = rgn_id, area, layer) %>%
+  tidyr::spread(layer, area) %>%
+  dplyr::select(region_id,
+          area_inland1km = rgn_area_inland1km,
+          area_offshore3nm = rgn_area_offshore3nm)
+
+offshore <- lsp_prot_area_offshore3nm %>%
+  mutate(scenario_year = 2020) %>% 
+  dplyr::select(region_id = rgn_id,
+                year,
+                scenario_year, 
+                cmpa = a_prot_3nm)
+
+inland <- lsp_prot_area_inland1km %>%
+  mutate(scenario_year = 2020) %>% 
+    dplyr::select(region_id = rgn_id,
+                  year, 
+                  scenario_year,
+                  cp = a_prot_1km)
+
+# Join inland and offshore and find total protected area 
+lsp_data <- full_join(offshore, inland, by = c("region_id", "year")) %>% 
+  dplyr::select(-scenario_year.y) %>% 
+  dplyr::rename("scenario_year" = "scenario_year.x") %>% 
+  dplyr::mutate(pa = cp + cmpa)
+
+
+# get percent of total area that is protected for inland1km (cp) and offshore3nm (cmpa) per year
+# and calculate status score
+status_data <- lsp_data %>%
+    dplyr::full_join(total_area, by = "region_id") %>%
+    dplyr::mutate(
+      pct_cp    = pmin(cp   / area_inland1km   * 100, 100),
+      pct_cmpa  = pmin(cmpa / area_offshore3nm * 100, 100),
+      status    = (pmin(pct_cp / ref_pct_cp, 1) + pmin(pct_cmpa / ref_pct_cmpa, 1)) / 2
+    ) %>%
+    dplyr::filter(!is.na(status))
+```
+
+Save this output to the toolbox as 'lsp_status.csv'
+```{r save-to-toolbox}
+
 ```
 
