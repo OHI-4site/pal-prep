@@ -17,7 +17,7 @@ editor_options:
 
 # Summary:  Iconic Species Subgoal (Sense of Place)
 
-This script prepares scores (status and trend) for Iconic Species in Palmyra.  For each iconic marine species, extinction risk category is pulled based on current and past assessments; by tracking the assessed extinction risk over time, we can understand the trends of extinction risk for iconic species directly rather than using the "population trend" method from prior OHI assessments.
+This script prepares scores (status and trend) for Iconic Species in Palmyra. For each iconic species, extinction risk category is pulled based on current and past assessments; by tracking the assessed extinction risk over time, we can understand the trends of extinction risk for iconic species directly rather than using the "population trend" method from prior OHI assessments.
 
 The Iconic Species sub-goal model calculates status based upon an unweighted average of species health for all 'iconic' species found within the reporting region.
 
@@ -74,9 +74,9 @@ source(here('src/R/common.R'))
 goal       <- 'globalprep/ico'
 scenario   <- 'v2020'
 dir_server <- file.path(dir_M, 'git-annex', goal)
-dir_github <- '~/github/pal-prep/prep/sp/ico/v2020'
+dir_goal   <- '~/github/pal-prep/prep/sp/ico/v2020'
 
-source(file.path(dir_github, 'ico_fxn.R'))
+source(file.path(dir_goal, 'ico_fxn.R'))
 
 # Set api for access to IUCN:
 api_file <- file.path(dir_M, 'git-annex/globalprep/spp', 'api_key_gc.csv')
@@ -117,7 +117,7 @@ spp_pal <- all_df_comp %>%
   dplyr::select(-scientific_name)
 
 # Write UM species list as csv:
-write_csv(spp_pal, file.path(dir_github, 'raw/spp_list_from_api.csv'))
+write_csv(spp_pal, file.path(dir_goal, 'raw/spp_list_from_api.csv'))
 ```
 
 ## Get Iconic Species List
@@ -156,7 +156,7 @@ ico_list_usfws <- data.frame(comname = common_name, sciname = sci_name,
 
 
 # Write csv file
-write_csv(ico_list_usfws, file.path(dir_github, 'raw/ico_list_usfws.csv'))
+write_csv(ico_list_usfws, file.path(dir_goal, 'raw/ico_list_usfws.csv'))
 ```
 
 USFWS list is small, add the iconic species for US Minor Outlying Islands from the master iconic spp list used in the global assessment.  
@@ -168,17 +168,17 @@ The OHI global list of Iconic Species is based upon the original ICO list genera
 # function called get_ico_list() defined in the ico_fxn.R file
 ico_list_global <- get_ico_list(reload = TRUE) 
 
-write_csv(ico_list_global, file.path(dir_github, 'raw/ico_list_global.csv'))
+write_csv(ico_list_global, file.path(dir_goal, 'raw/ico_list_global.csv'))
 ```
 
 Filter the full global iconic species list for species that are globally iconic or species iconic to Palmyra Atoll (region id 150) and add the USFWS list to make a single iconic spp list  
 
 ```{r pal-ico-spp, eval=F}
-ico_list_global <- read_csv(file.path(dir_github, "raw/ico_list_global.csv"))
-ico_list_usfws  <- read_csv(file.path(dir_github, "raw/ico_list_usfws.csv"))
+ico_list_global <- read_csv(file.path(dir_goal, "raw/ico_list_global.csv"))
+ico_list_usfws  <- read_csv(file.path(dir_goal, "raw/ico_list_usfws.csv"))
 
 # Filter global species list for only those globally iconic or iconic to palmyra 
-global_ico <- ico_list_raw %>% 
+global_ico <- ico_list_global %>% 
   filter(ico_gl == "TRUE" | ico_rgn_id == 150) # 39 total species from global list but none from rgn 150
 
 # See if there is any overlap in the USFWS ico list and the global ico list
@@ -189,7 +189,7 @@ ico_spp_pal <- ico_list_usfws %>%
   filter(sciname != "Chelonia mydas" & sciname != "Eretmochelys imbricata") %>% 
   rbind(global_ico) # 55 species 
 
-write_csv(ico_spp_pal, file.path(dir_github, 'raw/ico_list_pal.csv'))
+write_csv(ico_spp_pal, file.path(dir_goal, 'raw/ico_list_pal.csv'))
 ```
 
 
@@ -199,12 +199,12 @@ Filtering the complete IUCN species list for US Minor Outlying islands to includ
 
 ``` {r combine-iucn-spp-info-with-ico-list, eval= F}
 
-spp_pal <- read_csv(file.path(dir_github, 'raw/spp_list_from_api.csv'))
-ico_list_pal <- read_csv(file.path(dir_github, 'raw/ico_list_pal.csv')) 
+spp_pal      <- read_csv(file.path(dir_goal, 'raw/spp_list_from_api.csv'))
+ico_list_pal <- read_csv(file.path(dir_goal, 'raw/ico_list_pal.csv')) 
 
 
 # Get the status information for the 55 species 
-ico_list <- ico_spp_pal %>%
+ico_list <- ico_list_pal %>%
   left_join(spp_pal %>% 
             dplyr::select(iucn_sid, sciname, category),
             by = 'sciname') %>% 
@@ -233,16 +233,183 @@ no_status_fill <- no_status %>%
   rename("iucn_sid" = "iucn_sid.y",
          "category" = "category.y")
 
-# Still missing terns and tattlers but on IUCN webpage they both have a status of LC
-no_status_fill$category[is.na(no_status_fill$category)] <- "LC"
+# Still missing terns and tattlers 
+# Found them on the IUCN webpage and pulled the iucn_sid for the web address and status from the spp page
+missing_sid <- data.frame(sciname = c("Onychoprion fuscata", "Heteroscelus incanus"),
+                          missing_id = c(22694740, 22693305),
+                          missing_cat = c("LC", "LC"))
+
+# missing category needs to be a character not a factor
+missing_sid$missing_cat <- as.character(missing_sid$missing_cat)
+
+# Join the two missing species to the no status fill to complete the missing species list
+no_status_filled <- no_status_fill %>% 
+  left_join(missing_sid, by = "sciname") %>% 
+  mutate(iucn_sid = ifelse(is.na(iucn_sid), missing_id, iucn_sid)) %>% 
+  mutate(category = ifelse(is.na(category), missing_cat, category)) %>% 
+  dplyr::select(-missing_id, - missing_cat)
 
 # Join the filled in USFWS data back to the ico_list
 ico_list_prepped <- ico_list %>% 
-  rbind(no_status_fill) %>% 
+  rbind(no_status_filled) %>% 
   filter(!is.na(category))
 
-write_csv(ico_list_prepped, file.path(dir_github, 'int/ico_list_prepped.csv')) #23 species in 2020
+write_csv(ico_list_prepped, file.path(dir_goal, 'int/ico_list_prepped.csv')) #23 species in 2020
 ```
+
+## Historic threat
+
+We accessed the IUCN API to determine past IUCN assessments for each of the identified iconic species: http://apiv3.iucnredlist.org/api/v3/species/history/id/?token=.
+
+Each assessment includes a year and an extinction risk, along with additional information on the assessment.
+
+```{r get-past-assessments, eval=F}
+
+pal_ico_list <- read_csv(file.path(dir_goal, 'int/ico_list_prepped.csv'))
+ico_ids      <- unique(pal_ico_list$iucn_sid)
+
+# use rl_history, create loop that runs it for each id in our iconic species list
+for(i in seq_along(ico_ids)){
+id = ico_ids[i]
+out <- rl_history(id = id, key = api_key) # this comes out as a list
+df <- as.data.frame(out)
+ if(i == 1) {
+   raw_ico_assess <- df
+ } else {
+   raw_ico_assess <- rbind(raw_ico_assess, df)
+ }
+}
+
+# Save historic assessments to the int folder
+write_csv(raw_ico_assess, file.path(dir_goal,'int/raw_ico_assess.csv'))
+```
+
+# Clean Up Assessment Data
+
+Want to break apart any dual categories and make sure all categories have a 1 or 2 digit upper case code 
+```{r clean-raw-assessment-data, eval=F}
+raw_assess <- read_csv(file.path(dir_goal, 'int/raw_ico_assess.csv'))
+
+raw_assess_tidy <- raw_assess %>% 
+  rename("iucn_sid" = "name",
+         "year" = "result.year",
+         "cat" = "result.code",
+         "cat_txt" = "result.category") %>% 
+   mutate(cat = toupper(cat),
+         cat = str_replace(cat, 'LR/', ''),
+         cat = ifelse(cat %in% c('K', 'I'), 'DD', cat),
+         cat = ifelse(cat == 'NR', 'NE', cat),
+         cat = ifelse(str_detect(toupper(cat_txt), 'VERY RARE'), 'CR', cat),
+         cat = ifelse(str_detect(toupper(cat_txt), 'LESS RARE'), 'T', cat),
+         cat = ifelse(str_detect(toupper(cat_txt), 'STATUS INADEQUATELY KNOWN'), 'DD', cat),
+         cat = ifelse(cat == 'V', 'VU', cat), 
+         cat = ifelse(cat == 'E', 'EN', cat))
+
+# Create category weights that will be used to calculate scores
+pop_cat <- data.frame(cat       = c("LC", "NT", "VU", "EN", "CR", "EX", "T", "CD", "NE", "DD"), 
+                      cat_score = c(   0,  0.2,  0.4,  0.6,  0.8,  1.0, 0.6,  0.3,   NA,  NA),
+                      stringsAsFactors = FALSE)
+
+# Join the scores to the tidy raw data
+ico_assess <- raw_assess_tidy %>% 
+  left_join(pop_cat, by = "cat") %>% 
+  filter(!is.na(cat_score)) %>%
+  distinct() %>%
+  arrange(iucn_sid, year)
+
+# Save cleaned assessment data to the int folder
+write_csv(ico_assess, file.path(dir_goal,'int/ico_assess.csv'))
+```
+
+
+# Gapfill Timeseries
+
+Using `tidyr::complete()` and `tidyr::fill()`, we create a full time series for all species from 2014 to 2020. 
+
+```{r fill-timeseries, eval=F}
+
+ico_assess <- read_csv(file.path(dir_goal, 'int/ico_assess.csv'))
+
+# Fill in category score for missing years based on previous year's data:
+ico_assess_full <- ico_assess %>%
+  mutate(eval_yr = year) %>% 
+  arrange(iucn_sid, year) %>%
+  complete(year = full_seq(year, 1), nesting(iucn_sid)) %>%
+  group_by(iucn_sid) %>%
+  fill(cat, cat_txt, cat_score, eval_yr) %>% ## fills all the way to latest year
+  ungroup() %>% 
+  filter(year >= 2000) # keep 20 years of data
+
+# Need to add 2020 data  
+assess_2019 <- ico_assess_full %>% 
+  filter(year == 2019)
+
+# 2020 data is based on the 2019 data
+add_2020 <- data.frame(year = rep(2020, length(assess_2019$iucn_sid)),
+                     iucn_sid = assess_2019$iucn_sid,
+                     cat = assess_2019$cat,
+                     cat_txt = assess_2019$cat_txt,
+                     cat_score = assess_2019$cat_score,
+                     eval_yr = assess_2019$eval_yr)
+
+ico_assess_2020 <- ico_assess_full %>% 
+  rbind(add_2020)
+
+# Save file to int folder
+write_csv(ico_assess_2020, file.path(dir_goal,'int/ico_assess_full.csv'))
+```
+
+
+# Prep layer for toolbox
+
+The toolbox wants `rgn_id`, species `sciname`, and extinction risk `category` for the basic calculations.  Since some regions contain multiple subpops (or parent/subpop) we also include `iucn_sid` to differentiate. This information is included for each `year`, filtered back to the year 2014.  
+
+```{r final-ico-layer-prep}
+
+ico_assessments <- read_csv(file.path(dir_goal,'int/ico_assess_full.csv'))
+pal_ico_list    <- read_csv(file.path(dir_goal, 'int/ico_list_prepped.csv')) 
+
+# Add rgn_id to the ico dataframe 
+ico_rgn <- ico_assessments %>% 
+  mutate(rgn_id = 1)
+
+# Get scientific names 
+pal_scinames <- pal_ico_list %>% 
+  dplyr::select(sciname, iucn_sid)
+
+# Add scientific names
+ico_scinames <- ico_rgn %>% 
+  group_by(iucn_sid) %>% 
+  left_join(pal_scinames, by = "iucn_sid") %>% 
+  dplyr::select(rgn_id, iucn_sid, sciname, year, category = cat, cat_score)
+
+# Save to the output folder - this will be used to calculate the scores
+write_csv(ico_scinames, file.path(dir_goal,'output/ico_spp_scores.csv'))
+```
+
+
+# Calculate Status
+
+We will use the category scores for each species to calculate the status. The status for Palmyra is just the average of the status of each iconic species found in the region. 
+
+```{r calc-status, eval=F}
+ico_spp_scores <- read_csv(file.path(dir_goal,'output/ico_spp_scores.csv'))
+
+# Find the status score for each year 
+ico_status <- ico_spp_scores %>%
+  group_by(year, rgn_id) %>%
+  summarize(status = mean(cat_score, na.rm = TRUE)) %>%
+  ungroup()
+```
+
+# Save to Toolbox
+```{r save-to-toolbox, eval=F}
+dir_scores <- '~/github/pal-scores/region'
+
+write_csv(ico_status, file.path(dir_scores, 'layers/ico_status.csv'))
+```
+
+
 
 
 
