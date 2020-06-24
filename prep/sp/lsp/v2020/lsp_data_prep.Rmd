@@ -207,6 +207,8 @@ status_data <- lsp_data %>%
 
 Save this output to the toolbox as 'lsp_status.csv'
 ```{r save-to-toolbox}
+dir_scores <- '~/github/pal-scores/region'
 
+write_csv(status_data, file.path(dir_scores, 'layers/lsp_status.csv'))
 ```
 
