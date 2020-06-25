@@ -387,15 +387,6 @@ ico_scinames <- ico_rgn %>%
 write_csv(ico_scinames, file.path(dir_goal,'output/ico_spp_scores.csv'))
 ```
 
-We will need this full list for the trend calculation in the toolbox. 
-
-```{r save-to-toolbox}
-dir_scores <- '~/github/pal-scores/region'
-
-write_csv(ico_scinames, file.path(dir_scores, 'layers/ico_spp_scores.csv'))
-```
-
-
 # Calculate Status
 
 We will use the category scores for each species to calculate the status. The status for Palmyra is just the average of the status of each iconic species found in the region. 
@@ -407,8 +398,8 @@ ico_spp_scores <- read_csv(file.path(dir_goal,'output/ico_spp_scores.csv'))
 ico_status <- ico_spp_scores %>%
   rename(region_id = rgn_id) %>% 
   group_by(year, region_id) %>%
-  filter(year != 2000) %>% 
-  summarize(status = mean(cat_score, na.rm = TRUE)) %>%
+  summarize(mean_cat = round(mean(cat_score, na.rm = TRUE), 5), 
+            ico_status = (1 - mean_cat)) %>% 
   ungroup()
 ```
 
