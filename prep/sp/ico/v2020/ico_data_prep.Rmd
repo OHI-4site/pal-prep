@@ -397,7 +397,9 @@ ico_spp_scores <- read_csv(file.path(dir_goal,'output/ico_spp_scores.csv'))
 
 # Find the status score for each year 
 ico_status <- ico_spp_scores %>%
-  group_by(year, rgn_id) %>%
+  rename(region_id = rgn_id) %>% 
+  group_by(year, region_id) %>%
+  filter(year != 2000) %>% 
   summarize(status = mean(cat_score, na.rm = TRUE)) %>%
   ungroup()
 ```
