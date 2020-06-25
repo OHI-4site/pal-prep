@@ -387,6 +387,14 @@ ico_scinames <- ico_rgn %>%
 write_csv(ico_scinames, file.path(dir_goal,'output/ico_spp_scores.csv'))
 ```
 
+We will need this full list for the trend calculation in the toolbox. 
+
+```{r save-to-toolbox}
+dir_scores <- '~/github/pal-scores/region'
+
+write_csv(ico_scinames, file.path(dir_scores, 'layers/ico_spp_scores.csv'))
+```
+
 
 # Calculate Status
 
@@ -405,7 +413,7 @@ ico_status <- ico_spp_scores %>%
 ```
 
 # Save to Toolbox
-```{r save-to-toolbox, eval=F}
+```{r save-status-to-toolbox, eval=F}
 dir_scores <- '~/github/pal-scores/region'
 
 write_csv(ico_status, file.path(dir_scores, 'layers/ico_status.csv'))
