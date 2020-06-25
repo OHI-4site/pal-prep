@@ -400,7 +400,8 @@ ico_status <- ico_spp_scores %>%
   group_by(year, region_id) %>%
   summarize(mean_cat = round(mean(cat_score, na.rm = TRUE), 5), 
             ico_status = (1 - mean_cat)) %>% 
-  ungroup()
+  ungroup() %>% 
+  dplyr::select(-mean_cat)
 ```
 
 # Save to Toolbox
