@@ -202,7 +202,8 @@ status_data <- lsp_data %>%
       pct_cmpa  = pmin(cmpa / area_offshore3nm * 100, 100),
       status    = (pmin(pct_cp / ref_pct_cp, 1) + pmin(pct_cmpa / ref_pct_cmpa, 1)) / 2
     ) %>%
-    dplyr::filter(!is.na(status))
+    dplyr::filter(!is.na(status)) %>% 
+  dplyr::select(region_id, year, status)
 ```
 
 Save this output to the toolbox as 'lsp_status.csv'
