@@ -56,13 +56,15 @@ pal_boundary_wgs <- pal_boundary %>%
   st_transform(crs = p4s_wgs84)
 
 pal_boundary_alb <- pal_boundary %>% 
-  st_transform(crs = us_alb)
+  st_transform(crs = us_alb) %>% 
+  mutate(rgn_id = 1)
 
 pal_buffer_wgs <- pal_buffer %>% 
   st_transform(crs = p4s_wgs84)
 
 pal_buffer_alb <- pal_buffer %>% 
-  st_transform(crs = us_alb)
+  st_transform(crs = us_alb) %>% 
+  mutate(rgn_id = 1)
 
 # Extents for 50 nm boundary
 wgs_ext_50nm <- raster::extent(pal_boundary_wgs)
@@ -84,17 +86,22 @@ plot(pal_buffer_alb, add = T)
 Create a base raster clipped to the extent for the marine monument boundary 
 ```{r create_boundary_raster}
 # create a base raster with 100x100, crs = us_alb and pal extent defined above
-r_50nm <- raster(crs = us_alb, alb_ext_50nm, res = 100)
-r_50nm[r_50nm] <- 1
+base_50nm <- raster(crs = us_alb, alb_ext_50nm, res = 100)
+
+r_50nm <- fasterize(pal_boundary_alb, base_50nm, field = "rgn_id")
+
+mapview(r_50nm)
 
 plot(r_50nm)
 plot(pal_boundary_alb, add = T)
+
+
 ```
 
 
 Create a base raster clipped to the extent for the 3nm buffer
 ```{r create_buffer_raster}
-# create a base raster with 100x100, crs = azim and pal extent defined above
+# create a base raster with 100x100, crs = us albers and pal extent defined above
 r_3nm <- raster(crs = us_alb, alb_ext_3nm, res = 100)
 r_3nm[r_3nm] <- 1
 
@@ -126,3 +133,25 @@ Write out both ocean rasters for 50 nm boundary and the 3 nm buffer
 writeRaster(ocean_ras_50nm, filename = "~/github/pal-prep/spatial/rasters/ocean_ras_50nm.tif", overwrite = T)
 writeRaster(ocean_ras_3nm, filename = "~/github/pal-prep/spatial/rasters/ocean_ras_3nm.tif", overwrite = T)
 ```
+
+
+View one of Jamie's raster to see why mine keeps giving -1 and NA values:
+```{r compare-ne-raster}
+ne_git <- '~/github/ne-prep'
+
+ne_rast <- raster(file.path(ne_git, 'spatial/ocean_rasters/ne_rgns_rast.tif')) %>% 
+  projectRaster(crs = us_alb)
+
+rgns <- st_read(file.path(ne_git, 'spatial/shapefiles/ne_ohi_rgns.shp'))
+
+ocean_ne <- raster(file.path(ne_git, 'spatial/ocean_rasters/ocean_ne.tif'))
+
+r <- fasterize(rgns, ocean_ne, field = "rgn_id")
+
+mapview(ne_rast)
+mapview(rgns)
+mapview(ocean_ne)
+mapview(r)
+# Looks like having the NA is okay, but the different regions should have values, in this case it's all one region so the value should just be 1
+```
+
