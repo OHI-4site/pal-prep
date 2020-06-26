@@ -38,8 +38,8 @@ library(here)
 source(here('src/R/common.R'))
 dir_github <- '~/github/pal-prep'
 
-# palmyra region shapefile
-pal_shp <- pal_buffer_3nm
+# palmyra region shapefile 50nm boundary
+pal_shp <- pal_monument
 
 # api keys for IUCN 
 api_file <- file.path(dir_M, 'git-annex/globalprep/spp', 
@@ -206,7 +206,7 @@ Use the `taxize` R package to try and get more of the missing common names
 ```{r taxize, eval = F}
 # missing scientific names
 missing_scinames <- out %>%
-  filter(is.na(common)) %>%
+  filter(is.na(common_fb)) %>%
   .$sciname
 
 # pull out common names from taxize
