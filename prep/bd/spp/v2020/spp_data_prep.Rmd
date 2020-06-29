@@ -340,9 +340,9 @@ Write out csv to the toolbox
 
 ```{r save-to-toolbox, eval = F}
 # save to toolbox
-dir_scores <- '~github/pal-scores/region'
+dir_scores <- '~/github/pal-scores/region'
 
-#write_csv(spp_status, file.path(dir_scores, 'layers/spp_status.csv'))
+write_csv(spp_status, file.path(dir_scores, 'layers/spp_status.csv'))
 ```
 
 # Species Marine Maps
