@@ -126,8 +126,9 @@ pop_trend_score <- data.frame(trend = c("Increasing", "Decreasing", "Stable", "U
 spp_trend_scores <- iucn_trend %>% 
   left_join(pop_trend_score, by = "trend") %>% 
   filter(!is.na(trend)) %>%  # remove 3 species with NAs
-  mutate(year = 2020) %>% # need to add a year for the toolbox to run
-  dplyr::select(sciname, score, year)
+  mutate(year = 2020,
+         region_id = 1) %>% # need to add a year and region_id for the toolbox to run
+  dplyr::select(region_id, sciname, score, year)
 ```
 
 ## Save to Toolbox
