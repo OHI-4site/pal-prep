@@ -331,8 +331,9 @@ spp_status <- spp_info %>%
   filter(!is.na(cat_score)) %>%
   distinct() %>% 
   mutate(region_id = 1,
-         status = (1 - cat_score)) %>% 
-  dplyr::select(region_id, sciname, common, status)
+         status = (1 - cat_score),
+         year = 2020) %>% # need a year for toolbox to run
+  dplyr::select(region_id, sciname, common, status, year)
 ```
 
  
