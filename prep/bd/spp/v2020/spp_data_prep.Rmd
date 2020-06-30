@@ -252,8 +252,8 @@ taxize::use_entrez()
 rentrez::set_entrez_key("c6d9419d922a77ebe9e15f9a4c0e46a12108")
 
 # Search for common names using the NCBI database
-common_names <- sci2comm(uids_found$sciname, db = 'ncbi') # only found four more 
-common_found <- common_names %>% 
+common_names2 <- sci2comm(uids_found$sciname, db = 'ncbi') # only found four more 
+common_found <- common_names2 %>% 
   unlist() %>% 
   as.data.frame() %>% 
   rownames_to_column(., "sciname") %>% 
@@ -278,10 +278,30 @@ add_common <- iucn_common_names %>%
   mutate(common = ifelse(is.na(common), common_fb, common)) %>% 
   dplyr::select(-common_fb)
 
-iucn_spp_info <- taxa_cells_df %>%
-  dplyr::select(iucn_sid, sciname, population, category) %>% 
+iucn_spp_info <- spp_list_raw %>%
+  dplyr::select(iucn_sid, sciname, class, family, population, category) %>% 
   left_join(add_common, by = "sciname") %>% 
+  mutate(class = tolower(class), family = tolower(family)) %>% 
   distinct()
+
+## Experiment with taxonomic groupings:
+spp_class <- iucn_spp_info %>% 
+  group_by(class) %>% 
+  tally() # this gives me 10 classes of species - seems reasonable
+
+class_common <- c("ray finned fishes", "corals/sea anemones", "birds",
+                  "sharks/rays", "snails/slugs", "sea cucumbers",
+                  "crabs/lobsters", "mammals", "hagfish", "reptiles") # common names/animals in the different classes
+spp_class$common <- class_common
+
+spp_family <- iucn_spp_info %>% 
+  group_by(family) %>% 
+  tally() # 51 families - seems like too many
+
+## Include the class in the output for grouping later, remove family
+iucn_spp_info <- iucn_spp_info %>% 
+  dplyr::select(-family)
+
 
 # write output to int folder
 write.csv(iucn_spp_info, file.path(dir_goal, 'int/iucn_spp_info.csv'))
@@ -333,7 +353,8 @@ spp_status <- spp_info %>%
   mutate(region_id = 1,
          status = cat_score,
          year = 2020) %>% # need a year for toolbox to run
-  dplyr::select(region_id, sciname, common, status, year)
+  dplyr::select(region_id, sciname, class, common, status, year) 
+
 ```
 
  
