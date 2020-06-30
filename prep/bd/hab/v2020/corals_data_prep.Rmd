@@ -1,0 +1,70 @@
+---
+title: 'OHI+ Palmyra 2020: Habitats Subgoal Corals'
+author: "*Compiled on `r date()` by `r Sys.info()['user']`*"
+output: 
+  html_document:
+    toc: true
+    number_sections: true
+    theme: cerulean
+    highlight: haddock
+    includes: 
+     #in_header: '../../../workflow/templates/ohi_hdr.html' - need to update this
+  pdf_document:
+    toc: true
+editor_options: 
+  chunk_output_type: console
+---
+
+
+# Setup
+
+```{r setup, message = F, warning = F}
+knitr::opts_chunk$set(echo = FALSE)
+
+library(tidyverse)
+library(janitor)
+library(sf)
+library(raster)
+library(here)
+
+# Source and set file paths
+source(here('src/R/common.R'))
+
+dir_goal   <- '~/github/pal-prep/prep/bd/hab/v2020'
+dir_anx    <- file.path(dir_M, 'git-annex/foursite/palmyra')
+```
+
+# Methods
+
+## Get Coral Cover Maps
+
+Coral cover maps were downloaded from the National Centers for Coastal Ocean Science (NCCOS) benthic habitat mapping project for Palmyra Atoll, found [here](https://products.coastalscience.noaa.gov/collections/benthic/e58palmyra/#horizontalTab3)   
+
+Data was downloaded on June 30, 2020, and habitat maps were completed in December 2011.   
+
+```{r coral-maps, eval=F}
+hab_map <- st_read(file.path(dir_anx, '_raw_data/NCCOS_data/habitat_map'), layer = "Palmyra_Habitat_Map_Final")
+
+# Interested in the coral cover map which is column 'P_CORAL_CV'
+coral_map <- hab_map %>% 
+  clean_names() %>% # lower case column names
+  dplyr::select(zone, p_coral_cv)
+
+plot(coral_map)
+
+# Extract the percent coral cover for backreef, forereef (and bank/shelf), and lagoon
+zones <- coral_map %>% 
+  filter(zone == "Back Reef" | zone == "Fore Reef" | zone == "Lagoon" | zone == "Bank/Shelf") %>% 
+  filter(p_coral_cv != "N/A") %>% 
+  mutate(zone = as.character(zone),
+         p_coral_cv = as.character(p_coral_cv),
+         zone = ifelse(zone == "Bank/Shelf", "Fore Reef", zone)) %>% 
+  mutate(cover_cat = case_when(p_coral_cv == "90% - 100%" ~ 4,
+                               p_coral_cv == "50% - <90%" ~ 3,
+                               p_coral_cv == "10% - <50%" ~ 2,
+                               p_coral_cv == "0% - <10%"  ~ 1))
+zone_avg <- zones %>% 
+  group_by(zone) %>% 
+  summarize(mean(cover_cat))
+```
+
