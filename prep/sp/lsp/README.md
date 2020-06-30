@@ -2,10 +2,10 @@
 
 This folder describes the methods used to prepare the data layers for the lasting special places sub-goal of the Sense of Place goal.     
 
-The folders in this file include the metadata, R scripts, and data for each assessment year (i.e., the year the assessment was conducted). The most current year represents the best available data and methods, and previous years are maintained for archival purposes. Each year folder contains the following sub-folders:  
+The folders in this file include the metadata, R scripts, and data for each assessment year (i.e., the year the assessment was conducted). The most current year represents the best available data and methods, and previous years are maintained for archival purposes. Each year folder contains the following files and sub-folders:  
 
-- `folder name` folder contains [description]
-- `folder name` folder contains [description]
+- `lsp_data_prep.Rmd` script to generate the status score for lasting special places   
+- `output` folder with the four layers generated in the script that are required to calculate the status score     
 
 Click [add link here to the scores/metadata_documentation/ohi-model/goal_descriptions/ *specific_goal.rmd*] to learn more about how the [name of goal/sub-goal] is calculated. 
 
