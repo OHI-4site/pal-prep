@@ -1,0 +1,957 @@
+year,code,category,sciname
+2010,LC,Least Concern,Centropyge bispinosa
+2010,LC,Least Concern,Centropyge flavissima
+2010,LC,Least Concern,Centropyge fisheri
+2010,LC,Least Concern,Pomacanthus imperator
+2010,LC,Least Concern,Apolemichthys xanthopunctatus
+2010,LC,Least Concern,Centropyge nigriocellus
+2010,LC,Least Concern,Centropyge loricula
+2012,DD,Data Deficient,Elops hawaiensis
+2010,LC,Least Concern,Chaetodon ephippium
+2010,LC,Least Concern,Chaetodon auriga
+2010,LC,Least Concern,Chaetodon semeion
+2010,LC,Least Concern,Chaetodon lineolatus
+2010,LC,Least Concern,Chaetodon citrinellus
+2010,NT,Near Threatened,Chaetodon trifascialis
+2010,LC,Least Concern,Chaetodon quadrimaculatus
+2010,LC,Least Concern,Forcipiger longirostris
+2010,LC,Least Concern,Hemitaurichthys thompsoni
+2010,LC,Least Concern,Chaetodon punctatofasciatus
+2010,LC,Least Concern,Chaetodon meyeri
+2010,LC,Least Concern,Chaetodon kleinii
+2010,DD,Data Deficient,Chaetodon bennetti
+2010,LC,Least Concern,Hemitaurichthys polylepis
+2010,LC,Least Concern,Chaetodon lunula
+2010,LC,Least Concern,Chaetodon ornatissimus
+2010,DD,Data Deficient,Chaetodon reticulatus
+2010,LC,Least Concern,Chaetodon lunulatus
+2010,LC,Least Concern,Chaetodon ulietensis
+2010,LC,Least Concern,Forcipiger flavissimus
+2010,LC,Least Concern,Chaetodon unimaculatus
+2010,LC,Least Concern,Chaetodon vagabundus
+2010,LC,Least Concern,Heniochus acuminatus
+2015,LC,Least Concern,Euprotomicrus bispinatus
+2006,LC,Least Concern,Euprotomicrus bispinatus
+2019,VU,Vulnerable,Alopias superciliosus
+2009,VU,Vulnerable,Alopias superciliosus
+2009,NT,Near Threatened,Carcharhinus amblyrhynchos
+2000,LR/nt,Lower Risk/near threatened,Carcharhinus amblyrhynchos
+2019,NT,Near Threatened,Prionace glauca
+2009,NT,Near Threatened,Prionace glauca
+2000,LR/nt,Lower Risk/near threatened,Prionace glauca
+2019,EN,Endangered,Alopias pelagicus
+2009,VU,Vulnerable,Alopias pelagicus
+2006,NT,Near Threatened,Aetobatus narinari
+2000,DD,Data Deficient,Aetobatus narinari
+2019,VU,Vulnerable,Carcharodon carcharias
+2009,VU,Vulnerable,Carcharodon carcharias
+2000,VU,Vulnerable,Carcharodon carcharias
+1996,VU,Vulnerable,Carcharodon carcharias
+1994,K,Insufficiently Known,Carcharodon carcharias
+1990,K,Insufficiently Known,Carcharodon carcharias
+2016,VU,Vulnerable,Aetobatus ocellatus
+2009,NT,Near Threatened,Triaenodon obesus
+2000,LR/nt,Lower Risk/near threatened,Triaenodon obesus
+2019,VU,Vulnerable,Alopias vulpinus
+2009,VU,Vulnerable,Alopias vulpinus
+2002,DD,Data Deficient,Alopias vulpinus
+2000,DD,Data Deficient,Alopias vulpinus
+2019,EN,Endangered,Isurus paucus
+2006,VU,Vulnerable,Isurus paucus
+2019,LC,Least Concern,Pseudocarcharias kamoharai
+2009,NT,Near Threatened,Pseudocarcharias kamoharai
+2000,LR/nt,Lower Risk/near threatened,Pseudocarcharias kamoharai
+2019,NT,Near Threatened,Galeocerdo cuvier
+2009,NT,Near Threatened,Galeocerdo cuvier
+2000,LR/nt,Lower Risk/near threatened,Galeocerdo cuvier
+2019,LC,Least Concern,Pteroplatytrygon violacea
+2009,LC,Least Concern,Pteroplatytrygon violacea
+2019,LC,Least Concern,Megachasma pelagios
+2015,LC,Least Concern,Megachasma pelagios
+2005,DD,Data Deficient,Megachasma pelagios
+2000,DD,Data Deficient,Megachasma pelagios
+2019,EN,Endangered,Isurus oxyrinchus
+2009,VU,Vulnerable,Isurus oxyrinchus
+2000,LR/nt,Lower Risk/near threatened,Isurus oxyrinchus
+2019,VU,Vulnerable,Mobula alfredi
+2011,VU,Vulnerable,Mobula alfredi
+2017,VU,Vulnerable,Carcharhinus falciformis
+2016,NT,Near Threatened,Carcharhinus falciformis
+2009,NT,Near Threatened,Carcharhinus falciformis
+2000,LR/lc,Lower Risk/least concern,Carcharhinus falciformis
+2018,VU,Vulnerable,Mobula birostris
+2011,VU,Vulnerable,Mobula birostris
+2016,EN,Endangered,Rhincodon typus
+2005,VU,Vulnerable,Rhincodon typus
+2000,VU,Vulnerable,Rhincodon typus
+1996,DD,Data Deficient,Rhincodon typus
+1994,I,Indeterminate,Rhincodon typus
+1990,I,Indeterminate,Rhincodon typus
+2019,CR,Critically Endangered,Carcharhinus longimanus
+2015,VU,Vulnerable,Carcharhinus longimanus
+2006,VU,Vulnerable,Carcharhinus longimanus
+2000,LR/nt,Lower Risk/near threatened,Carcharhinus longimanus
+2014,LC,Least Concern,Entomacrodus cymatobiotus
+2014,LC,Least Concern,Blenniella gibbifrons
+2014,LC,Least Concern,Cirripectes polyzona
+2014,LC,Least Concern,Aspidontus taeniatus
+2014,LC,Least Concern,Cirripectes variolosus
+2014,LC,Least Concern,Cirripectes auritus
+2014,LC,Least Concern,Enneapterygius tutuilae
+2014,LC,Least Concern,Cirripectes jenningsi
+2014,LC,Least Concern,Blenniella paula
+2014,LC,Least Concern,Entomacrodus thalassinus
+2014,LC,Least Concern,Omobranchus obliquus
+2014,LC,Least Concern,Istiblennius edentulus
+2014,LC,Least Concern,Exallias brevis
+2014,LC,Least Concern,Cirripectes quagga
+2014,LC,Least Concern,Rhabdoblennius rhabdotrachelus
+2014,LC,Least Concern,Plagiotremus rhinorhynchos
+2014,LC,Least Concern,Plagiotremus tapeinosoma
+2014,LC,Least Concern,Entomacrodus striatus
+2014,LC,Least Concern,Ecsenius midas
+2014,LC,Least Concern,Petroscirtes xestus
+2013,LC,Least Concern,Conus planorbis
+2013,LC,Least Concern,Conus miles
+2013,LC,Least Concern,Conus coronatus
+2013,LC,Least Concern,Conus pulicarius
+2013,LC,Least Concern,Conus lividus
+2013,LC,Least Concern,Conus pertusus
+2013,LC,Least Concern,Conus ebraeus
+2013,LC,Least Concern,Conus auricomus
+2013,LC,Least Concern,Conus acutangulus
+2013,LC,Least Concern,Conus bullatus
+2013,LC,Least Concern,Conus sanguinolentus
+2013,LC,Least Concern,Conus bandanus
+2013,LC,Least Concern,Conus coffeae
+2013,LC,Least Concern,Conus mitratus
+2013,LC,Least Concern,Conus varius
+2013,LC,Least Concern,Conus tulipa
+2013,LC,Least Concern,Conus vexillum
+2013,LC,Least Concern,Conus quercinus
+2013,LC,Least Concern,Conus obscurus
+2013,LC,Least Concern,Conus eburneus
+2013,LC,Least Concern,Conus rattus
+2013,LC,Least Concern,Conus circumactus
+2013,LC,Least Concern,Conus retifer
+2013,LC,Least Concern,Conus imperialis
+2013,LC,Least Concern,Conus striatus
+2013,LC,Least Concern,Conus canonicus
+2013,LC,Least Concern,Conus textile
+2013,LC,Least Concern,Conus catus
+2013,LC,Least Concern,Conus nussatella
+2013,LC,Least Concern,Conus generalis
+2013,LC,Least Concern,Conus glans
+2013,LC,Least Concern,Conus moreleti
+2013,LC,Least Concern,Conus flavidus
+2013,LC,Least Concern,Conus tessulatus
+2013,LC,Least Concern,Conus episcopatus
+2013,LC,Least Concern,Conus frigidus
+2013,LC,Least Concern,Conus sponsalis
+2013,LC,Least Concern,Conus virgo
+2013,LC,Least Concern,Conus cylindraceus
+2013,LC,Least Concern,Conus emaciatus
+2013,LC,Least Concern,Conus distans
+2013,LC,Least Concern,Conus litteratus
+2013,LC,Least Concern,Conus terebra
+2013,LC,Least Concern,Conus arenatus
+2013,LC,Least Concern,Conus aulicus
+2013,LC,Least Concern,Conus geographus
+2013,LC,Least Concern,Conus ferrugineus
+2013,LC,Least Concern,Conus litoglyphus
+2013,LC,Least Concern,Conus magnificus
+2013,LC,Least Concern,Conus chaldaeus
+2013,LC,Least Concern,Conus leopardus
+2014,LC,Least Concern,Leptastrea transversa
+2008,LC,Least Concern,Leptastrea transversa
+2008,NT,Near Threatened,Platygyra carnosus
+2014,LC,Least Concern,Montipora informis
+2008,LC,Least Concern,Montipora informis
+2014,LC,Least Concern,Favia pallida
+2008,LC,Least Concern,Favia pallida
+2008,VU,Vulnerable,Montipora calcarea
+2014,NT,Near Threatened,Favia stelligera
+2008,NT,Near Threatened,Favia stelligera
+2008,NT,Near Threatened,Favia lizardensis
+2014,NT,Near Threatened,Plerogyra sinuosa
+2008,NT,Near Threatened,Plerogyra sinuosa
+2014,NT,Near Threatened,Favites halicora
+2008,NT,Near Threatened,Favites halicora
+2014,LC,Least Concern,Favia favus
+2008,LC,Least Concern,Favia favus
+2008,LC,Least Concern,Acropora tortuosa
+2014,NT,Near Threatened,Acropora lutkeni
+2008,NT,Near Threatened,Acropora lutkeni
+2008,NT,Near Threatened,Favites complanata
+2008,NT,Near Threatened,Montipora incrassata
+2008,LC,Least Concern,Montipora turgescens
+2014,NT,Near Threatened,Platygyra ryukyuensis
+2008,NT,Near Threatened,Platygyra ryukyuensis
+2014,LC,Least Concern,Fungia scutaria
+2008,LC,Least Concern,Fungia scutaria
+2014,LC,Least Concern,Acropora grandis
+2008,LC,Least Concern,Acropora grandis
+2008,NT,Near Threatened,Montipora capitata
+2014,LC,Least Concern,Platygyra pini
+2008,LC,Least Concern,Platygyra pini
+2014,LC,Least Concern,Montipora aequituberculata
+2008,LC,Least Concern,Montipora aequituberculata
+2008,LC,Least Concern,Platygyra contorta
+2008,NT,Near Threatened,Montipora peltiformis
+2014,NT,Near Threatened,Favia matthaii
+2008,NT,Near Threatened,Favia matthaii
+2014,LC,Least Concern,Favites pentagona
+2008,LC,Least Concern,Favites pentagona
+2014,NT,Near Threatened,Montastrea valenciennesi
+2008,NT,Near Threatened,Montastrea valenciennesi
+2008,VU,Vulnerable,Acropora horrida
+2014,LC,Least Concern,Montipora verrucosa
+2008,LC,Least Concern,Montipora verrucosa
+2008,NT,Near Threatened,Leptastrea bewickensis
+2014,LC,Least Concern,Montipora monasteriata
+2008,LC,Least Concern,Montipora monasteriata
+2014,NT,Near Threatened,Montipora foveolata
+2008,NT,Near Threatened,Montipora foveolata
+2014,LC,Least Concern,Acropora microphthalma
+2008,LC,Least Concern,Acropora microphthalma
+2014,LC,Least Concern,Platygyra daedalea
+2008,LC,Least Concern,Platygyra daedalea
+2008,LC,Least Concern,Platygyra sinensis
+2014,LC,Least Concern,Montipora tuberculosa
+2008,LC,Least Concern,Montipora tuberculosa
+2014,LC,Least Concern,Montipora hoffmeisteri
+2008,LC,Least Concern,Montipora hoffmeisteri
+2014,LC,Least Concern,Goniastrea pectinata
+2008,LC,Least Concern,Goniastrea pectinata
+2014,LC,Least Concern,Leptastrea purpurea
+2008,LC,Least Concern,Leptastrea purpurea
+2008,LC,Least Concern,Leptastrea pruinosa
+2014,NT,Near Threatened,Favites abdita
+2008,NT,Near Threatened,Favites abdita
+2008,NT,Near Threatened,Favites chinensis
+2014,LC,Least Concern,Montastrea curta
+2008,LC,Least Concern,Montastrea curta
+2017,LC,Least Concern,Abudefduf sordidus
+2017,LC,Least Concern,Abudefduf vaigiensis
+2017,LC,Least Concern,Abudefduf septemfasciatus
+2017,LC,Least Concern,Chromis caudalis
+2018,VU,Vulnerable,Epinephelus polyphekadion
+2006,NT,Near Threatened,Epinephelus polyphekadion
+2018,VU,Vulnerable,Epinephelus fuscoguttatus
+2004,NT,Near Threatened,Epinephelus fuscoguttatus
+2018,LC,Least Concern,Cephalopholis leopardus
+2008,LC,Least Concern,Cephalopholis leopardus
+2018,LC,Least Concern,Plectropomus laevis
+2008,VU,Vulnerable,Plectropomus laevis
+2007,VU,Vulnerable,Plectropomus laevis
+2018,DD,Data Deficient,Epinephelus tauvina
+2008,DD,Data Deficient,Epinephelus tauvina
+2018,LC,Least Concern,Cephalopholis argus
+2008,LC,Least Concern,Cephalopholis argus
+2018,LC,Least Concern,Epinephelus macrospilos
+2008,LC,Least Concern,Epinephelus macrospilos
+2018,LC,Least Concern,Cephalopholis sonnerati
+2008,LC,Least Concern,Cephalopholis sonnerati
+2018,LC,Least Concern,Epinephelus hexagonatus
+2008,LC,Least Concern,Epinephelus hexagonatus
+2018,LC,Least Concern,Epinephelus merra
+2008,LC,Least Concern,Epinephelus merra
+2018,LC,Least Concern,Epinephelus retouti
+2008,DD,Data Deficient,Epinephelus retouti
+2018,LC,Least Concern,Gracila albomarginata
+2008,DD,Data Deficient,Gracila albomarginata
+2018,LC,Least Concern,Cephalopholis urodeta
+2017,LC,Least Concern,Cephalopholis urodeta
+2008,LC,Least Concern,Cephalopholis urodeta
+2018,LC,Least Concern,Epinephelus melanostigma
+2008,DD,Data Deficient,Epinephelus melanostigma
+2018,LC,Least Concern,Epinephelus spilotoceps
+2008,LC,Least Concern,Epinephelus spilotoceps
+2018,LC,Least Concern,Epinephelus fasciatus
+2008,LC,Least Concern,Epinephelus fasciatus
+2018,LC,Least Concern,Epinephelus socialis
+2008,NT,Near Threatened,Epinephelus socialis
+2018,LC,Least Concern,Cephalopholis miniata
+2008,LC,Least Concern,Cephalopholis miniata
+2018,LC,Least Concern,Variola louti
+2008,LC,Least Concern,Variola louti
+2018,LC,Least Concern,Cephalopholis sexmaculata
+2008,LC,Least Concern,Cephalopholis sexmaculata
+2018,LC,Least Concern,Epinephelus howlandi
+2008,LC,Least Concern,Epinephelus howlandi
+2011,LC,Least Concern,Eptatretus carlhubbsi
+2011,LC,Least Concern,Arctides regalis
+2011,LC,Least Concern,Stereomastis surda
+2019,LC,Least Concern,Peponocephala electra
+2008,LC,Least Concern,Peponocephala electra
+1996,LR/lc,Lower Risk/least concern,Peponocephala electra
+1994,K,Insufficiently Known,Peponocephala electra
+2019,LC,Least Concern,Steno bredanensis
+2012,LC,Least Concern,Steno bredanensis
+2008,LC,Least Concern,Steno bredanensis
+1996,DD,Data Deficient,Steno bredanensis
+1994,K,Insufficiently Known,Steno bredanensis
+2012,DD,Data Deficient,Kogia breviceps
+2008,DD,Data Deficient,Kogia breviceps
+1996,LR/lc,Lower Risk/least concern,Kogia breviceps
+1994,K,Insufficiently Known,Kogia breviceps
+2019,LC,Least Concern,Stenella coeruleoalba
+2008,LC,Least Concern,Stenella coeruleoalba
+1996,LR/cd,Lower Risk/conservation dependent,Stenella coeruleoalba
+1994,K,Insufficiently Known,Stenella coeruleoalba
+2008,DD,Data Deficient,Mesoplodon ginkgodens
+1996,DD,Data Deficient,Mesoplodon ginkgodens
+1994,K,Insufficiently Known,Mesoplodon ginkgodens
+2008,LC,Least Concern,Ziphius cavirostris
+1996,DD,Data Deficient,Ziphius cavirostris
+1994,K,Insufficiently Known,Ziphius cavirostris
+2017,DD,Data Deficient,Orcinus orca
+2013,DD,Data Deficient,Orcinus orca
+2008,DD,Data Deficient,Orcinus orca
+1996,LR/cd,Lower Risk/conservation dependent,Orcinus orca
+1994,K,Insufficiently Known,Orcinus orca
+2008,VU,Vulnerable,Physeter macrocephalus
+1996,VU,Vulnerable,Physeter macrocephalus
+1994,K,Insufficiently Known,Physeter macrocephalus
+2008,DD,Data Deficient,Indopacetus pacificus
+1996,DD,Data Deficient,Indopacetus pacificus
+1994,K,Insufficiently Known,Indopacetus pacificus
+2019,LC,Least Concern,Tursiops truncatus
+2012,LC,Least Concern,Tursiops truncatus
+2008,LC,Least Concern,Tursiops truncatus
+1996,DD,Data Deficient,Tursiops truncatus
+1994,K,Insufficiently Known,Tursiops truncatus
+2018,LC,Least Concern,Balaenoptera edeni
+2008,DD,Data Deficient,Balaenoptera edeni
+1996,DD,Data Deficient,Balaenoptera edeni
+1994,K,Insufficiently Known,Balaenoptera edeni
+2012,DD,Data Deficient,Kogia sima
+2008,DD,Data Deficient,Kogia sima
+1996,LR/lc,Lower Risk/least concern,Kogia sima
+1994,K,Insufficiently Known,Kogia sima
+2008,DD,Data Deficient,Mesoplodon densirostris
+1996,DD,Data Deficient,Mesoplodon densirostris
+1994,K,Insufficiently Known,Mesoplodon densirostris
+2018,LC,Least Concern,Stenella longirostris
+2012,DD,Data Deficient,Stenella longirostris
+2008,DD,Data Deficient,Stenella longirostris
+1996,LR/cd,Lower Risk/conservation dependent,Stenella longirostris
+2018,LC,Least Concern,Globicephala macrorhynchus
+2011,DD,Data Deficient,Globicephala macrorhynchus
+2008,DD,Data Deficient,Globicephala macrorhynchus
+1996,LR/cd,Lower Risk/conservation dependent,Globicephala macrorhynchus
+1994,K,Insufficiently Known,Globicephala macrorhynchus
+2018,LC,Least Concern,Megaptera novaeangliae
+2008,LC,Least Concern,Megaptera novaeangliae
+1996,VU,Vulnerable,Megaptera novaeangliae
+1994,V,Vulnerable,Megaptera novaeangliae
+1990,V,Vulnerable,Megaptera novaeangliae
+1988,E,Endangered,Megaptera novaeangliae
+1986,E,Endangered,Megaptera novaeangliae
+1965,NA,"""Less rare but believed to be threatened-requires watching""",Megaptera novaeangliae
+2018,DD,Data Deficient,Mesoplodon hotaula
+2018,EN,Endangered,Balaenoptera borealis
+2008,EN,Endangered,Balaenoptera borealis
+1996,EN,Endangered,Balaenoptera borealis
+1994,V,Vulnerable,Balaenoptera borealis
+2018,LC,Least Concern,Grampus griseus
+2012,LC,Least Concern,Grampus griseus
+2008,LC,Least Concern,Grampus griseus
+1996,DD,Data Deficient,Grampus griseus
+1994,K,Insufficiently Known,Grampus griseus
+2018,EN,Endangered,Balaenoptera musculus
+2008,EN,Endangered,Balaenoptera musculus
+1996,EN,Endangered,Balaenoptera musculus
+1994,E,Endangered,Balaenoptera musculus
+1990,E,Endangered,Balaenoptera musculus
+1988,E,Endangered,Balaenoptera musculus
+1986,E,Endangered,Balaenoptera musculus
+1965,NA,"""Very rare and believed to be decreasing in numbers""",Balaenoptera musculus
+2018,LC,Least Concern,Lagenodelphis hosei
+2012,LC,Least Concern,Lagenodelphis hosei
+2008,LC,Least Concern,Lagenodelphis hosei
+1996,DD,Data Deficient,Lagenodelphis hosei
+1994,K,Insufficiently Known,Lagenodelphis hosei
+2018,LC,Least Concern,Balaenoptera acutorostrata
+2008,LC,Least Concern,Balaenoptera acutorostrata
+1996,LR/nt,Lower Risk/near threatened,Balaenoptera acutorostrata
+1994,K,Insufficiently Known,Balaenoptera acutorostrata
+2018,NT,Near Threatened,Pseudorca crassidens
+2008,DD,Data Deficient,Pseudorca crassidens
+1996,LR/lc,Lower Risk/least concern,Pseudorca crassidens
+1994,K,Insufficiently Known,Pseudorca crassidens
+2018,LC,Least Concern,Feresa attenuata
+2008,DD,Data Deficient,Feresa attenuata
+1996,DD,Data Deficient,Feresa attenuata
+1994,K,Insufficiently Known,Feresa attenuata
+2018,LC,Least Concern,Stenella attenuata
+2012,LC,Least Concern,Stenella attenuata
+2008,LC,Least Concern,Stenella attenuata
+1996,LR/cd,Lower Risk/conservation dependent,Stenella attenuata
+1994,K,Insufficiently Known,Stenella attenuata
+2014,LC,Least Concern,Sphoeroides pachygaster
+2014,LC,Least Concern,Canthigaster janthinoptera
+2014,LC,Least Concern,Canthigaster amboinensis
+2014,LC,Least Concern,Canthigaster solandri
+2014,LC,Least Concern,Lagocephalus lagocephalus
+2014,LC,Least Concern,Arothron nigropunctatus
+2014,LC,Least Concern,Lagocephalus sceleratus
+2014,LC,Least Concern,Canthigaster bennetti
+2014,LC,Least Concern,Arothron hispidus
+2014,LC,Least Concern,Arothron meleagris
+2008,CR,Critically Endangered,Eretmochelys imbricata
+1996,CR,Critically Endangered,Eretmochelys imbricata
+1994,E,Endangered,Eretmochelys imbricata
+1990,E,Endangered,Eretmochelys imbricata
+1988,E,Endangered,Eretmochelys imbricata
+1986,E,Endangered,Eretmochelys imbricata
+1982,E,Endangered,Eretmochelys imbricata
+2013,VU,Vulnerable,Dermochelys coriacea
+2000,CR,Critically Endangered,Dermochelys coriacea
+1996,EN,Endangered,Dermochelys coriacea
+1994,E,Endangered,Dermochelys coriacea
+1990,E,Endangered,Dermochelys coriacea
+1988,E,Endangered,Dermochelys coriacea
+1986,E,Endangered,Dermochelys coriacea
+1982,E,Endangered,Dermochelys coriacea
+2015,VU,Vulnerable,Caretta caretta
+1996,EN,Endangered,Caretta caretta
+1994,V,Vulnerable,Caretta caretta
+1990,V,Vulnerable,Caretta caretta
+1988,V,Vulnerable,Caretta caretta
+1986,V,Vulnerable,Caretta caretta
+1982,V,Vulnerable,Caretta caretta
+2017,LC,Least Concern,Hydrophis platurus
+2010,LC,Least Concern,Hydrophis platurus
+2004,EN,Endangered,Chelonia mydas
+1996,EN,Endangered,Chelonia mydas
+1994,E,Endangered,Chelonia mydas
+1990,E,Endangered,Chelonia mydas
+1988,E,Endangered,Chelonia mydas
+1986,E,Endangered,Chelonia mydas
+1982,E,Endangered,Chelonia mydas
+2013,LC,Least Concern,Holothuria leucospilota
+2013,VU,Vulnerable,Holothuria fuscogilva
+2013,LC,Least Concern,Holothuria hilla
+2013,DD,Data Deficient,Stichopus monotuberculatus
+2013,LC,Least Concern,Holothuria pervicax
+2013,LC,Least Concern,Holothuria difficilis
+2013,DD,Data Deficient,Stichopus horrens
+2013,LC,Least Concern,Holothuria flavomaculata
+2013,VU,Vulnerable,Actinopyga mauritiana
+2013,LC,Least Concern,Holothuria inhabilis
+2013,LC,Least Concern,Holothuria pardalis
+2013,DD,Data Deficient,Holothuria discrepans
+2013,EN,Endangered,Holothuria whitmaei
+2013,DD,Data Deficient,Holothuria olivacea
+2013,LC,Least Concern,Holothuria rigida
+2013,DD,Data Deficient,Holothuria impatiens
+2013,LC,Least Concern,Holothuria fuscocinerea
+2013,DD,Data Deficient,Bohadschia vitiensis
+2013,DD,Data Deficient,Holothuria stocki
+2013,LC,Least Concern,Pearsonothuria graeffei
+2013,LC,Least Concern,Holothuria atra
+2013,LC,Least Concern,Holothuria erinaceaus
+2013,LC,Least Concern,Labidodemas semperianum
+2013,LC,Least Concern,Holothuria verrucosa
+2013,DD,Data Deficient,Holothuria arenicola
+2012,LC,Least Concern,Naso lituratus
+2012,LC,Least Concern,Acanthurus nigricauda
+2012,LC,Least Concern,Naso unicornis
+2012,DD,Data Deficient,Zebrasoma rostratum
+2012,LC,Least Concern,Acanthurus leucocheilus
+2012,LC,Least Concern,Naso brevirostris
+2012,LC,Least Concern,Ctenochaetus hawaiiensis
+2012,LC,Least Concern,Acanthurus triostegus
+2012,LC,Least Concern,Acanthurus xanthopterus
+2012,LC,Least Concern,Acanthurus lineatus
+2012,LC,Least Concern,Naso vlamingii
+2010,LC,Least Concern,Naso vlamingii
+2012,LC,Least Concern,Acanthurus guttatus
+2012,LC,Least Concern,Ctenochaetus marginatus
+2012,LC,Least Concern,Acanthurus thompsoni
+2012,LC,Least Concern,Acanthurus nigricans
+2012,LC,Least Concern,Acanthurus maculiceps
+2012,LC,Least Concern,Acanthurus pyroferus
+2012,LC,Least Concern,Acanthurus olivaceus
+2012,LC,Least Concern,Zebrasoma veliferum
+2012,LC,Least Concern,Paracanthurus hepatus
+2012,LC,Least Concern,Ctenochaetus cyanocheilus
+2012,LC,Least Concern,Zebrasoma scopas
+2012,LC,Least Concern,Acanthurus achilles
+2012,LC,Least Concern,Acanthurus blochii
+2012,LC,Least Concern,Ctenochaetus flavicauda
+2012,LC,Least Concern,Acanthurus dussumieri
+2012,LC,Least Concern,Acanthurus nigrofuscus
+2012,LC,Least Concern,Naso hexacanthus
+2012,LC,Least Concern,Acanthurus mata
+2012,LC,Least Concern,Ctenochaetus striatus
+2015,LC,Least Concern,Fistularia petimba
+2016,LC,Least Concern,Fistularia commersonii
+2016,LC,Least Concern,Doryrhamphus excisus
+2016,LC,Least Concern,Choeroichthys sculptus
+2015,LC,Least Concern,Aulostomus chinensis
+2011,LC,Least Concern,Katsuwonus pelamis
+2011,NT,Near Threatened,Thunnus albacares
+1996,LR/lc,Lower Risk/least concern,Thunnus albacares
+2011,VU,Vulnerable,Makaira nigricans
+2011,DD,Data Deficient,Tetrapturus angustirostris
+2011,NT,Near Threatened,Thunnus alalunga
+1996,DD,Data Deficient,Thunnus alalunga
+2011,LC,Least Concern,Xiphias gladius
+1996,DD,Data Deficient,Xiphias gladius
+2011,NT,Near Threatened,Kajikia audax
+2011,VU,Vulnerable,Thunnus obesus
+1996,VU,Vulnerable,Thunnus obesus
+2011,LC,Least Concern,Istiophorus platypterus
+2011,LC,Least Concern,Acanthocybium solandri
+2011,DD,Data Deficient,Istiompax indica
+2010,LC,Least Concern,Coris centralis
+2010,LC,Least Concern,Cheilinus trilobatus
+2010,LC,Least Concern,Coris gaimard
+2010,LC,Least Concern,Novaculichthys taeniourus
+2010,DD,Data Deficient,Cirrhilabrus exquisitus
+2010,LC,Least Concern,Pseudocheilinus hexataenia
+2010,LC,Least Concern,Thalassoma amblycephalum
+2010,LC,Least Concern,Labropsis xanthonota
+2010,LC,Least Concern,Thalassoma hardwicke
+2010,LC,Least Concern,Bodianus prognathus
+2010,LC,Least Concern,Halichoeres hortulanus
+2010,LC,Least Concern,Oxycheilinus unifasciatus
+2010,LC,Least Concern,Thalassoma lutescens
+2010,LC,Least Concern,Epibulus insidiator
+2010,LC,Least Concern,Thalassoma quinquevittatum
+2010,LC,Least Concern,Bodianus loxozonus
+2010,LC,Least Concern,Thalassoma purpureum
+2010,LC,Least Concern,Halichoeres pallidus
+2012,LC,Least Concern,Calotomus carolinus
+2010,LC,Least Concern,Calotomus carolinus
+2012,LC,Least Concern,Scarus globiceps
+2010,LC,Least Concern,Scarus globiceps
+2012,LC,Least Concern,Scarus spinus
+2010,LC,Least Concern,Scarus spinus
+2012,LC,Least Concern,Chlorurus microrhinos
+2010,LC,Least Concern,Chlorurus microrhinos
+2012,LC,Least Concern,Scarus psittacus
+2010,LC,Least Concern,Scarus psittacus
+2012,LC,Least Concern,Scarus niger
+2010,LC,Least Concern,Scarus niger
+2012,LC,Least Concern,Scarus pyrrostethus
+2010,LC,Least Concern,Scarus pyrrostethus
+2012,VU,Vulnerable,Bolbometopon muricatum
+2007,VU,Vulnerable,Bolbometopon muricatum
+2012,LC,Least Concern,Scarus oviceps
+2010,LC,Least Concern,Scarus oviceps
+2010,LC,Least Concern,Pseudocheilinus ocellatus
+2010,LC,Least Concern,Hemigymnus fasciatus
+2010,LC,Least Concern,Thalassoma lunare
+2010,LC,Least Concern,Labroides dimidiatus
+2010,LC,Least Concern,Stethojulis bandanensis
+2010,LC,Least Concern,Halichoeres margaritaceus
+2010,LC,Least Concern,Halichoeres trimaculatus
+2010,LC,Least Concern,Bodianus axillaris
+2010,LC,Least Concern,Hologymnosus doliatus
+2010,LC,Least Concern,Gomphosus varius
+2010,LC,Least Concern,Halichoeres melasmapomus
+2010,LC,Least Concern,Labroides pectoralis
+2010,LC,Least Concern,Pseudocheilinus octotaenia
+2010,DD,Data Deficient,Pseudojuloides cerasinus
+2010,LC,Least Concern,Labrichthys unilineatus
+2010,LC,Least Concern,Cheilinus oxycephalus
+2010,LC,Least Concern,Pseudocheilinus evanidus
+2010,LC,Least Concern,Cymolutes praetextatus
+2010,LC,Least Concern,Pseudocoris heteroptera
+2010,LC,Least Concern,Macropharyngodon meleagris
+2010,LC,Least Concern,Halichoeres claudia
+2010,LC,Least Concern,Iniistius pavo
+2010,LC,Least Concern,Thalassoma trilobatum
+2010,LC,Least Concern,Pseudodax moluccanus
+2010,LC,Least Concern,Bodianus anthioides
+2010,LC,Least Concern,Anampses caeruleopunctatus
+2010,LC,Least Concern,Anampses meleagrides
+2010,LC,Least Concern,Labroides rubrolabiatus
+2010,LC,Least Concern,Labroides bicolor
+2010,LC,Least Concern,Anampses twistii
+2010,LC,Least Concern,Coris aygula
+2012,LC,Least Concern,Scarus tricolor
+2010,LC,Least Concern,Scarus tricolor
+2012,LC,Least Concern,Chlorurus spilurus
+2010,LC,Least Concern,Chlorurus spilurus
+2012,LC,Least Concern,Scarus rubroviolaceus
+2010,LC,Least Concern,Scarus rubroviolaceus
+2012,LC,Least Concern,Hipposcarus longiceps
+2010,LC,Least Concern,Hipposcarus longiceps
+2012,LC,Least Concern,Scarus frenatus
+2010,LC,Least Concern,Scarus frenatus
+2012,LC,Least Concern,Chlorurus frontalis
+2010,LC,Least Concern,Chlorurus frontalis
+2018,LC,Least Concern,Gygis alba
+2016,LC,Least Concern,Gygis alba
+2012,LC,Least Concern,Gygis alba
+2009,LC,Least Concern,Gygis alba
+2008,LC,Least Concern,Gygis alba
+2004,LC,Least Concern,Gygis alba
+2000,LR/lc,Lower Risk/least concern,Gygis alba
+1994,LR/lc,Lower Risk/least concern,Gygis alba
+1988,LR/lc,Lower Risk/least concern,Gygis alba
+2018,LC,Least Concern,Oceanites oceanicus
+2016,LC,Least Concern,Oceanites oceanicus
+2012,LC,Least Concern,Oceanites oceanicus
+2009,LC,Least Concern,Oceanites oceanicus
+2008,LC,Least Concern,Oceanites oceanicus
+2004,LC,Least Concern,Oceanites oceanicus
+2000,LR/lc,Lower Risk/least concern,Oceanites oceanicus
+1994,LR/lc,Lower Risk/least concern,Oceanites oceanicus
+1988,LR/lc,Lower Risk/least concern,Oceanites oceanicus
+2018,EN,Endangered,Nesofregetta fuliginosa
+2016,EN,Endangered,Nesofregetta fuliginosa
+2012,EN,Endangered,Nesofregetta fuliginosa
+2010,EN,Endangered,Nesofregetta fuliginosa
+2008,VU,Vulnerable,Nesofregetta fuliginosa
+2007,VU,Vulnerable,Nesofregetta fuliginosa
+2006,VU,Vulnerable,Nesofregetta fuliginosa
+2004,VU,Vulnerable,Nesofregetta fuliginosa
+2000,VU,Vulnerable,Nesofregetta fuliginosa
+1994,LR/lc,Lower Risk/least concern,Nesofregetta fuliginosa
+1988,LR/lc,Lower Risk/least concern,Nesofregetta fuliginosa
+2018,LC,Least Concern,Onychoprion lunatus
+2016,LC,Least Concern,Onychoprion lunatus
+2012,LC,Least Concern,Onychoprion lunatus
+2009,LC,Least Concern,Onychoprion lunatus
+2008,LC,Least Concern,Onychoprion lunatus
+2004,LC,Least Concern,Onychoprion lunatus
+2000,LR/lc,Lower Risk/least concern,Onychoprion lunatus
+1994,LR/lc,Lower Risk/least concern,Onychoprion lunatus
+1988,LR/lc,Lower Risk/least concern,Onychoprion lunatus
+2018,LC,Least Concern,Anous ceruleus
+2016,LC,Least Concern,Anous ceruleus
+2014,LC,Least Concern,Anous ceruleus
+2018,LC,Least Concern,Pterodroma neglecta
+2016,LC,Least Concern,Pterodroma neglecta
+2012,LC,Least Concern,Pterodroma neglecta
+2009,LC,Least Concern,Pterodroma neglecta
+2008,LC,Least Concern,Pterodroma neglecta
+2004,LC,Least Concern,Pterodroma neglecta
+2000,LR/lc,Lower Risk/least concern,Pterodroma neglecta
+1994,LR/lc,Lower Risk/least concern,Pterodroma neglecta
+1988,LR/lc,Lower Risk/least concern,Pterodroma neglecta
+2018,EN,Endangered,Pterodroma alba
+2016,EN,Endangered,Pterodroma alba
+2012,EN,Endangered,Pterodroma alba
+2010,EN,Endangered,Pterodroma alba
+2008,EN,Endangered,Pterodroma alba
+2007,EN,Endangered,Pterodroma alba
+2006,EN,Endangered,Pterodroma alba
+2004,EN,Endangered,Pterodroma alba
+2000,VU,Vulnerable,Pterodroma alba
+1994,LR/lc,Lower Risk/least concern,Pterodroma alba
+1988,LR/lc,Lower Risk/least concern,Pterodroma alba
+2018,VU,Vulnerable,Pterodroma cervicalis
+2016,VU,Vulnerable,Pterodroma cervicalis
+2012,VU,Vulnerable,Pterodroma cervicalis
+2010,VU,Vulnerable,Pterodroma cervicalis
+2008,VU,Vulnerable,Pterodroma cervicalis
+2006,VU,Vulnerable,Pterodroma cervicalis
+2004,VU,Vulnerable,Pterodroma cervicalis
+2000,VU,Vulnerable,Pterodroma cervicalis
+1996,VU,Vulnerable,Pterodroma cervicalis
+1994,VU,Vulnerable,Pterodroma cervicalis
+1988,LR/lc,Lower Risk/least concern,Pterodroma cervicalis
+2018,LC,Least Concern,Pterodroma heraldica
+2016,LC,Least Concern,Pterodroma heraldica
+2012,LC,Least Concern,Pterodroma heraldica
+2009,LC,Least Concern,Pterodroma heraldica
+2008,LC,Least Concern,Pterodroma heraldica
+2004,LC,Least Concern,Pterodroma heraldica
+2000,LR/lc,Lower Risk/least concern,Pterodroma heraldica
+1994,NR,Not Recognized,Pterodroma heraldica
+1988,NR,Not Recognized,Pterodroma heraldica
+2019,VU,Vulnerable,Pterodroma longirostris
+2018,VU,Vulnerable,Pterodroma longirostris
+2016,VU,Vulnerable,Pterodroma longirostris
+2012,VU,Vulnerable,Pterodroma longirostris
+2010,VU,Vulnerable,Pterodroma longirostris
+2008,VU,Vulnerable,Pterodroma longirostris
+2006,VU,Vulnerable,Pterodroma longirostris
+2004,VU,Vulnerable,Pterodroma longirostris
+2000,VU,Vulnerable,Pterodroma longirostris
+1994,LR/lc,Lower Risk/least concern,Pterodroma longirostris
+1988,LR/lc,Lower Risk/least concern,Pterodroma longirostris
+2018,LC,Least Concern,Puffinus bailloni
+2016,LC,Least Concern,Puffinus bailloni
+2014,LC,Least Concern,Puffinus bailloni
+2018,LC,Least Concern,Puffinus nativitatis
+2016,LC,Least Concern,Puffinus nativitatis
+2012,LC,Least Concern,Puffinus nativitatis
+2009,LC,Least Concern,Puffinus nativitatis
+2008,LC,Least Concern,Puffinus nativitatis
+2004,LC,Least Concern,Puffinus nativitatis
+2000,LR/lc,Lower Risk/least concern,Puffinus nativitatis
+1994,LR/lc,Lower Risk/least concern,Puffinus nativitatis
+1988,LR/lc,Lower Risk/least concern,Puffinus nativitatis
+2018,VU,Vulnerable,Pterodroma cookii
+2016,VU,Vulnerable,Pterodroma cookii
+2012,VU,Vulnerable,Pterodroma cookii
+2010,VU,Vulnerable,Pterodroma cookii
+2009,VU,Vulnerable,Pterodroma cookii
+2008,EN,Endangered,Pterodroma cookii
+2007,EN,Endangered,Pterodroma cookii
+2006,EN,Endangered,Pterodroma cookii
+2004,EN,Endangered,Pterodroma cookii
+2000,EN,Endangered,Pterodroma cookii
+1996,VU,Vulnerable,Pterodroma cookii
+1994,VU,Vulnerable,Pterodroma cookii
+1988,T,Threatened,Pterodroma cookii
+2018,NT,Near Threatened,Pterodroma inexpectata
+2016,NT,Near Threatened,Pterodroma inexpectata
+2014,NT,Near Threatened,Pterodroma inexpectata
+2012,NT,Near Threatened,Pterodroma inexpectata
+2010,NT,Near Threatened,Pterodroma inexpectata
+2008,NT,Near Threatened,Pterodroma inexpectata
+2004,NT,Near Threatened,Pterodroma inexpectata
+2000,LR/nt,Lower Risk/near threatened,Pterodroma inexpectata
+1994,LR/lc,Lower Risk/least concern,Pterodroma inexpectata
+1988,LR/lc,Lower Risk/least concern,Pterodroma inexpectata
+2018,LC,Least Concern,Pterodroma nigripennis
+2016,LC,Least Concern,Pterodroma nigripennis
+2012,LC,Least Concern,Pterodroma nigripennis
+2009,LC,Least Concern,Pterodroma nigripennis
+2008,LC,Least Concern,Pterodroma nigripennis
+2004,LC,Least Concern,Pterodroma nigripennis
+2000,LR/lc,Lower Risk/least concern,Pterodroma nigripennis
+1994,LR/lc,Lower Risk/least concern,Pterodroma nigripennis
+1988,LR/lc,Lower Risk/least concern,Pterodroma nigripennis
+2018,VU,Vulnerable,Pterodroma leucoptera
+2016,VU,Vulnerable,Pterodroma leucoptera
+2012,VU,Vulnerable,Pterodroma leucoptera
+2008,VU,Vulnerable,Pterodroma leucoptera
+2007,VU,Vulnerable,Pterodroma leucoptera
+2005,VU,Vulnerable,Pterodroma leucoptera
+2004,VU,Vulnerable,Pterodroma leucoptera
+2000,VU,Vulnerable,Pterodroma leucoptera
+1994,LR/lc,Lower Risk/least concern,Pterodroma leucoptera
+1988,LR/lc,Lower Risk/least concern,Pterodroma leucoptera
+2018,VU,Vulnerable,Pterodroma pycrofti
+2016,VU,Vulnerable,Pterodroma pycrofti
+2012,VU,Vulnerable,Pterodroma pycrofti
+2010,VU,Vulnerable,Pterodroma pycrofti
+2008,VU,Vulnerable,Pterodroma pycrofti
+2004,VU,Vulnerable,Pterodroma pycrofti
+2000,VU,Vulnerable,Pterodroma pycrofti
+1996,VU,Vulnerable,Pterodroma pycrofti
+1994,VU,Vulnerable,Pterodroma pycrofti
+1988,T,Threatened,Pterodroma pycrofti
+2018,EN,Endangered,Pterodroma sandwichensis
+2016,VU,Vulnerable,Pterodroma sandwichensis
+2012,VU,Vulnerable,Pterodroma sandwichensis
+2010,VU,Vulnerable,Pterodroma sandwichensis
+2008,VU,Vulnerable,Pterodroma sandwichensis
+2007,VU,Vulnerable,Pterodroma sandwichensis
+2006,VU,Vulnerable,Pterodroma sandwichensis
+2004,VU,Vulnerable,Pterodroma sandwichensis
+2000,VU,Vulnerable,Pterodroma sandwichensis
+1996,VU,Vulnerable,Pterodroma sandwichensis
+1994,VU,Vulnerable,Pterodroma sandwichensis
+1988,LR/lc,Lower Risk/least concern,Pterodroma sandwichensis
+2019,VU,Vulnerable,Pterodroma solandri
+2018,VU,Vulnerable,Pterodroma solandri
+2016,VU,Vulnerable,Pterodroma solandri
+2012,VU,Vulnerable,Pterodroma solandri
+2010,VU,Vulnerable,Pterodroma solandri
+2008,VU,Vulnerable,Pterodroma solandri
+2005,VU,Vulnerable,Pterodroma solandri
+2004,VU,Vulnerable,Pterodroma solandri
+2000,VU,Vulnerable,Pterodroma solandri
+1996,VU,Vulnerable,Pterodroma solandri
+1994,VU,Vulnerable,Pterodroma solandri
+1988,NT,Near Threatened,Pterodroma solandri
+2019,LC,Least Concern,Pterodroma ultima
+2018,NT,Near Threatened,Pterodroma ultima
+2016,NT,Near Threatened,Pterodroma ultima
+2012,NT,Near Threatened,Pterodroma ultima
+2010,NT,Near Threatened,Pterodroma ultima
+2008,NT,Near Threatened,Pterodroma ultima
+2004,NT,Near Threatened,Pterodroma ultima
+2000,LR/nt,Lower Risk/near threatened,Pterodroma ultima
+1994,LR/lc,Lower Risk/least concern,Pterodroma ultima
+1988,NT,Near Threatened,Pterodroma ultima
+2018,LC,Least Concern,Sula dactylatra
+2016,LC,Least Concern,Sula dactylatra
+2012,LC,Least Concern,Sula dactylatra
+2010,LC,Least Concern,Sula dactylatra
+2008,NR,Not Recognized,Sula dactylatra
+2004,NR,Not Recognized,Sula dactylatra
+2000,NR,Not Recognized,Sula dactylatra
+1994,NR,Not Recognized,Sula dactylatra
+1988,NR,Not Recognized,Sula dactylatra
+2018,LC,Least Concern,Sula leucogaster
+2016,LC,Least Concern,Sula leucogaster
+2012,LC,Least Concern,Sula leucogaster
+2009,LC,Least Concern,Sula leucogaster
+2008,LC,Least Concern,Sula leucogaster
+2004,LC,Least Concern,Sula leucogaster
+2000,LR/lc,Lower Risk/least concern,Sula leucogaster
+1994,LR/lc,Lower Risk/least concern,Sula leucogaster
+1988,LR/lc,Lower Risk/least concern,Sula leucogaster
+2018,LC,Least Concern,Sula sula
+2016,LC,Least Concern,Sula sula
+2012,LC,Least Concern,Sula sula
+2009,LC,Least Concern,Sula sula
+2008,LC,Least Concern,Sula sula
+2004,LC,Least Concern,Sula sula
+2000,LR/lc,Lower Risk/least concern,Sula sula
+1994,LR/lc,Lower Risk/least concern,Sula sula
+1988,LR/lc,Lower Risk/least concern,Sula sula
+2018,VU,Vulnerable,Ardenna bulleri
+2016,VU,Vulnerable,Ardenna bulleri
+2012,VU,Vulnerable,Ardenna bulleri
+2010,VU,Vulnerable,Ardenna bulleri
+2008,VU,Vulnerable,Ardenna bulleri
+2006,VU,Vulnerable,Ardenna bulleri
+2004,VU,Vulnerable,Ardenna bulleri
+2000,VU,Vulnerable,Ardenna bulleri
+1994,LR/nt,Lower Risk/near threatened,Ardenna bulleri
+1988,LR/lc,Lower Risk/least concern,Ardenna bulleri
+2018,VU,Vulnerable,Pterodroma brevipes
+2016,VU,Vulnerable,Pterodroma brevipes
+2012,VU,Vulnerable,Pterodroma brevipes
+2011,VU,Vulnerable,Pterodroma brevipes
+2010,NT,Near Threatened,Pterodroma brevipes
+2008,NT,Near Threatened,Pterodroma brevipes
+2006,NT,Near Threatened,Pterodroma brevipes
+2004,LC,Least Concern,Pterodroma brevipes
+2000,LR/lc,Lower Risk/least concern,Pterodroma brevipes
+1994,LR/lc,Lower Risk/least concern,Pterodroma brevipes
+1988,LR/lc,Lower Risk/least concern,Pterodroma brevipes
+2018,LC,Least Concern,Phaethon rubricauda
+2016,LC,Least Concern,Phaethon rubricauda
+2013,LC,Least Concern,Phaethon rubricauda
+2012,LC,Least Concern,Phaethon rubricauda
+2009,LC,Least Concern,Phaethon rubricauda
+2008,LC,Least Concern,Phaethon rubricauda
+2004,LC,Least Concern,Phaethon rubricauda
+2000,LR/lc,Lower Risk/least concern,Phaethon rubricauda
+1994,LR/lc,Lower Risk/least concern,Phaethon rubricauda
+1988,LR/lc,Lower Risk/least concern,Phaethon rubricauda
+2018,LC,Least Concern,Anous stolidus
+2016,LC,Least Concern,Anous stolidus
+2012,LC,Least Concern,Anous stolidus
+2009,LC,Least Concern,Anous stolidus
+2008,LC,Least Concern,Anous stolidus
+2004,LC,Least Concern,Anous stolidus
+2000,LR/lc,Lower Risk/least concern,Anous stolidus
+1994,LR/lc,Lower Risk/least concern,Anous stolidus
+1988,LR/lc,Lower Risk/least concern,Anous stolidus
+2018,LC,Least Concern,Anous minutus
+2016,LC,Least Concern,Anous minutus
+2012,LC,Least Concern,Anous minutus
+2009,LC,Least Concern,Anous minutus
+2008,LC,Least Concern,Anous minutus
+2004,LC,Least Concern,Anous minutus
+2000,LR/lc,Lower Risk/least concern,Anous minutus
+1994,LR/lc,Lower Risk/least concern,Anous minutus
+1988,LR/lc,Lower Risk/least concern,Anous minutus
+2018,LC,Least Concern,Fregata ariel
+2017,LC,Least Concern,Fregata ariel
+2016,LC,Least Concern,Fregata ariel
+2012,LC,Least Concern,Fregata ariel
+2009,LC,Least Concern,Fregata ariel
+2008,LC,Least Concern,Fregata ariel
+2004,LC,Least Concern,Fregata ariel
+2000,LR/lc,Lower Risk/least concern,Fregata ariel
+1994,LR/lc,Lower Risk/least concern,Fregata ariel
+1988,LR/lc,Lower Risk/least concern,Fregata ariel
+2018,LC,Least Concern,Phaethon lepturus
+2017,LC,Least Concern,Phaethon lepturus
+2016,LC,Least Concern,Phaethon lepturus
+2012,LC,Least Concern,Phaethon lepturus
+2009,LC,Least Concern,Phaethon lepturus
+2008,LC,Least Concern,Phaethon lepturus
+2004,LC,Least Concern,Phaethon lepturus
+2000,LR/lc,Lower Risk/least concern,Phaethon lepturus
+1994,LR/lc,Lower Risk/least concern,Phaethon lepturus
+1988,LR/lc,Lower Risk/least concern,Phaethon lepturus
+2018,NT,Near Threatened,Ardenna carneipes
+2017,NT,Near Threatened,Ardenna carneipes
+2016,NT,Near Threatened,Ardenna carneipes
+2012,LC,Least Concern,Ardenna carneipes
+2009,LC,Least Concern,Ardenna carneipes
+2008,LC,Least Concern,Ardenna carneipes
+2004,LC,Least Concern,Ardenna carneipes
+2000,LR/lc,Lower Risk/least concern,Ardenna carneipes
+1994,LR/lc,Lower Risk/least concern,Ardenna carneipes
+1988,LR/lc,Lower Risk/least concern,Ardenna carneipes
+2018,LC,Least Concern,Ardenna pacifica
+2016,LC,Least Concern,Ardenna pacifica
+2012,LC,Least Concern,Ardenna pacifica
+2009,LC,Least Concern,Ardenna pacifica
+2008,LC,Least Concern,Ardenna pacifica
+2004,LC,Least Concern,Ardenna pacifica
+2000,LR/lc,Lower Risk/least concern,Ardenna pacifica
+1994,LR/lc,Lower Risk/least concern,Ardenna pacifica
+1988,LR/lc,Lower Risk/least concern,Ardenna pacifica
+2018,LC,Least Concern,Ardenna tenuirostris
+2017,LC,Least Concern,Ardenna tenuirostris
+2016,LC,Least Concern,Ardenna tenuirostris
+2012,LC,Least Concern,Ardenna tenuirostris
+2009,LC,Least Concern,Ardenna tenuirostris
+2008,LC,Least Concern,Ardenna tenuirostris
+2004,LC,Least Concern,Ardenna tenuirostris
+2000,LR/lc,Lower Risk/least concern,Ardenna tenuirostris
+1994,LR/lc,Lower Risk/least concern,Ardenna tenuirostris
+1988,LR/lc,Lower Risk/least concern,Ardenna tenuirostris
+2018,LC,Least Concern,Bulweria bulwerii
+2016,LC,Least Concern,Bulweria bulwerii
+2012,LC,Least Concern,Bulweria bulwerii
+2009,LC,Least Concern,Bulweria bulwerii
+2008,LC,Least Concern,Bulweria bulwerii
+2004,LC,Least Concern,Bulweria bulwerii
+2000,LR/lc,Lower Risk/least concern,Bulweria bulwerii
+1994,LR/lc,Lower Risk/least concern,Bulweria bulwerii
+1988,LR/lc,Lower Risk/least concern,Bulweria bulwerii
+2018,LC,Least Concern,Fregata minor
+2016,LC,Least Concern,Fregata minor
+2012,LC,Least Concern,Fregata minor
+2009,LC,Least Concern,Fregata minor
+2008,LC,Least Concern,Fregata minor
+2004,LC,Least Concern,Fregata minor
+2000,LR/lc,Lower Risk/least concern,Fregata minor
+1994,LR/lc,Lower Risk/least concern,Fregata minor
+1988,LR/lc,Lower Risk/least concern,Fregata minor
+2018,LC,Least Concern,Onychoprion fuscatus
+2016,LC,Least Concern,Onychoprion fuscatus
+2012,LC,Least Concern,Onychoprion fuscatus
+2009,LC,Least Concern,Onychoprion fuscatus
+2008,LC,Least Concern,Onychoprion fuscatus
+2004,LC,Least Concern,Onychoprion fuscatus
+2000,LR/lc,Lower Risk/least concern,Onychoprion fuscatus
+1994,LR/lc,Lower Risk/least concern,Onychoprion fuscatus
+1988,LR/lc,Lower Risk/least concern,Onychoprion fuscatus
+2019,NT,Near Threatened,Ardenna grisea
+2018,NT,Near Threatened,Ardenna grisea
+2016,NT,Near Threatened,Ardenna grisea
+2012,NT,Near Threatened,Ardenna grisea
+2010,NT,Near Threatened,Ardenna grisea
+2008,NT,Near Threatened,Ardenna grisea
+2004,NT,Near Threatened,Ardenna grisea
+2000,LR/lc,Lower Risk/least concern,Ardenna grisea
+1994,LR/lc,Lower Risk/least concern,Ardenna grisea
+1988,LR/lc,Lower Risk/least concern,Ardenna grisea
+2018,NT,Near Threatened,Phoebastria nigripes
+2017,NT,Near Threatened,Phoebastria nigripes
+2016,NT,Near Threatened,Phoebastria nigripes
+2014,NT,Near Threatened,Phoebastria nigripes
+2013,NT,Near Threatened,Phoebastria nigripes
+2012,VU,Vulnerable,Phoebastria nigripes
+2010,EN,Endangered,Phoebastria nigripes
+2008,EN,Endangered,Phoebastria nigripes
+2005,EN,Endangered,Phoebastria nigripes
+2004,EN,Endangered,Phoebastria nigripes
+2003,EN,Endangered,Phoebastria nigripes
+2000,VU,Vulnerable,Phoebastria nigripes
+1994,LR/lc,Lower Risk/least concern,Phoebastria nigripes
+1988,LR/lc,Lower Risk/least concern,Phoebastria nigripes
+2018,LC,Least Concern,Hydrobates castro
+2018,VU,Vulnerable,Hydrobates leucorhous
+2019,CR,Critically Endangered,Puffinus newelli
+2018,CR,Critically Endangered,Puffinus newelli
