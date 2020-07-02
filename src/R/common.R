@@ -32,6 +32,7 @@ if (Sys.info()[['sysname']] != 'Linux' & !file.exists(dir_M)){
 ## standard projections for data
 mollCRS=raster::crs('+proj=moll +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +units=m +no_defs')
 us_alb=raster::crs("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +datum=NAD83 +units=m +no_defs") 
+wgs84=raster::crs("+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")
 
 ### OHI+
 
