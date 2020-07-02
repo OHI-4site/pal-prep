@@ -50,7 +50,9 @@ Cover categories are adapted to a numeric scale as follows:
  - 90% - 100% = 4   
 
 ```{r coral-maps, eval=F}
-hab_map <- st_read(file.path(dir_anx, '_raw_data/NCCOS_data/habitat_map'), layer = "Palmyra_Habitat_Map_Final")
+
+hab_map <- st_read(file.path(dir_anx, '_raw_data/NCCOS_data/habitat_map'), layer = "Palmyra_Habitat_Map_Final") %>% 
+  st_transform(wgs84)
 
 # Interested in the coral cover map which is column 'P_CORAL_CV'
 coral_map <- hab_map %>% 
