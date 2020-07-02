@@ -42,6 +42,13 @@ Coral cover maps were downloaded from the National Centers for Coastal Ocean Sci
 
 Data was downloaded on June 30, 2020, and habitat maps were completed in December 2011.   
 
+Cover categories are adapted to a numeric scale as follows:  
+
+ - 0   - >10% = 1   
+ - 10% - <50% = 2   
+ - 50% - <90% = 3   
+ - 90% - 100% = 4   
+
 ```{r coral-maps, eval=F}
 hab_map <- st_read(file.path(dir_anx, '_raw_data/NCCOS_data/habitat_map'), layer = "Palmyra_Habitat_Map_Final")
 
@@ -52,19 +59,53 @@ coral_map <- hab_map %>%
 
 plot(coral_map)
 
-# Extract the percent coral cover for backreef, forereef (and bank/shelf), and lagoon
+# Extract the percent coral cover for backreef, forereef (and bank/shelf), and lagoon (and channel)
 zones <- coral_map %>% 
-  filter(zone == "Back Reef" | zone == "Fore Reef" | zone == "Lagoon" | zone == "Bank/Shelf") %>% 
+  filter(zone == "Back Reef" | zone == "Fore Reef" | zone == "Lagoon" |
+         zone == "Bank/Shelf" | zone == "Channel") %>% 
   filter(p_coral_cv != "N/A") %>% 
   mutate(zone = as.character(zone),
          p_coral_cv = as.character(p_coral_cv),
-         zone = ifelse(zone == "Bank/Shelf", "Fore Reef", zone)) %>% 
+         zone = ifelse(zone == "Bank/Shelf", "Fore Reef", zone),
+         zone = ifelse(zone == "Channel", "Lagoon", zone)) %>% 
   mutate(cover_cat = case_when(p_coral_cv == "90% - 100%" ~ 4,
                                p_coral_cv == "50% - <90%" ~ 3,
                                p_coral_cv == "10% - <50%" ~ 2,
                                p_coral_cv == "0% - <10%"  ~ 1))
-zone_avg <- zones %>% 
-  group_by(zone) %>% 
-  summarize(mean(cover_cat))
+
+# Save layer to int folder
+write_csv(zones, file.path(dir_goal, "int/coral_zones.csv"))
 ```
 
+## Calculate Coral Status
+
+Calculate the average cover category by zone. Reference points for coral cover zones are:   
+
+ - Forereef: 50-90% (3)   
+ - Backreef: 10-50% (2)   
+ - Lagoon:   10-50% (2)   
+ 
+```{r calculate-status, eval=F}
+
+# Find the average by zone
+zone_avg <- zones %>% 
+  group_by(zone) %>% 
+  summarize(avg_cover = mean(cover_cat))
+
+# Define reference points
+ref_fore <- 3
+ref_back <- 2
+ref_lag  <- 2
+
+# Add reference points to zones data
+zone_avg$ref <- c(ref_back, ref_fore, ref_lag)
+
+# Calculate status
+coral_status <- zone_avg %>% 
+  mutate(status = avg_cover / ref,
+         region_id = 1,
+         year = 2020) %>% # add region id and year for toolbox
+  dplyr::select(region_id, zone, status, year)
+```
+
+## Save to Toolbox 
