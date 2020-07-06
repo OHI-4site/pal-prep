@@ -1,0 +1,136 @@
+---
+title: 'OHI+ Palmyra 2020: Habitats Subgoal Rainforest'
+author: "*Compiled on `r date()` by `r Sys.info()['user']`*"
+output: 
+  html_document:
+    toc: true
+    number_sections: true
+    theme: cerulean
+    highlight: haddock
+    includes: 
+     #in_header: '../../../workflow/templates/ohi_hdr.html' - need to update this
+  pdf_document:
+    toc: true
+editor_options: 
+  chunk_output_type: console
+---
+
+
+# Setup
+
+```{r setup, message = F, warning = F}
+knitr::opts_chunk$set(echo = FALSE)
+
+library(tidyverse)
+library(sf)
+
+# Source and set file paths
+source(here('src/R/common.R'))
+
+dir_goal   <- '~/github/pal-prep/prep/bd/hab/v2020'
+dir_anx    <- file.path(dir_M, 'git-annex/foursite/palmyra')
+```
+
+# Methods
+
+## Get Vegetation Community Maps
+
+Vegetation community maps were downloaded from the U.S. Geological Survey vegetation community mapping project for Palmyra Atoll, found [here](https://www.sciencebase.gov/catalog/item/5c66fc5be4b0fe48cb3aca49)   
+
+Data was downloaded on July 2, 2020, and vegetation maps were completed in October 2016 and published in June 2019.  
+
+For habitats we are interested in those dominated by coconut palms and all other forest areas. The following vegetation communities are grouped together and considered "cocos" because they have the same National Vegetation Classification id:  
+
+ - Cocos: Monocultural coconut (Cocos nucifera; greater than 90 percent) dominated forest/woodland    
+ - Cocos/Heliotropium: Coconut forest/woodland with abundant *Heliotropium foertherianum* in the canopy and subcanopy         
+ 
+The following communities are grouped together to form the other "forest" area:  
+
+ - Heliotropium-Scaevola: Woodland/scrubland dominated by Heliotropium with lesser amounts of Scaevola; both species are native to Palmyra   
+ - Hibiscus: Monoculture stands of Hibiscus shrubs (greater than 75 percent), *Hibiscus tiliaceus* is nonnative      
+ - Lepturus: Herbaceous community dominated by Pacific Island thintail (*Lepturus repens*); native to Palmyra     
+ - Lepturus-Fimbristylis: Mowed areas dominated by Pacific Island thintail (Lepturus repens) and/or Fimbristylis; both species are native to Palmyra   
+ - Pandanus: Closed or open forests/woodlands with abundant Pandanus (native), often with Cocos codominant 
+ - Pisonia: Forest with abundant *Pisonia grandis* (native), sometimes co-dominant with or subordinate to coconut       
+ - Pisonia/Heliotropium: Forest/woodlands with abundant Pisonia, and an understory of Heliotropium; both species are native to Palmyra      
+ - Scaevola-Heliotropium: Scrublands dominated by Scaevola with lesser amounts of Heloitropium; both species are native to Palmyra   
+ - Terminalia: Woodlands dominated by Terminalia, generally with an open understory; *Terminalia catappa* is generally regarded as nonnative invasive  
+
+These community descriptions were taken from the associated [USGS metadata](https://www.sciencebase.gov/catalog/file/get/5c66fc5be4b0fe48cb3aca49?f=__disk__9f%2F2a%2F87%2F9f2a870f06866871d04667b3f6c906896e7ccead&transform=1&allowOpen=true#Entity%20and%20Attribute%20Information) and species were compared against a list of native vascular plant species for Palmyra, found [here](http://www.hawaii.edu/gk-12/palmyra/specieslist/nativeplants.htm). *Heliotropium foertherianum* is also known as *Tournefortia argentea*, which is native to Palmyra.      
+
+Three communities are filtered out because they are not dominated by trees or vegetation of any kind:  
+
+ - Bare ground   
+ - Runway (airplane runway)    
+ - Water (standing water on the islands)   
+
+```{r get-vegetation-maps, eval=F}
+
+veg_map <- st_read(file.path(dir_anx, '_raw_data/USGS_data/Vegetation_Commmunities_Palmyra_Atoll_2016'),
+                   layer = "Vegetation_Commmunities_Palmyra_Atoll_2016")
+
+plot(veg_map)
+
+# Shows vegetation communities across all the islands in the atoll along with area in hectares
+# group by community and calculate the total area of each type of community
+
+community_areas <- veg_map %>% 
+  group_by(Community) %>% 
+  summarize(comm_area_ha = sum(Area_ha)) 
+
+plot(community_areas)
+
+# Interested in the amount domminated by palm vs the amount dominated by other tree species 
+# Find area in square kilometers
+veg_area <- community_areas %>% 
+  dplyr::filter(Community != "Bare ground" & Community != "Water" & Community != "Runway") %>% 
+  mutate(veg_comm = ifelse(Community == "Cocos" | Community == "Cocos/Heliotropium", "cocos", "rainforest")) %>% 
+  group_by(veg_comm) %>% 
+  summarize(area_ha = sum(comm_area_ha)) %>% 
+  mutate(area_km = area_ha * 0.01) %>% 
+  dplyr::select(-area_ha)
+
+## Make sure that the percent make up using these groupings makes sense with what we've been told about the island 
+total_area <- sum(veg_area$area_km)
+coco_area <- veg_area$area_km[1]
+forest_area <- veg_area$area_km[2]
+percent_coco <- coco_area / total_area # 41%
+percent_forest <- forest_area / total_area # 59%
+
+```
+
+## Calculate Status
+
+The status would be the area of rainforest currently present compared to the area of rainforest that would exist once 95% of the  historic area of coconut palm has been removed. 
+
+$status = area_{current}~(km^2)~/~area_{potential}~(km^2)$   
+
+The current rainforest area ($area_{current}$) is based on the USGS mapping exercise from 2016 where forest is defined as the total area of the 9 vegetation communities listed above. 
+
+The potential rainforest area ($area_{potential}$) is based on a 2001 satellite image showing approximately 43% of the islands are dominated by coconut plantations and 57% of the islands are dominated by other vegetation communities as discussed in the [USGS Terrestrial Management Plan](https://pubs.usgs.gov/of/2011/1007/pdf/ofr20111007.pdf) The potential rainforest area is calculated as the land area added once 95% of the historic palm plantations are removed plus the original 57% of land area that was dominated by rainforests. We are assuming the total area of land occupied by vegetation communities on the islands is 1.89 $km^2$. 
+
+$area_{potential}~=~area_{added}~(km^2)~+~area_{original}~(km^2)$   
+
+And where   
+
+$area_{added}~=~0.95~*~(0.43~*~1.89~(km^2))$   
+$area_{original}~=~0.57~*~1.89~(km^2)$   
+
+```{r calculate-status, eval=F}
+
+# Find the area of land that would be added if 95% of historic coconut palms are removed
+coco_area_hist <- 0.43 * total_area
+area_added <- 0.95 * coco_area_hist
+
+# Total of rainforest area after removing 95% of coconut palms
+potential_forest_area <- area_added + (0.57 * total_area) # originally rainforest was 53% of the total area
+
+# Find status based on current forest area relative to potential forest area 
+forest_status <- forest_area / potential_forest_area
+
+# Create a final status data frame for export
+rainforest_status <- data.frame(region_id = 1,
+                                year = 2020,
+                                status = forest_status)
+```
+
