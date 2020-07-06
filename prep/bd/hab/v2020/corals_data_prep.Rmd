@@ -44,7 +44,7 @@ Data was downloaded on June 30, 2020, and habitat maps were completed in Decembe
 
 Cover categories are adapted to a numeric scale as follows:  
 
- - 0   - >10% = 1   
+ - 0   - <10% = 1   
  - 10% - <50% = 2   
  - 50% - <90% = 3   
  - 90% - 100% = 4   
@@ -83,11 +83,12 @@ write_csv(zones, file.path(dir_goal, "int/coral_zones.csv"))
 
 Calculate the average cover category by zone. Reference points for coral cover zones are:   
 
- - Forereef: 50-90% (3)   
- - Backreef: 10-50% (2)   
- - Lagoon:   10-50% (2)   
+ - Fore Reef: 50-90% (3)   
+ - Back Reef: 10-50% (2)   
+ - Lagoon:    10-50% (2)   
  
 ```{r calculate-status, eval=F}
+zones <- read_csv(file.path(dir_goal, "int/coral_zones.csv"))
 
 # Find the average by zone
 zone_avg <- zones %>% 
