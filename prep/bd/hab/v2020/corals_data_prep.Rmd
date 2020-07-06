@@ -111,4 +111,41 @@ coral_status <- zone_avg %>%
   dplyr::select(region_id, zone, status, year)
 ```
 
+Try alternative method for calculating scores. Find the number of data points that fall within or above the reference point category and divide by the total number of data points for each zone type.  
+
+```{r calc-status-alt, eval=F}
+zones <- read_csv(file.path(dir_goal, "int/coral_zones.csv"))
+
+# Define reference point categories
+ref_fore <- 3
+ref_back <- 2
+ref_lag  <- 2
+
+# Add reference points to zones data
+zones_ref <- zones %>% 
+  group_by(zone) %>% 
+  mutate(ref = case_when(zone == "Fore Reef" ~ ref_fore,
+                         zone == "Back Reef" ~ ref_back,
+                         zone == "Lagoon" ~ ref_lag)) %>% 
+  ungroup()
+
+# Find the number of data points for each cover category and add reference categories
+zone_n <- zones %>%
+  group_by(zone, cover_cat) %>%
+  summarise(n_cover = n()) %>% 
+  mutate(ref = case_when(zone == "Fore Reef" ~ ref_fore,
+                         zone == "Back Reef" ~ ref_back,
+                         zone == "Lagoon" ~ ref_lag))
+
+# Find the status scores using the number of points that are at the reference category or better
+coral_status2 <- zone_n %>% 
+  filter(cover_cat == ref | cover_cat > ref) %>% 
+  group_by(zone) %>% 
+  summarize(n_ref = sum(n_cover)) %>% 
+  mutate(n_total = case_when(zone == "Back Reef" ~ 126,
+                           zone == "Fore Reef" ~ 156,
+                           zone == "Lagoon" ~ 146),
+         status = n_ref / n_total)
+```
+
 ## Save to Toolbox 
