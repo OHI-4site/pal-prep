@@ -1,0 +1,199 @@
+---
+title: 'OHI+ Palmyra 2020: Habitat Services Subgoal Carbon Storage'
+author: "*Compiled on `r date()` by `r Sys.info()['user']`*"
+output: 
+  html_document:
+    toc: true
+    number_sections: true
+    theme: cerulean
+    highlight: haddock
+    includes: 
+     #in_header: '../../../workflow/templates/ohi_hdr.html' - need to update this
+  pdf_document:
+    toc: true
+editor_options: 
+  chunk_output_type: console
+---
+
+# Summary
+
+
+
+# Setup
+
+```{r setup, message = F, warning = F}
+knitr::opts_chunk$set(echo = FALSE)
+
+library(tidyverse)
+library(sf)
+library(rgdal)
+library(lwgeom)
+
+# Source and set file paths
+source(here('src/R/common.R'))
+
+dir_goal   <- '~/github/pal-prep/prep/hs/cs/v2020'
+dir_anx    <- file.path(dir_M, 'git-annex/foursite/palmyra')
+```
+
+
+# Methods
+
+## Get Tree Cover Maps
+
+Tree cover maps were downloaded from the U.S. Geological Survey vegetation community mapping project for Palmyra Atoll, found [here](https://www.sciencebase.gov/catalog/item/5c66fc5be4b0fe48cb3aca49).    
+
+Data was downloaded on July 7, 2020, and vegetation maps were completed in October 2016 and published in June 2019.  
+
+```{r get-tree-cover-maps, eval=F}
+
+trees <- st_read(file.path(dir_anx, '_raw_data/USGS_data/Woody_Crowns_Palmyra_Atoll_2016'),
+                   layer = "Woody_Crowns_Palmyra_Atoll_2016")
+
+# Warning that some polygons don't have four points
+# Check geometry validity
+validity <- st_is_valid(trees)
+trees$valid <- validity
+
+# Find invalid polygons
+invalid <- trees %>% 
+  dplyr::filter(valid != TRUE) # 16 invalid polygons
+
+# Check reason for invalid geometries
+st_is_valid(invalid, reason = TRUE) # All have self-intersection
+
+# Fix self intersections using st_make_valid
+make_valid <- sf::st_make_valid(invalid) %>% 
+  st_cast("MULTIPOLYGON") # Retain geometry type multipolygon
+
+# Check if it worked
+st_is_valid(make_valid) # Get all true now 
+
+# Bind back together
+trees_edit <- trees %>% 
+  dplyr::filter(trees$valid == TRUE) %>% 
+  rbind(make_valid) %>% # Still missing three observations
+  dplyr::select(-valid)
+
+# Save to the raw folder 
+st_write(trees_edit, file.path(dir_goal, 'raw/tree_map.shp'), driver = "ESRI Shapefile")
+
+# Check for NA valid geometries instead of False
+# Not sure what to do about these 
+geom_na <- trees %>% 
+  dplyr::filter(is.na(valid)) # Found missing ones - these geometries are corrupt not invalid
+
+```
+
+## Categorize Native and Nonnative Species
+
+The carbon storage goal is based on percent coverage of native tree species, we need to identify which of the mapped species are native vs. nonnative.   
+
+The following tree species are included in the mapping project and we have designated if they are native or nonnative. Native status was assigned based on the Palmyra Native Plants list, found [here](http://www.hawaii.edu/gk-12/palmyra/specieslist/nativeplants.htm), and the U.S. Department of Agriculture [Plants Database](https://plants.sc.egov.usda.gov/java/). Species listed with Native (N) for the Pacific Basin (PB) are assigned a native status. Primary nonnative species were identified though the U.S. Geological Survey 2010 Biological Security Plan for Palmyra Atoll, found [here](https://pubs.usgs.gov/of/2010/1097/pdf/of20101097.pdf).         
+
+ - *Araucaria*, species unknown: Native   
+ - *Artocarpus altilis*: Nonnative   
+ - *Barringtonia asiatica*: Native   
+ - *Calophyllum inophyllum*: Nonnative   
+ - *Casuarina equisetifolia*: Nonnative     
+ - *Coccoloba uvifera*: Nonnative   
+ - *Cocos nucifera*: Nonnative   
+ - *Cordia subcordata*: Native   
+ - *Guettarda speciosa*: Native   
+ - *Heliotropium foertherianum* also known as *Tournefortia argentea*: Native   
+ - *Hernandia nymphaeifolia*: Native     
+ - *Hibiscus tiliaceus*: Nonnative   
+ - *Ipomoea*: Native   
+ - *Nephrolepis*: Native   
+ - *Pandanus tectorius*: Native   
+ - *Pisonia grandis*: Native   
+ - *Phymatosorus scolopendria*: Native    
+ - *Premna serratifolia*: Native   
+ - *Scaevola taccada*: Native   
+ - *Terminalia catappa*: Nonnative   
+ - Unknown: excluded from analysis    
+ - Water, standing water: excluded from analysis    
+ 
+ 
+```{r add-native-status, eval=F}
+# Read in the shp with fixed geometries 
+tree_map <- st_read(file.path(dir_goal, "raw"), layer = "tree_map")
+
+# List of native plants:
+natives <- c("Araucaria", "Barringtonia asiatica", "Cordia subcordata", "Guettarda speciosa",
+             "Heliotropium foertherianum", "Hernandia nymphaeifolia", "Ipomoea", "Nephrolepis",
+             "Pandanus tectorius", "Pisonia grandis", "Phymatosorus scolopendria",
+             "Premna serratifolia", "Scaevola taccada")
+
+# Add status:
+tree_cat <- tree_map %>% 
+  mutate(category = ifelse(species %in% natives, "native", "nonnative"))
+
+# Save to int folder
+write_sf(tree_cat, file.path(dir_goal, 'int/tree_category.shp'), driver = "ESRI Shapefile")
+```
+ 
+## Calculate Area 
+
+Find the area of native vs. nonnative trees on the islands   
+
+```{r calculate-area, eval=F}
+
+tree_cat <- st_read(file.path(dir_goal, "int"), layer = "tree_category") 
+
+# Change area in square meters to area in square km 
+# Find area of native and nonnative species
+tree_area <- tree_cat %>% 
+  mutate(area_km = Area * 0.000001) %>% 
+  group_by(category) %>% 
+  summarize(geometry = st_union(geometry),
+            area_km = sum(area_km))
+
+# Check aggregation 
+plot(tree_area)
+
+# Save to int folder
+write_sf(tree_area, file.path(dir_goal, "int/tree_area.shp"), driver = "ESRI Shapefile", overwrite = TRUE)
+
+```
+
+## Calculate Status
+ 
+Reference Point: 95% of the forest area dominated by native trees   
+
+
+The status is calculated as the current percent of forest dominated by native trees over the refernce point percentage   
+$status~=~percent~cover~/~reference~point~percent~cover$   
+ 
+```{r calc-status, eval=F}
+
+tree_area <- st_read(file.path(dir_goal, "int"), layer = "tree_area") 
+
+# Define reference point
+ref_point <- 0.95 
+
+# Find total area
+total_area_km <- sum(tree_area$area_km)
+
+# Find percent area for both native and nonnative species
+percent_area <- tree_area %>% 
+  mutate(total_area = total_area_km) %>% 
+  mutate(percent_area = area_km / total_area)
+
+# Calculate status 
+cs_status <- percent_area %>% 
+  filter(category == "native") %>% 
+  mutate(status = percent_area / ref_point,
+         region_id = 1,
+         year = 2020) %>% 
+  dplyr::select(region_id, year, status)
+
+# Don't need to save the geometries in the output
+cs_status <- as.data.frame(cs_status) %>% 
+  dplyr::select(-geometry)
+
+# Save as csv to output
+write_csv(cs_status, file.path(dir_goal, "output/cs_status.csv"))
+```
+ 
+ 
