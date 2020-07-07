@@ -107,7 +107,7 @@ $status = area_{current}~(km^2)~/~area_{potential}~(km^2)$
 
 The current rainforest area ($area_{current}$) is based on the USGS mapping exercise from 2016 where forest is defined as the total area of the 9 vegetation communities listed above. 
 
-The potential rainforest area ($area_{potential}$) is based on a 2001 satellite image showing approximately 43% of the islands are dominated by coconut plantations and 57% of the islands are dominated by other vegetation communities as discussed in the [USGS Terrestrial Management Plan](https://pubs.usgs.gov/of/2011/1007/pdf/ofr20111007.pdf) The potential rainforest area is calculated as the land area added once 95% of the historic palm plantations are removed plus the original 57% of land area that was dominated by rainforests. We are assuming the total area of land occupied by vegetation communities on the islands is 1.89 $km^2$. 
+The potential rainforest area ($area_{potential}$) is based on a 2001 satellite image showing approximately 43% of the islands are dominated by coconut plantations and 57% of the islands are dominated by other vegetation communities as discussed in the [USGS Terrestrial Management Plan](https://pubs.usgs.gov/of/2011/1007/pdf/ofr20111007.pdf) The potential rainforest area is calculated as the land area added once 95% of the historic palm plantations are removed plus the original 57% of land area that was dominated by rainforests. We are assuming the total area of land occupied by vegetation communities on the islands is 1.89 $km^2$, this does not include areas of the island that are non-vegetated. 
 
 $area_{potential}~=~area_{added}~(km^2)~+~area_{original}~(km^2)$   
 
