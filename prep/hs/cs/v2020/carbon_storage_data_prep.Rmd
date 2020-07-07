@@ -16,7 +16,7 @@ editor_options:
 ---
 
 # Summary
-
+This script classifies tree species into native and nonnative groups and finds the percent of total area occupied by native tree species. The carbon storage status is based on the percent of land occupied by native tree species compared to the reference point percentage of land occupied by native tree species.   
 
 
 # Setup

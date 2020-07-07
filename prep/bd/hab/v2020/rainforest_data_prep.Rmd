@@ -15,6 +15,9 @@ editor_options:
   chunk_output_type: console
 ---
 
+# Summary
+This script uses vegetation communities on the island to determine the land area occupied by rainforest and to estimate the extent of the rainforest relative to what it could be if palm plantations on the islands were removed. 
+
 
 # Setup
 
@@ -35,7 +38,7 @@ dir_anx    <- file.path(dir_M, 'git-annex/foursite/palmyra')
 
 ## Get Vegetation Community Maps
 
-Vegetation community maps were downloaded from the U.S. Geological Survey vegetation community mapping project for Palmyra Atoll, found [here](https://www.sciencebase.gov/catalog/item/5c66fc5be4b0fe48cb3aca49)   
+Vegetation community maps were downloaded from the U.S. Geological Survey vegetation community mapping project for Palmyra Atoll, found [here](https://www.sciencebase.gov/catalog/item/5c66fc5be4b0fe48cb3aca49).    
 
 Data was downloaded on July 2, 2020, and vegetation maps were completed in October 2016 and published in June 2019.  
 
