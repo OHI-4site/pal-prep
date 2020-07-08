@@ -89,9 +89,9 @@ geom_na <- trees %>%
 
 The carbon storage goal is based on percent coverage of native tree species, we need to identify which of the mapped species are native vs. nonnative.   
 
-The following tree species are included in the mapping project and we have designated if they are native or nonnative. Native status was assigned based on the Palmyra Native Plants list, found [here](http://www.hawaii.edu/gk-12/palmyra/specieslist/nativeplants.htm), and the U.S. Department of Agriculture [Plants Database](https://plants.sc.egov.usda.gov/java/). Species listed with Native (N) for the Pacific Basin (PB) are assigned a native status. Primary nonnative species were identified though the U.S. Geological Survey 2010 Biological Security Plan for Palmyra Atoll, found [here](https://pubs.usgs.gov/of/2010/1097/pdf/of20101097.pdf).         
+The following tree species are included in the mapping project and we have designated if they are native or nonnative. Category designations were assigned based species lists found in Tables 1 and 2 of the U.S. Geological Survey 2011 Terrestrial Forest Management Plan for Palmyra Atoll, found [here](https://permanent.fdlp.gov/gpo119875/ofr20111007.pdf).         
 
- - *Araucaria*, species unknown: Native   
+ - *Araucaria*, species unknown: Nonnative      
  - *Artocarpus altilis*: Nonnative   
  - *Barringtonia asiatica*: Native   
  - *Calophyllum inophyllum*: Nonnative   
@@ -101,13 +101,13 @@ The following tree species are included in the mapping project and we have desig
  - *Cordia subcordata*: Native   
  - *Guettarda speciosa*: Native   
  - *Heliotropium foertherianum* also known as *Tournefortia argentea*: Native   
- - *Hernandia nymphaeifolia*: Native     
+ - *Hernandia nymphaeifolia*: Native (not on the lists but *Hernandia sonora* is native)    
  - *Hibiscus tiliaceus*: Nonnative   
  - *Ipomoea*: Native   
- - *Nephrolepis*: Native   
- - *Pandanus tectorius*: Native   
+ - *Nephrolepis*: Nonnative   
+ - *Pandanus tectorius* updated from *Pandanus fischerianus*: Native  
+ - *Phymatosorus scolopendria*: Native 
  - *Pisonia grandis*: Native   
- - *Phymatosorus scolopendria*: Native    
  - *Premna serratifolia*: Native   
  - *Scaevola taccada*: Native   
  - *Terminalia catappa*: Nonnative   
@@ -120,8 +120,8 @@ The following tree species are included in the mapping project and we have desig
 tree_map <- st_read(file.path(dir_goal, "raw"), layer = "tree_map")
 
 # List of native plants:
-natives <- c("Araucaria", "Barringtonia asiatica", "Cordia subcordata", "Guettarda speciosa",
-             "Heliotropium foertherianum", "Hernandia nymphaeifolia", "Ipomoea", "Nephrolepis",
+natives <- c("Barringtonia asiatica", "Cordia subcordata", "Guettarda speciosa",
+             "Heliotropium foertherianum", "Hernandia nymphaeifolia", "Ipomoea",
              "Pandanus tectorius", "Pisonia grandis", "Phymatosorus scolopendria",
              "Premna serratifolia", "Scaevola taccada")
 
