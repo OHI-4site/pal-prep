@@ -1,0 +1,108 @@
+---
+title: 'OHI+ Palmyra 2020: Habitats Subgoal Rainforest Trend'
+author: "*Compiled on `r date()` by `r Sys.info()['user']`*"
+output: 
+  html_document:
+    toc: true
+    number_sections: true
+    theme: cerulean
+    highlight: haddock
+    includes: 
+     #in_header: '../../../workflow/templates/ohi_hdr.html' - need to update this
+  pdf_document:
+    toc: true
+editor_options: 
+  chunk_output_type: console
+---
+
+# Summary 
+
+This script calculates the trend in percent cover of the rainforest relative to the 2001 potential rainforest area.   
+
+# Data 
+
+Trend comes from three sources of satellite images and published papers:  
+
+2001 Reference Point: The 2001 reference point comes from a satellite image of the island that is discussed in the 2011 Terrestrial Forest Management Plan.     
+ - Hathaway, S.A., McEachern K., & Fisher, R.N. (2011). "Terrestrial Forest Management Plan for Palmyra Atoll". U.S. Geological Survey Open-File Report 2011-1007.  
+  [Available here](https://permanent.fdlp.gov/gpo119875/ofr20111007.pdf)  
+ 
+2010: The 2010 data is estimated from a study on invasive rats that quantified the percent of land area on each islet occupied by *Cocos nucifera* (Table 1).    
+ - Lafferty, K.D. et al. (2010). "Stomach nematodes (*Mastophorus muris*) in rats (*Rattus rattus*) are associated with coconut (*Cocos nucifera*) habitat at Palmyra Atoll. *Journal of Parasitology* 96(1): 16-20.   
+  [Available here](https://bioone.org/journals/Journal-of-Parasitology/volume-96/issue-1/GE-2180.1/Stomach-Nematodes-Mastophorus-muris-in-Rats-Rattus-rattus-Are-Associated/10.1645/GE-2180.1.full)   
+  
+2016: The 2016 data is estimated using a U.S. Geological Survey vegetation community mapping project for Palmyra Atoll. Vegetation maps were completed in October 2016 and published in June 2019. Data was downloaded on July 2, 2020 from the USGS data portal, [here](https://www.sciencebase.gov/catalog/item/5c66fc5be4b0fe48cb3aca49).   
+ - Struckhoff, M.A., 2019, Woody species crown and vegetation community data, Palmyra Atoll, 2016: U.S. Geological Survey data release, https://doi.org/10.5066/P9GMPVIO.  
+ 
+# Methods 
+
+## 2001 Data
+
+
+## 2010 Data 
+
+
+## 2016 Data 
+
+### Get Vegetation Community Maps
+
+For habitats we are interested in those dominated by coconut palms and all other forest areas. The following vegetation communities are grouped together and considered "cocos" because they have the same National Vegetation Classification id:  
+
+ - Cocos: Monocultural coconut (Cocos nucifera; greater than 90 percent) dominated forest/woodland    
+ - Cocos/Heliotropium: Coconut forest/woodland with abundant *Heliotropium foertherianum* in the canopy and subcanopy         
+ 
+The following communities are grouped together to form the other "forest" area:  
+
+ - Heliotropium-Scaevola: Woodland/scrubland dominated by Heliotropium with lesser amounts of Scaevola; both species are native to Palmyra   
+ - Hibiscus: Monoculture stands of Hibiscus shrubs (greater than 75 percent), *Hibiscus tiliaceus* is nonnative      
+ - Lepturus: Herbaceous community dominated by Pacific Island thintail (*Lepturus repens*); native to Palmyra     
+ - Lepturus-Fimbristylis: Mowed areas dominated by Pacific Island thintail (Lepturus repens) and/or Fimbristylis; both species are native to Palmyra   
+ - Pandanus: Closed or open forests/woodlands with abundant Pandanus (native), often with Cocos codominant 
+ - Pisonia: Forest with abundant *Pisonia grandis* (native), sometimes co-dominant with or subordinate to coconut       
+ - Pisonia/Heliotropium: Forest/woodlands with abundant Pisonia, and an understory of Heliotropium; both species are native to Palmyra      
+ - Scaevola-Heliotropium: Scrublands dominated by Scaevola with lesser amounts of Heloitropium; both species are native to Palmyra   
+ - Terminalia: Woodlands dominated by Terminalia, generally with an open understory; *Terminalia catappa* is generally regarded as nonnative invasive  
+
+These community descriptions were taken from the associated [USGS metadata](https://www.sciencebase.gov/catalog/file/get/5c66fc5be4b0fe48cb3aca49?f=__disk__9f%2F2a%2F87%2F9f2a870f06866871d04667b3f6c906896e7ccead&transform=1&allowOpen=true#Entity%20and%20Attribute%20Information) and species were compared against a list of native vascular plant species for Palmyra, found [here](http://www.hawaii.edu/gk-12/palmyra/specieslist/nativeplants.htm). *Heliotropium foertherianum* is also known as *Tournefortia argentea*, which is native to Palmyra.      
+
+Three communities are filtered out because they are not dominated by trees or vegetation of any kind:  
+
+ - Bare ground   
+ - Runway (airplane runway)    
+ - Water (standing water on the islands)   
+
+```{r get-2016-vegetation-maps, eval=F}
+
+veg_map <- st_read(file.path(dir_anx, '_raw_data/USGS_data/Vegetation_Commmunities_Palmyra_Atoll_2016'),
+                   layer = "Vegetation_Commmunities_Palmyra_Atoll_2016")
+
+plot(veg_map)
+
+# Shows vegetation communities across all the islands in the atoll along with area in hectares
+# group by community and calculate the total area of each type of community
+
+community_areas <- veg_map %>% 
+  group_by(Community) %>% 
+  summarize(comm_area_ha = sum(Area_ha)) 
+
+plot(community_areas)
+
+# Interested in the amount domminated by palm vs the amount dominated by other tree species 
+# Find area in square kilometers
+veg_area <- community_areas %>% 
+  dplyr::filter(Community != "Bare ground" & Community != "Water" & Community != "Runway") %>% 
+  mutate(veg_comm = ifelse(Community == "Cocos" | Community == "Cocos/Heliotropium", "cocos", "rainforest")) %>% 
+  group_by(veg_comm) %>% 
+  summarize(area_ha = sum(comm_area_ha)) %>% 
+  mutate(area_km = area_ha * 0.01) %>% 
+  dplyr::select(-area_ha)
+```
+
+
+
+## Combine Data
+
+
+## Calculate Trend 
+
+
