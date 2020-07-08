@@ -51,6 +51,18 @@ Cover categories are adapted to a numeric scale as follows:
  - 50% - <90% = 3   
  - 90% - 100% = 4   
 
+The following zones are grouped together to form the three major reef zone of interest:  
+
+ - Back Reef: Not grouped with any other zone   
+ - Fore Reef: Fore reef and the Bank/Shelf   
+ - Lagoon: Lagoon and Channel   
+
+Using these groupings, the total number of observations in each zone are:   
+
+ - Back Reef: 126   
+ - Fore Reef: 156  
+ - Lagoon: 146   
+ 
 ```{r coral-maps, eval=F}
 
 hab_map <- st_read(file.path(dir_anx, '_raw_data/NCCOS_data/habitat_map'), layer = "Palmyra_Habitat_Map_Final") %>% 
@@ -89,47 +101,20 @@ Calculate the average cover category by zone. Reference points for coral cover z
  - Back Reef: 10-50% (2)   
  - Lagoon:    10-50% (2)   
  
+Coral reef status is calculated as number of data points falling within or above the reference point category compared to the overall number of data points in each zone of the reef.   
+
+$status~=~ref_{n}~/~total_{n}$   
+
+Where $ref_{n}$ is the number of data points in each zone falling within or above the reference point category and $total_{n}$ is the total number of data points in each zone.   
+
 ```{r calculate-status, eval=F}
-zones <- read_csv(file.path(dir_goal, "int/coral_zones.csv"))
 
-# Find the average by zone
-zone_avg <- zones %>% 
-  group_by(zone) %>% 
-  summarize(avg_cover = mean(cover_cat))
-
-# Define reference points
-ref_fore <- 3
-ref_back <- 2
-ref_lag  <- 2
-
-# Add reference points to zones data
-zone_avg$ref <- c(ref_back, ref_fore, ref_lag)
-
-# Calculate status
-coral_status <- zone_avg %>% 
-  mutate(status = avg_cover / ref,
-         region_id = 1,
-         year = 2020) %>% # add region id and year for toolbox
-  dplyr::select(region_id, zone, status, year)
-```
-
-Try alternative method for calculating scores. Find the number of data points that fall within or above the reference point category and divide by the total number of data points for each zone type.  
-
-```{r calc-status-alt, eval=F}
 zones <- read_csv(file.path(dir_goal, "int/coral_zones.csv"))
 
 # Define reference point categories
 ref_fore <- 3
 ref_back <- 2
 ref_lag  <- 2
-
-# Add reference points to zones data
-zones_ref <- zones %>% 
-  group_by(zone) %>% 
-  mutate(ref = case_when(zone == "Fore Reef" ~ ref_fore,
-                         zone == "Back Reef" ~ ref_back,
-                         zone == "Lagoon" ~ ref_lag)) %>% 
-  ungroup()
 
 # Find the number of data points for each cover category and add reference categories
 zone_n <- zones %>%
@@ -140,13 +125,13 @@ zone_n <- zones %>%
                          zone == "Lagoon" ~ ref_lag))
 
 # Find the status scores using the number of points that are at the reference category or better
-coral_status2 <- zone_n %>% 
+coral_status <- zone_n %>% 
   filter(cover_cat == ref | cover_cat > ref) %>% 
   group_by(zone) %>% 
   summarize(n_ref = sum(n_cover)) %>% 
   mutate(n_total = case_when(zone == "Back Reef" ~ 126,
-                           zone == "Fore Reef" ~ 156,
-                           zone == "Lagoon" ~ 146),
+                             zone == "Fore Reef" ~ 156,
+                             zone == "Lagoon" ~ 146),
          status = n_ref / n_total)
 ```
 
