@@ -34,6 +34,7 @@ knitr::opts_chunk$set(echo = FALSE)
 
 library(tidyverse)
 library(janitor)
+library(here)
 
 # Source and set file paths
 source(here('src/R/common.R'))
@@ -103,7 +104,7 @@ write_csv(veg_area, file.path(dir_goal, "int/veg_area.csv"))
 
 ## Get Historic Data
 
-The historic percent coverage of palm and rainforest will be used as the reference point for the status score. Historic values are based on a 2001 satellite image evaluated in the U.S. Geological Survey 2011 Terrestrial Forest Management Plan for Palmyra Atoll. There is no downlaodable data, these numbers are pulled from the report to create the historic data frame.    
+The historic percent coverage of palm and rainforest will be used as the reference point for the status score. Historic values are based on a 2001 satellite image evaluated in the U.S. Geological Survey 2011 Terrestrial Forest Management Plan for Palmyra Atoll. There is no downloadable data, these numbers are pulled from the report to create the historic data frame.    
 
 Citation: Hathaway, S.A., McEachern K., & Fisher, R.N. (2011). "Terrestrial Forest Management Plan for Palmyra Atoll". U.S. Geological Survey Open-File Report 2011-1007.  
   [Available here](https://permanent.fdlp.gov/gpo119875/ofr20111007.pdf)  
@@ -188,4 +189,10 @@ rainforest_status <- data.frame(region_id = 1,
 
 ## Save to Toolbox 
 
+```{r save-to-toolbox, eval=F}
+# save to toolbox
+dir_scores <- '~/github/pal-scores/region'
+
+write_csv(rainforest_status, file.path(dir_scores, 'layers/rainforest_status.csv'))
+```
 

@@ -17,7 +17,7 @@ editor_options:
 
 # Summary 
 
-This script calculates the trend in percent cover of the rainforest relative to the 2001 potential rainforest area.   
+This script calculates the trend in rainforest area in 2001, 2010, and 2016 relative to the 2001 potential rainforest area.   
 
 # Data 
 
@@ -33,13 +33,103 @@ Trend comes from three sources of satellite images and published papers:
   
 2016: The 2016 data is estimated using a U.S. Geological Survey vegetation community mapping project for Palmyra Atoll. Vegetation maps were completed in October 2016 and published in June 2019. Data was downloaded on July 2, 2020 from the USGS data portal, [here](https://www.sciencebase.gov/catalog/item/5c66fc5be4b0fe48cb3aca49).   
  - Struckhoff, M.A., 2019, Woody species crown and vegetation community data, Palmyra Atoll, 2016: U.S. Geological Survey data release, https://doi.org/10.5066/P9GMPVIO.  
- 
+
+# Setup 
+
+```{r setup, message = F, warning = F}
+knitr::opts_chunk$set(echo = FALSE)
+
+library(tidyverse)
+library(sf)
+library(here)
+
+# Source and set file paths
+source(here('src/R/common.R'))
+
+dir_goal   <- '~/github/pal-prep/prep/bd/hab/v2020'
+dir_anx    <- file.path(dir_M, 'git-annex/foursite/palmyra')
+```
+
+
 # Methods 
 
 ## 2001 Data
 
+The historic percent coverage of palm and rainforest will be used as the reference point for the status score. Historic values are based on a 2001 satellite image evaluated in the U.S. Geological Survey 2011 Terrestrial Forest Management Plan for Palmyra Atoll. There is no downloadable data, these numbers are pulled from the report to create the data.    
+
+This report states that references to the size of the island vary, so a total land area value was used from 2000, which is the closest estimate of the area of the island when the 2001 satellite image was taken. The 2000 estimated land area was manually derived and cited in the 2019 study where the current status data was downloaded.  
+
+The report gives the following vegetation categories and percent coverage:  
+
+ - Cocos: 43%    
+ - Scaevola: 29.5%   
+ - Pisonia or native forest: 12%   
+ - Broadleaf forest (combined with native forest): 6.2%   
+ - Hau (combined with native forest): 0.5% 
+ 
+The remaining 8.8% of the land area will be assumed to be non-vegetated.  
+
+Historic data was created into a data frame in the `rainforest_data_prep.Rmd` and saved as `historic_area.csv`.        
+
+```{r 2001-area, eval=F}
+
+raw_2001 <- read_csv(file.path(dir_goal, "int/historic_area.csv"))
+
+# All data should be region_id, year, and area_forest
+area_2001 <- raw_2001 %>% 
+  filter(category == "forest") %>% 
+  rename("area_forest" = "cover_area") %>% 
+  mutate(region_id = 1, 
+         year = 2001) %>% 
+  dplyr::select(region_id, year, area_forest)
+
+# Save to int folder
+write_csv(area_2001, file.path(dir_goal, "int/trend_area_2001.csv"))
+```
+
 
 ## 2010 Data 
+
+Data for 2010 is recreated from Table 1 in the Lafferty et al paper. The table gives each islet, the islet area (ha), and the percent cocos. Since no specific percent area of non-vegetated land is included in this study, we will use the average percent between the 2001 and 2016 data. The 2001 estimate for non-vegetated land is 8.8% and the 2016 estimate of non-vegetated land is 4.69%. For the 2010 data, we'll assume 6.75% of the land area is non-vegetated and the remainder is considered "forest".    
+
+### Create 2010 Data
+
+```{r create-2010-data, eval=F}
+
+# Recreate the Table 1 data as a data frame
+raw_2010 <- data.frame(islet = c("Ainsley", "Cooper", "Dudley", "Eastern", "Fern",
+                                 "Home", "Leslie", "Lost", "North Fighter", "Portsmouth",
+                                 "Sand", "Southern", "Whippoorwill"),
+                       area_ha = c(0.1, 110.8, 1.2, 12.7, 0.5, 7.1, 1.7, 1, 0.3,
+                                   61.4, 0.8, 8.2, 1.9),
+                       percent_cocos = c(1, 0.3, 0, 0.01, 1, 0.43, 0, 0, 0.08,
+                                         0.09, 0.13, 0.75, 0.38))
+
+# Save to raw folder
+write_csv(raw_2010, file.path(dir_goal, "raw/raw_2010.csv"))
+```
+
+### Find Area 
+
+```{r find-2010-area, eval=F}
+
+raw_2010 <- read_csv(file.path(dir_goal, "raw/raw_2010.csv"))
+
+area_2010 <- raw_2010 %>% 
+  mutate(area_km = area_ha * 0.01,
+         area_cocos = area_km * percent_cocos, 
+         region_id = 1) %>% 
+  group_by(region_id) %>% 
+  summarize(tot_area_cocos = sum(area_cocos),
+            total_area = sum(area_km)) %>% 
+  mutate(area_non_veg = total_area * 0.0675,
+         area_forest = total_area - (area_non_veg + tot_area_cocos),
+         year = 2010) %>% 
+  dplyr::select(region_id, year, area_forest)
+
+# Save csv file 
+write_csv(area_2010, file.path(dir_goal, "int/trend_area_2010.csv"))
+```
 
 
 ## 2016 Data 
@@ -73,36 +163,111 @@ Three communities are filtered out because they are not dominated by trees or ve
 
 ```{r get-2016-vegetation-maps, eval=F}
 
-veg_map <- st_read(file.path(dir_anx, '_raw_data/USGS_data/Vegetation_Commmunities_Palmyra_Atoll_2016'),
+veg_map_2016 <- st_read(file.path(dir_anx, '_raw_data/USGS_data/Vegetation_Commmunities_Palmyra_Atoll_2016'),
                    layer = "Vegetation_Commmunities_Palmyra_Atoll_2016")
 
-plot(veg_map)
+plot(veg_map_2016)
 
 # Shows vegetation communities across all the islands in the atoll along with area in hectares
 # group by community and calculate the total area of each type of community
 
-community_areas <- veg_map %>% 
+community_areas_2016 <- veg_map_2016 %>% 
   group_by(Community) %>% 
   summarize(comm_area_ha = sum(Area_ha)) 
 
 plot(community_areas)
 
-# Interested in the amount domminated by palm vs the amount dominated by other tree species 
+# Find the percent non-vegetated land (bare ground, water, and runway)
+area_non_veg <- community_areas_2016$comm_area_ha[community_areas$Community == "Bare ground"] +
+                community_areas_2016$comm_area_ha[community_areas$Community == "Water"] +
+                community_areas_2016$comm_area_ha[community_areas$Community == "Runway"]
+
+percent_non_veg <- area_non_veg / sum(community_areas$comm_area_ha) # 4.69%
+
+# Interested in the amount dominated by palm vs the amount dominated by other tree species 
 # Find area in square kilometers
-veg_area <- community_areas %>% 
+area_2016 <- community_areas_2016 %>% 
   dplyr::filter(Community != "Bare ground" & Community != "Water" & Community != "Runway") %>% 
-  mutate(veg_comm = ifelse(Community == "Cocos" | Community == "Cocos/Heliotropium", "cocos", "rainforest")) %>% 
+  mutate(veg_comm = ifelse(Community == "Cocos" | Community == "Cocos/Heliotropium", "cocos", "forest")) %>% 
   group_by(veg_comm) %>% 
   summarize(area_ha = sum(comm_area_ha)) %>% 
   mutate(area_km = area_ha * 0.01) %>% 
-  dplyr::select(-area_ha)
+  filter(veg_comm == "forest") %>% 
+  rename(area_forest = area_km) %>% 
+  mutate(region_id = 1,
+         year = 2016) %>% 
+  dplyr::select(region_id, year, area_forest)
+
+# Convert to data frame and remove geometry
+area_2016 <- as.data.frame(area_2016) %>% 
+  dplyr::select(-geometry)
+
+# Save to int folder
+write_csv(area_2016, file.path(dir_goal, "int/trend_area_2016.csv"))
 ```
 
 
+## Combine Trend Data
 
-## Combine Data
+```{r combine-data, eval=F}
+
+# Read in yearly files
+area_2001 <- read_csv(file.path(dir_goal, "int/trend_area_2001.csv"))
+area_2010 <- read_csv(file.path(dir_goal, "int/trend_area_2010.csv"))
+area_2016 <- read_csv(file.path(dir_goal, "int/trend_area_2016.csv"))
+
+# Combine data
+trend_area <- area_2001 %>% 
+  rbind(area_2010) %>% 
+  rbind(area_2016)
+
+# Save to int folder 
+write_csv(trend_area, file.path(dir_goal, "int/combined_trend_area.csv"))
+```
 
 
 ## Calculate Trend 
 
+Each year will be given a status (0-1). The year's status will be calculated the same way the rainforest status was calculated in `rainforest_data_prep.Rmd`.  
 
+$status = area_{current}~(km^2)~/~area_{potential}~(km^2)$   
+
+The current rainforest area ($area_{current}$) is based on the USGS mapping exercise from 2016 where forest is defined as the total area of the 9 vegetation communities listed above. 
+
+The potential rainforest area ($area_{potential}$) is based on a 2001 satellite image showing approximately 43% of the islands are dominated by coconut plantations and 53% of the islands are dominated by other vegetation communities as discussed in the [USGS Terrestrial Management Plan](https://pubs.usgs.gov/of/2011/1007/pdf/ofr20111007.pdf) The potential rainforest area is calculated as the land area added once 95% of the historic palm plantations are removed plus the original 53% of land area that was dominated by rainforests.  
+
+$area_{potential}~=~area_{added}~(km^2)~+~area_{original}~(km^2)$   
+
+And where   
+
+$area_{added}~=~0.95~*~(0.43~*~2.46~(km^2))$   
+$area_{original}~=~0.53~*~2.46~(km^2)$  
+
+```{r calculate-trend-status, eval=F}
+
+areas     <- read_csv(file.path(dir_goal, "int/combined_trend_area.csv")) 
+hist_area <- read_csv(file.path(dir_goal, "int/historic_area.csv"))
+
+# Find the area of land that would be added if 95% of historic coconut palms are removed
+coco_area_hist <- hist_area$cover_area[hist_area$category == "cocos"]
+area_added     <- 0.95 * coco_area_hist
+
+# Total potential rainforest area is historic rainforest area + area added by removing 95% of coconut palms 
+forest_area_hist      <- hist_area$cover_area[hist_area$category == "forest"]
+potential_forest_area <- area_added + forest_area_hist 
+
+# Find the trend 
+rainforest_trend <- areas %>% 
+  mutate(potential_area = potential_forest_area,
+         trend = area_forest / potential_forest_area) %>% 
+  dplyr::select(region_id, year, trend)
+```
+
+## Save to Toolbox
+
+```{r save-to-toolbox, eval=F}
+# save to toolbox
+dir_scores <- '~/github/pal-scores/region'
+
+write_csv(rainforest_trend, file.path(dir_scores, 'layers/rainforest_trend.csv'))
+```
