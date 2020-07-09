@@ -270,6 +270,7 @@ trend <- slope * 5
 # Create the final trend data frame 
 rainforest_trend <- data.frame(
   region_id = 1, 
+  habitat = "rainforest",
   year = 2019,
   trend = trend
 )
