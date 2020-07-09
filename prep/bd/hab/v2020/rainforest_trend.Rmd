@@ -33,6 +33,10 @@ Trend comes from three sources of satellite images and published papers:
   
 2016: The 2016 data is estimated using a U.S. Geological Survey vegetation community mapping project for Palmyra Atoll. Vegetation maps were completed in October 2016 and published in June 2019. Data was downloaded on July 2, 2020 from the USGS data portal, [here](https://www.sciencebase.gov/catalog/item/5c66fc5be4b0fe48cb3aca49).   
  - Struckhoff, M.A., 2019, Woody species crown and vegetation community data, Palmyra Atoll, 2016: U.S. Geological Survey data release, https://doi.org/10.5066/P9GMPVIO.  
+ 
+ 2019: The 2019 data set comes from Table A1 in the Burnett et al. paper   
+  - Burnett, M.W. et al. (2019). "Quantifying coconut palm extent on Pacific islands using spectral textural analysis of very high resolution imagery". *International Journal of Remote Sensing* 40(19): 7329-7355   
+  [Available here](https://www.tandfonline.com/doi/epub/10.1080/01431161.2019.1594440?needAccess=true). 
 
 # Setup 
 
@@ -206,20 +210,39 @@ area_2016 <- as.data.frame(area_2016) %>%
 write_csv(area_2016, file.path(dir_goal, "int/trend_area_2016.csv"))
 ```
 
+## 2019 Data
+
+The 2019 area was calculated as part of the `rainforest_data_prep.Rmd`  
+
+```{r get-2019-data, eval=F}
+
+veg_2019 <- read_csv(file.path(dir_goal, "int/veg_area.csv"))
+
+area_2019 <- veg_2019 %>% 
+  filter(category == "forest") %>% 
+  rename(area_forest = cover_area) %>% 
+  mutate(region_id = 1,
+         year = 2019) %>% 
+  dplyr::select(region_id, year, area_forest)
+
+# Save to int folder
+write_csv(area_2019, file.path(dir_goal, "int/trend_area_2019.csv"))
+```
+
 
 ## Combine Trend Data
 
 ```{r combine-data, eval=F}
 
 # Read in yearly files
-area_2001 <- read_csv(file.path(dir_goal, "int/trend_area_2001.csv"))
 area_2010 <- read_csv(file.path(dir_goal, "int/trend_area_2010.csv"))
 area_2016 <- read_csv(file.path(dir_goal, "int/trend_area_2016.csv"))
+area_2019 <- read_csv(file.path(dir_goal, "int/trend_area_2019.csv")) 
 
 # Combine data
-trend_area <- area_2001 %>% 
-  rbind(area_2010) %>% 
-  rbind(area_2016)
+trend_area <- area_2010 %>% 
+  rbind(area_2016) %>% 
+  rbind(area_2019)
 
 # Save to int folder 
 write_csv(trend_area, file.path(dir_goal, "int/combined_trend_area.csv"))
@@ -228,41 +251,30 @@ write_csv(trend_area, file.path(dir_goal, "int/combined_trend_area.csv"))
 
 ## Calculate Trend 
 
-Each year will be given a status (0-1). The year's status will be calculated the same way the rainforest status was calculated in `rainforest_data_prep.Rmd`.  
+Trend is based on a linear model to calculate the rate of change in forest area per year using data from 2010-2019. The trend is the five year average change in rainforest area.      
 
-$status = area_{current}~(km^2)~/~area_{potential}~(km^2)$   
+```{r linear-model, eval=F}
 
-The current rainforest area ($area_{current}$) is based on the USGS mapping exercise from 2016 where forest is defined as the total area of the 9 vegetation communities listed above. 
+trend_area <- read_csv(file.path(dir_goal, "int/combined_trend_area.csv"))
 
-The potential rainforest area ($area_{potential}$) is based on a 2001 satellite image showing approximately 43% of the islands are dominated by coconut plantations and 53% of the islands are dominated by other vegetation communities as discussed in the [USGS Terrestrial Management Plan](https://pubs.usgs.gov/of/2011/1007/pdf/ofr20111007.pdf) The potential rainforest area is calculated as the land area added once 95% of the historic palm plantations are removed plus the original 53% of land area that was dominated by rainforests.  
+# Linear model to find change in forest area
+trend_regr   <- lm(area_forest ~ year, data = trend_area)
+trend_coeffs <- summary(trend_regr)
 
-$area_{potential}~=~area_{added}~(km^2)~+~area_{original}~(km^2)$   
+# Find the rate of change in forest area 
+slope <- trend_coeffs$coefficients[2] %>% round(5)
 
-And where   
+# Find the 5 year trend by multiplying the change per year by five
+trend <- slope * 5
 
-$area_{added}~=~0.95~*~(0.43~*~2.46~(km^2))$   
-$area_{original}~=~0.53~*~2.46~(km^2)$  
-
-```{r calculate-trend-status, eval=F}
-
-areas     <- read_csv(file.path(dir_goal, "int/combined_trend_area.csv")) 
-hist_area <- read_csv(file.path(dir_goal, "int/historic_area.csv"))
-
-# Find the area of land that would be added if 95% of historic coconut palms are removed
-coco_area_hist <- hist_area$cover_area[hist_area$category == "cocos"]
-area_added     <- 0.95 * coco_area_hist
-
-# Total potential rainforest area is historic rainforest area + area added by removing 95% of coconut palms 
-forest_area_hist      <- hist_area$cover_area[hist_area$category == "forest"]
-potential_forest_area <- area_added + forest_area_hist 
-
-# Find the trend 
-rainforest_trend <- areas %>% 
-  mutate(habitat = "rainforest", 
-         potential_area = potential_forest_area,
-         trend = area_forest / potential_forest_area) %>% 
-  dplyr::select(region_id, habitat, year, trend)
+# Create the final trend data frame 
+rainforest_trend <- data.frame(
+  region_id = 1, 
+  year = 2019,
+  trend = trend
+)
 ```
+
 
 ## Save to Toolbox
 
