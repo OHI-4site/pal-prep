@@ -258,9 +258,10 @@ potential_forest_area <- area_added + forest_area_hist
 
 # Find the trend 
 rainforest_trend <- areas %>% 
-  mutate(potential_area = potential_forest_area,
+  mutate(habitat = "rainforest", 
+         potential_area = potential_forest_area,
          trend = area_forest / potential_forest_area) %>% 
-  dplyr::select(region_id, year, trend)
+  dplyr::select(region_id, habitat, year, trend)
 ```
 
 ## Save to Toolbox
