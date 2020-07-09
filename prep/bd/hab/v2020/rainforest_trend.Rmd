@@ -269,5 +269,5 @@ rainforest_trend <- areas %>%
 # save to toolbox
 dir_scores <- '~/github/pal-scores/region'
 
-write_csv(rainforest_trend, file.path(dir_scores, 'layers/rainforest_trend.csv'))
+write_csv(rainforest_trend, file.path(dir_scores, 'layers/hab_rainforest_trend.csv'))
 ```

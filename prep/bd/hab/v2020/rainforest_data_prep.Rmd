@@ -193,6 +193,6 @@ rainforest_status <- data.frame(region_id = 1,
 # save to toolbox
 dir_scores <- '~/github/pal-scores/region'
 
-write_csv(rainforest_status, file.path(dir_scores, 'layers/rainforest_status.csv'))
+write_csv(rainforest_status, file.path(dir_scores, 'layers/hab_rainforest_status.csv'))
 ```
 
