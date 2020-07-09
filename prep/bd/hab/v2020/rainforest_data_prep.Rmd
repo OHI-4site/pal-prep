@@ -185,6 +185,9 @@ rainforest_status <- data.frame(region_id = 1,
                                 habitat = "rainforest",
                                 year = 2020,
                                 status = forest_status)
+
+# Save the output to use in the trend 
+write_csv(rainforest_status, file.path(dir_goal, "output/rainforest_status.csv"))
 ```
 
 
