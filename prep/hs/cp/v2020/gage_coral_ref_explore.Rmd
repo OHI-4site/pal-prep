@@ -47,7 +47,6 @@ ohi_rasters() # call the region zones raster
 ```
 
 ```{r, echo = FALSE, eval = FALSE}
-habitat_extent_coral_updated <- read_csv("~/github/ohiprep_v2020/globalprep/hab_coral/v2012/data/habitat_extent_coral_updated.csv")
 
 v4_coral_pts <- sf::st_read(dsn = file.path(dir_wcmc, "14_001_WCMC008_CoralReefs2018_v4/01_Data"), layer = "WCMC008_CoralReef2018_Pt_v4")
 
@@ -136,16 +135,60 @@ zonal_sums_df <- data.frame(zonal_sums)
 
 my_raster_res <- res(fasterize_pal_py)
 my_raster_res ## 100 100
-# 100 m to km = 0.1 km sized cells
+
+crs(fasterize_pal_py) ## units in m 
+a <- area(fasterize_pal_py, na.rm = TRUE)
+cell_size <- data.frame(area = a[!is.na(a)]) # each cell is 10000 m2? which means each cell is 0.01 km2  
 
 
 zonal_sums_km2 <- zonal_sums_df %>%
   mutate(year = 2002, habitat = "coral",
-         km2 = (0.1**2*sum)) %>% #one cell is equal to ~0.1 km
+         km2 = (0.01*sum)) %>% #one cell is equal to 0.01 km2
   dplyr::rename("rgn_id" = "zone") %>%
   dplyr::select(-sum)
 
-## this shows 44.36 km2 compared to calculated GIS area of 145.2481 km2
+## this shows 44.29 km2 compared to calculated GIS area of 145.2481 km2
 
 
 ```
+
+```{r}
+## try the other dataset found on NOAA
+dir_PACIOOS <- file.path(file.path(dir_M, 'git-annex/foursite/palmyra/_raw_data/PACIOOS_data/pat_unepwcmc_all_coralreefs'))
+
+unep_corals <- sf::st_read(dsn = file.path(dir_PACIOOS), layer = "pat_unepwcmc_all_coralreefs") %>%
+  st_transform(crs = us_alb)
+
+plot(unep_corals[2])
+
+fasterize_unep_corals <- fasterize::fasterize(unep_corals, raster = pal_3nm_rast , 
+                                     field = NULL)
+
+plot(fasterize_unep_corals)
+
+
+zonal_sums <- raster::zonal(fasterize_unep_corals, 
+                                     pal_3nm_rast,
+                                     fun = "sum",
+                                     na.rm = TRUE) #sum all coral cells for each ohi zone
+
+
+zonal_sums_df <- data.frame(zonal_sums)
+
+my_raster_res <- res(fasterize_unep_corals)
+my_raster_res ## 100 100
+
+crs(fasterize_unep_corals) ## units in m 
+a <- area(fasterize_unep_corals, na.rm = TRUE)
+cell_size <- data.frame(area = a[!is.na(a)]) # each cell is 10000 m2? which means each cell is 0.01 km2  
+
+
+zonal_sums_km2 <- zonal_sums_df %>%
+  mutate(year = 2002, habitat = "coral",
+         km2 = (0.01*sum)) %>% #one cell is equal to 0.01 km2
+  dplyr::rename("rgn_id" = "zone") %>%
+  dplyr::select(-sum)
+
+## its the same data set... just a subset of the bigger one like we did above. 
+```
+
