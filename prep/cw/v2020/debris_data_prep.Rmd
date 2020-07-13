@@ -1,0 +1,124 @@
+---
+title: 'OHI+ Palmyra 2020: Clean Waters Goal Marine Debris Layer'
+author: "*Compiled on `r date()` by `r Sys.info()['user']`*"
+output: 
+  html_document:
+    toc: true
+    number_sections: true
+    theme: cerulean
+    highlight: haddock
+    includes: 
+     #in_header: '../../../workflow/templates/ohi_hdr.html' - need to update this
+  pdf_document:
+    toc: true
+editor_options: 
+  chunk_output_type: console
+---
+
+# Summary
+
+This script calculates the status for the marine debris layer of the Clean Waters goal. The main type of marine debris on Palmyra is drifting fish aggregation devices (dFADs). Data used for this layer was obtained from Alex Wegmann at The Nature Conservancy.          
+
+
+# Setup
+
+```{r setup, message = F, warning = F}
+knitr::opts_chunk$set(echo = FALSE)
+
+library(tidyverse)
+library(janitor)
+library(lubridate)
+library(here)
+
+# Source and set file paths
+source(here('src/R/common.R'))
+
+dir_goal   <- '~/github/pal-prep/prep/cw/v2020'
+```
+
+# Methods
+
+## FAD Groundings Data
+
+```{r get-raw-data, eval=F}
+fad_raw <- read_csv(file.path(dir_goal, "raw/PANWR_FAD_Database_updated_27May2020_GPSUpdate.csv"))
+
+# Clean up raw data 
+fad_clean <- fad_raw %>% 
+  clean_names() %>% 
+  dplyr::select(-x11) %>% # Remove extra column
+  dplyr::filter(fad_accession_number != is.na(fad_accession_number)) %>% # Filter out the NA observations
+  rename("fad_number" = "fad_accession_number") %>% 
+  dplyr::select(fad_number, date_found)  
+  
+# Clean up the dates
+fad_dates <- fad_clean %>% 
+  mutate(date_logged = parse_date_time(fad_clean$date_found, orders = c('mdy', 'dmy'))) %>% 
+  mutate(year_found = lubridate::year(fad_dates$date_logged),
+         year_found = ifelse(is.na(year_found), 2016, year_found)) %>% # Missing dates are all from 2016 according the fad number
+  dplyr::select(fad_number, year_found)
+
+# Save to int folder
+write_csv(fad_dates, file.path(dir_goal, "int/fad_dates.csv"))
+```
+
+## FAD Groundings by Year 
+
+Use the FAD groundings data to determine the number of FAD groundings in Palmyra each year, the data spans from 2009 to April 2020.   
+
+```{r fad-groundings-per-year, eval=F}
+
+fad <- read_csv(file.path(dir_goal, "int/fad_dates.csv"))
+
+# Find number of groundings per year 
+fads_per_yr <- fad %>% 
+  group_by(year_found) %>% 
+  tally() %>% 
+  dplyr::select(year = year_found, number_fads = n)
+
+# Save to int folder
+write_csv(fads_per_yr, file.path(dir_goal, "int/fad_groundings_annual.csv"))
+```
+
+## Calculate Status 
+
+Reference Point: Reduce FAD groundings by 50% of the highest annual recorded number of groundings between 2009-2019.   
+
+The highest annual groundings occured in 2016, with 12 groundings, so the reference point will be 6 annual FAD groundings. Any year where six or less FAD groundings were recorded will receive a perfect score.
+
+The status is given by the following equation:  
+
+$status~=~1~-~[(fad_{y}~-~fad_{reference})/~fad_{reference}]$   
+
+Where $fad_{y}$ is the yearly number of recorded FAD groundings and $fad_{reference}$ is the reference point number of 6 annual FAD groundings.  
+
+```{r calc-status, eval=F}
+
+annual_fad <- read_csv(file.path(dir_goal, "int/fad_groundings_annual.csv"))
+
+# Define reference point 
+ref_point <- 6
+
+# Calculate status
+fad_status <- annual_fad %>% 
+  mutate(value = (number_fads - ref_point) / ref_point,
+         value = ifelse(value < 0, 0, value), # Adjust any below 0 values to zero 
+         status = 1 - value, # Status is the inverse of the calculated value
+         status = ifelse(year == 2020, fad_status$status[fad_status$year == 2019], status), # 2020 data is not complete so use 2019 data for 2020
+         region_id = 1) %>% 
+  filter(year >= 2014) %>% # Only use years 2014-2020
+  dplyr::select(region_id, year, status)
+
+# Save to output
+write_csv(fad_status, file.path(dir_goal, "output/fad_status.csv"))
+```
+
+## Save to Toolbox
+
+```{r save-to-toolbox, eval=F}
+# Save to toolbox
+dir_scores <- '~/github/pal-scores/region'
+
+write_csv(fad_status, file.path(dir_scores, 'layers/cw_fad_status.csv'))
+```
+
