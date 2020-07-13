@@ -1,5 +1,5 @@
 ---
-title: 'OHI+ Palmyra 2020: Species subgoal'
+title: 'OHI+ Palmyra 2020: 1_iucn_spp_lists'
 author: "*Compiled on `r date()` by `r Sys.info()['user']`*"
 output: 
   html_document:
@@ -51,6 +51,7 @@ api_key <- scan(api_file, what = 'character')
 # Methods
 
 ## Get Cell IDs and Species List
+
 First step is to get a list of the cell IDs contained in the pal_region
 
 ```{r global-cells, eval=F}
@@ -331,64 +332,4 @@ Looks like there are 20 genus' in the missing data, 9 of them have more than one
  - `scinames_explore$genus[16]` are Scleractinian corals (12 species)     
  - `scinames_explore$genus[17]` are also stony corals (5 species)  
 
-## Calculate Species Scores
-
-Add category weights to species list and calculate species status
-
-```{r calc-spp-status, eval=F}
-# Use iucn spp list
-spp_info <- read_csv(file.path(dir_goal, 'int/iucn_spp_info.csv')) %>% 
-  dplyr::select(-X1)
-
-# Create category weights that will be used to calculate scores
-pop_cat <- data.frame(category  = c("LC", "NT", "VU", "EN", "CR", "EX", "T", "CD", "NE", "DD"), 
-                      cat_score = c(   0,  0.2,  0.4,  0.6,  0.8,  1.0, 0.6,  0.3,   NA,  NA),
-                      stringsAsFactors = FALSE)
-
-# Join category weights to species list
-spp_status <- spp_info %>% 
-  left_join(pop_cat, by = "category") %>% 
-  filter(!is.na(cat_score)) %>%
-  distinct() %>% 
-  mutate(region_id = 1,
-         status = cat_score,
-         year = 2020) %>% # need a year for toolbox to run
-  dplyr::select(region_id, sciname, class, common, status, year) 
-
-```
-
- 
-Write out csv to the toolbox
-
-```{r save-to-toolbox, eval = F}
-# save to toolbox
-dir_scores <- '~/github/pal-scores/region'
-
-write_csv(spp_status, file.path(dir_scores, 'layers/spp_status.csv'))
-```
-
-# Species Marine Maps
-
-Not sure if I still need this. 
-Filter the list of IUCN marine maps from Casey's repo to just have the file paths for species in Palmyra
-```{r spp-marine-maps, eval = F}
-# Check for any subpopulations
-spp_subpop <- iucn_spp_info %>% 
-  filter(!is.na(population)) # one subpopulation for leatherbacks 'West Pacific Ocean subpopulation' 
-
-spp_marine_maps <- read_csv("~/github/spp_risk_dists/_data/spp_marine_maps_2018-1.csv") %>%
-  filter(sciname %in% iucn_spp_info$sciname, 
-         subpop %in% c("West Pacific Ocean subpopulation", NA)) %>% 
-  distinct()
-# there are 414 maps which is more than the species list of 409
-
-# Check for differences 
-setdiff(spp_marine_maps$sciname, iucn_spp_info$sciname) # this shows no differences 
-setdiff(iucn_spp_info$sciname, spp_marine_maps$sciname) # this gives 6 spp in the iucn list that are not in the maps list
-
-# differences shows no marine map spp that aren't in the iucn dataset but the iucn dataset has less species than the map and I used distinct to make sure there aren't any duplicates 
-
-# save
-write.csv(spp_marine_maps, file.path(dir_github, 'prep/bd/spp/v2020/int/1_iucn_spp_shp_filepaths.csv'))
-```
 

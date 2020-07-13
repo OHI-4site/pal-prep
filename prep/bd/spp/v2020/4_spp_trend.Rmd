@@ -1,5 +1,5 @@
 ---
-title: 'OHI+ Palmyra 2020: Species trend'
+title: 'OHI+ Palmyra 2020: 4_spp_trend'
 author: "*Compiled on `r date()` by `r Sys.info()['user']`*"
 output: 
   html_document:
