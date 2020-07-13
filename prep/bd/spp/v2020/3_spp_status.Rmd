@@ -1,0 +1,74 @@
+---
+title: 'OHI+ Palmyra 2020: 3_spp_status'
+author: "*Compiled on `r date()` by `r Sys.info()['user']`*"
+output: 
+  html_document:
+    toc: true
+    number_sections: true
+    theme: cerulean
+    highlight: haddock
+    includes: 
+     #in_header: '../../../workflow/templates/ohi_hdr.html' - need to update this
+  pdf_document:
+    toc: true
+editor_options: 
+  chunk_output_type: console
+---
+
+# Summary
+
+This is the third script in the species data prep. It takes the fully combined IUCN and Palmyra species lists and calculates the status score.   
+
+# Methods
+
+## Setup 
+
+```{r setup, message = F, warning = F}
+knitr::opts_chunk$set(echo = FALSE)
+
+library(tidyverse)
+library(here)
+
+# Source and set file paths
+source(here('src/R/common.R'))
+
+dir_goal   <- '~/github/pal-prep/prep/bd/spp/v2020'
+
+```
+
+## Calculate Species Scores
+
+Add category weights to species list and calculate species status
+
+```{r calc-spp-status, eval=F}
+# Use the combined all species lists
+all_spp <- read_csv(file.path(dir_goal, 'int/all_spp_list.csv')) 
+
+
+# Create category weights that will be used to calculate scores
+pop_cat <- data.frame(category  = c("LC", "NT", "VU", "EN", "CR", "EX", "T", "CD", "NE", "DD"), 
+                      cat_score = c(   0,  0.2,  0.4,  0.6,  0.8,  1.0, 0.6,  0.3,   NA,  NA),
+                      stringsAsFactors = FALSE)
+
+# Join category weights to species list
+spp_status <- all_spp %>% 
+  left_join(pop_cat, by = "category") %>% 
+  filter(!is.na(cat_score)) %>%
+  distinct() %>% 
+  mutate(region_id = 1,
+         status = cat_score,
+         year = 2020) %>% # need a year for toolbox to run
+  dplyr::select(region_id, sciname, class, common, status, year) 
+
+```
+
+## Save to Toolbox 
+
+Write out csv to the toolbox
+
+```{r save-to-toolbox, eval = F}
+# save to toolbox
+dir_scores <- '~/github/pal-scores/region'
+
+write_csv(spp_status, file.path(dir_scores, 'layers/spp_status.csv'))
+```
