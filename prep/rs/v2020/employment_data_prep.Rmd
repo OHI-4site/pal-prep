@@ -17,7 +17,7 @@ editor_options:
 
 # Summary
 
-This script calculates the status and trend of employment on Palmyra.   
+This script calculates the status of employment in conservation science on Palmyra as part of the Research goal.      
 
 
 # Setup
