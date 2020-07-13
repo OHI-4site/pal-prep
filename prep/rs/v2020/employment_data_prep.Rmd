@@ -1,0 +1,83 @@
+---
+title: 'OHI+ Palmyra 2020: Research Goal Employment Layer'
+author: "*Compiled on `r date()` by `r Sys.info()['user']`*"
+output: 
+  html_document:
+    toc: true
+    number_sections: true
+    theme: cerulean
+    highlight: haddock
+    includes: 
+     #in_header: '../../../workflow/templates/ohi_hdr.html' - need to update this
+  pdf_document:
+    toc: true
+editor_options: 
+  chunk_output_type: console
+---
+
+# Summary
+
+This script calculates the status and trend of employment on Palmyra.   
+
+
+# Setup
+
+```{r setup, message = F, warning = F}
+knitr::opts_chunk$set(echo = FALSE)
+
+library(tidyverse)
+library(here)
+
+# Source and set file paths
+source(here('src/R/common.R'))
+
+dir_goal   <- '~/github/pal-prep/prep/rs/v2020'
+```
+
+
+# Methods
+
+## Create Raw Data
+
+Data on full time equivalent (FTE) positions on Palmyra was gathered through verbal communication with Alex Wegmann at The Nature Conservancy. Palmyra supported 2 FTE positions in conservation science prior to 2019 and has supported 5 FTE positions in conservation science in 2019 and 2020.  
+
+```{r create-raw-data, eval=F}
+
+emp_raw <- data.frame(
+  year = seq(2014,2020,1),
+  positions = c(1,1,1,1,1,5,5)
+)
+
+# Save raw data 
+write_csv(emp_raw, file.path(dir_goal, "raw/emp_raw.csv"))
+```
+
+## Calculate Current Status 
+
+The reference point for employment is supporting 5 full time equivalent (FTE) positions focused on conservation science at Palmyra Atoll.   
+
+```{r current-status, eval=F}
+
+emp_raw <- read_csv(file.path(dir_goal, "raw/emp_raw.csv"))
+
+# Define scenario year and reference point 
+scenario_year <- 2020
+ref_point     <- 5
+
+# Calculate the status 
+emp_status <- emp_raw %>% 
+  mutate(region_id = 1,
+         status = positions / ref_point) %>% 
+  dplyr::select(region_id, year, status)
+  
+```
+
+## Save to Toolbox 
+
+```{r save-to-toolbox, eval=F}
+# Save to toolbox
+dir_scores <- '~/github/pal-scores/region'
+
+write_csv(emp_status, file.path(dir_scores, 'layers/rs_employment_status.csv'))
+```
+
