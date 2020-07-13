@@ -45,9 +45,9 @@ api_version <- '2020-1'
 The `rl_history()` function retrieves all previous assessments and status for each species.
 
 ```{r get-historical-status, eval = F}
-# Use species list from the spp_data_prep
-spp_list <- read_csv(file.path(dir_goal, 'int/iucn_spp_info.csv')) %>% 
-  dplyr::select(-X1)
+
+# Use all species list
+spp_list <- read_csv(file.path(dir_goal, 'int/all_spp_list.csv'))
 
 df_iucn <- data.frame()
 
@@ -79,8 +79,7 @@ Using `rl_search` find the population trend from the IUCN for each species. Tren
 
 ```{r get-pop-trend, eval=F}
 
-spp_list <- read_csv(file.path(dir_goal, "int/iucn_spp_info.csv")) %>% 
-  dplyr::select(-X1)
+spp_list <- read_csv(file.path(dir_goal, "int/all_spp_list.csv")) 
 
 # loop for each species to grab population trend
 df_iucn_trend <- data.frame()
@@ -104,40 +103,12 @@ for(i in 1:nrow(spp_list)){
   df_iucn_trend <- rbind(df_iucn_trend, df2)
 }
 
-# the loop timed out after 302 species, do the remaining and then combine:
-df_iucn_trend2 <- data.frame()
-
-trend_scinames <- spp_list %>% 
-  slice(303:409) # just the species that are missing from the first loop when it timed out
-
-for(i in 1:nrow(trend_scinames)){
-  
-  print(i)
-  sp <- as.character(trend_scinames[i,2]) #grab scientific name
-  
-  tr <- rl_search(sp, key = api_key)$result$population_trend
-  
-  if(is.null(tr)){
-  
-  df3 <- data.frame(sciname = sp,
-                    trend = NA)
-  }else{
-    df3 <- data.frame(sciname = sp,
-                      trend = tr)
-  }
-  
-  df_iucn_trend2 <- rbind(df_iucn_trend2, df3)
-}
-
-iucn_trend <- df_iucn_trend %>% 
-  rbind(df_iucn_trend2)
-
 # Check how many are unknown:
-trend_unknown <- iucn_trend %>% 
-  filter(trend == "Unknown") # 198 are uknown
+trend_unknown <- df_iucn_trend %>% 
+  filter(trend == "Unknown") # 286 are unknown
 
 # Save file to int folder:
-write_csv(iucn_trend, file.path(dir_goal, 'int/iucn_pop_trend.csv'))
+write_csv(df_iucn_trend, file.path(dir_goal, 'int/iucn_pop_trend.csv'))
 ```
 
 
@@ -148,7 +119,7 @@ Some categories may have changed designations in the past. A list of old categor
 ``` {r add-past-categories, eval=F}
 
 spp_hist   <- read_csv(file.path(dir_goal, 'int/raw_spp_assess.csv'))
-cat_lookup <- read_csv(file.path(dir_goal, "risk_code_lookup.csv")) # match old categories to todays categories
+cat_lookup <- read_csv(file.path(dir_goal, "risk_code_lookup.csv")) # match old categories to today's categories
 
 # Join past categories    
 spp_past_df <- spp_hist %>%
@@ -250,7 +221,7 @@ pop_trends <- read_csv(file.path(dir_goal, "int/iucn_pop_trend.csv")) %>%
 # Get values from linear regression:
 slope <- trend_coeffs$coefficients[1] %>% round(5) # Grabs slope from model
 
-trend_score_lookup <- c('Decreasing' = -slope, 'stable' = 0, 'Increasing' = slope) # this is for gapfilling if the model didn't find anything
+trend_score_lookup <- c('Decreasing' = -slope, 'Stable' = 0, 'Increasing' = slope) # this is for gapfilling if the model didn't find anything
 
 trend <- comp_trend2 %>%
   dplyr::select(sciname, calc_trend) %>%
@@ -270,7 +241,7 @@ spp_trends <- pop_trends %>%
 
 # Check for trend score NAs:
 trend_na <- spp_trends %>% 
-  filter(is.na(trend_score)) # 238 NA values - need to gapfill using the IUCN population trend
+  filter(is.na(trend_score)) # 292 NA values - need to gapfill using the IUCN population trend
 
 # Save to int folder
 write_csv(spp_trends, file.path(dir_goal, 'int/spp_trends_model.csv'))
@@ -288,8 +259,7 @@ Unknown    =  NA
 ```{r trend-score-fill, eval=F}
 
 model_trend <- read_csv(file.path(dir_goal, 'int/spp_trends_model.csv'))
-spp_list    <- read_csv(file.path(dir_goal, 'int/iucn_spp_info.csv')) %>% 
-  dplyr::select(-X1)
+spp_list    <- read_csv(file.path(dir_goal, 'int/all_spp_list.csv'))
 
 # Add scores to each population trend:
 pop_trend_score <- data.frame(pop_trend = c("Increasing", "Decreasing", "Stable", "Unknown"),
@@ -298,7 +268,7 @@ pop_trend_score <- data.frame(pop_trend = c("Increasing", "Decreasing", "Stable"
 # Fill in NA trend scores with iucn population trend scores:
 spp_trend_scores <- model_trend %>% 
   left_join(pop_trend_score, by = "pop_trend") %>% 
-  filter(!is.na(pop_trend)) %>%  # remove 3 species with NAs
+  filter(!is.na(pop_trend)) %>%  # remove species with NAs
   mutate(trend_score = ifelse(is.na(trend_score), score, trend_score),
          trend_source = case_when(is.na(trend_source) & trend_score == score ~ "iucn_pop_trend",
                                   !is.na(trend_source) ~ trend_source)) %>% 
@@ -312,7 +282,7 @@ write_csv(spp_trend_scores, file.path(dir_goal, 'output/spp_trend_scores.csv'))
 
 # Check how many NAs are left
 trend_na <- spp_trend_scores %>% 
-  filter(is.na(trend_score)) # still 158 Nas
+  filter(is.na(trend_score)) # still 238 Nas
 ```
 
 ## Save to Toolbox
