@@ -1,0 +1,293 @@
+---
+title: 'OHI+ Palmyra 2020: 2_pal_spp_lists'
+author: "*Compiled on `r date()` by `r Sys.info()['user']`*"
+output: 
+  html_document:
+    toc: true
+    number_sections: true
+    theme: cerulean
+    highlight: haddock
+    includes: 
+     #in_header: '../../../workflow/templates/ohi_hdr.html' - need to update this
+  pdf_document:
+    toc: true
+editor_options: 
+  chunk_output_type: console
+---
+
+# Summary
+
+Additional species lists were obtained for Palmyra fish and birds. These lists are added to the IUCN species list created in `1_iucn_spp_lists.Rmd`.   
+
+# Methods
+
+## Setup 
+
+```{r setup, message = F, warning = F}
+knitr::opts_chunk$set(echo = FALSE)
+
+library(tidyverse)
+library(purrr)
+library(rfishbase)
+library(rredlist)
+library(here)
+
+# Source and set file paths
+source(here('src/R/common.R'))
+
+dir_goal   <- '~/github/pal-prep/prep/bd/spp/v2020'
+
+# api keys for IUCN 
+api_file <- file.path(dir_M, 'git-annex/globalprep/spp', 
+                      'api_key_gc.csv')
+api_key <- scan(api_file, what = 'character')
+```
+
+## Palmyra Bird Lists
+
+Some of the species on the bird list are believed extirpated on Palmyra, for these species the IUCN category will be updated to "EX" for extinct.   
+
+### Get IUCN Info 
+
+```{r pal-bird-list, eval=F}
+
+birds <- read_csv(file.path(dir_goal, "raw/pal_bird_list.csv")) %>% 
+  filter(sciname != is.na(sciname)) %>% 
+  mutate(category = ifelse(status == "believed extirpated", "EX", category),
+         category = ifelse(status == "extirpated", "EX", category)) %>%  # Re-categorize extirpated to EX
+  dplyr::select(-status)
+
+# Add class and iucn_sid using rredlist
+# create list of scientific names of species
+bird_scinames <- birds$sciname
+
+iucn_info_birds <- data.frame() 
+
+for(i in 1:length(bird_scinames)){
+  
+  sp <- bird_scinames[i]
+  print(i)
+
+  # Search IUCN reddlist for each species 
+  result <- rredlist::rl_search(sp, key = api_key)$result
+  
+  # If species wasn't found, replace with NA
+  if (length(result) == 0) {
+    
+    iucn_sid <- "NA"
+    class    <- "NA"
+    
+  }
+  
+  if (length(result) != 0) {
+   
+    # Save relevant information if species was found
+   iucn_sid <- result$taxonid
+   class    <- result$class
+   
+  }
+ 
+  # Create data frame
+  df <- data.frame(iucn_sid = iucn_sid,
+                   sciname = sp,
+                   class = tolower(class))
+  
+  iucn_info_birds <- rbind(iucn_info_birds, df) %>%
+    mutate(sciname = as.character(sciname))
+}
+
+# Add iucn info to the bird list
+bird_list <- birds %>% 
+  left_join(iucn_info_birds, by = "sciname")
+
+```
+
+### Add Missing Bird Info 
+
+```{r add-missing-bird-info, eval=F}
+
+# Manually add the missing IUCN species taxonomic ids
+# Some weren't found because the scientific names in IUCN are different 
+missing_ids <- data.frame(
+  bird_scinames = c("Ardenna pacifica", "Anous ceruleus", "Onychoprion fuscatus", "Onychoprion lunatus"),
+  common = c("Wedge-tailed shearwater", "Blue noddy", "Sooty tern", "Gray-backed tern"),
+  missing_ids = c(132631353, 133493654, 132571340, 132569974)) %>% 
+  mutate(common = as.character(common),
+         bird_scinames = as.character(bird_scinames))
+
+bird_list_filled <- bird_list %>% 
+  left_join(missing_ids, by = "common") %>% 
+  mutate(class = as.character(class),
+         sciname = ifelse(iucn_sid == "NA", bird_scinames, sciname),
+         iucn_sid = ifelse(iucn_sid == "NA", missing_ids, iucn_sid),
+         class = ifelse(class == "na", "aves", class)) %>% 
+  dplyr::select(iucn_sid, sciname, class, common, category)
+
+# List of extirpated birds
+ex_birds <- c("Puffinus lherminieri", "Ardenna pacifica", "Pterodroma alba",
+              "Puffinus nativitatis", "Bulweria bulwerii", "Anous minutus",
+              "Anous ceruleus", "Onychoprion lunatus")
+
+# Save to int folder
+write_csv(bird_list_filled, file.path(dir_goal, "int/bird_spp_list.csv"))
+```
+
+
+## Palmyra Fish List
+
+### Get IUCN info 
+
+```{r pal-fish-list, eval=F}
+
+fish <- read_csv(file.path(dir_goal, "raw/PAL_KIN_fish_spp_list.csv")) %>% 
+  dplyr::select(sciname = "TaxonName") %>% # Keep scientific names only
+  
+# Find the scientific names that don't have a species 
+no_spp <- fish %>% 
+  filter(str_detect(sciname, pattern = ". sp$")) %>% 
+  .$sciname
+
+# Write a "not contained in" function"
+`%not_in%` <- purrr::negate(`%in%`)
+
+# Filter fish list to remove the ones without species
+fish_edit <- fish %>% 
+  filter(sciname %not_in% no_spp) %>% 
+  filter(sciname != "Acanthurus achillesXnigricans hybrid= rackliffei")
+
+# Use rredlist to find common names, class and IUCN category
+# create list of scientific names of species
+fish_scinames <- fish_edit$sciname
+
+iucn_info_fish <- data.frame() 
+
+for(i in 1:length(fish_scinames)){
+  
+  sp <- scinames[i]
+  print(i)
+
+  # Search IUCN reddlist for each species 
+  result <- rredlist::rl_search(sp, key = api_key)$result
+  
+  # If species wasn't found, replace with NA
+  if (length(result) == 0) {
+    
+    iucn_sid <- "NA"
+    class    <- "NA"
+    comm     <- "NA"
+    category <- "NA"  
+    
+  }
+  
+  if (length(result) != 0) {
+   
+    # Save relevant information if species was found
+   iucn_sid <- result$taxonid
+   class    <- result$class
+   comm     <- result$main_common_name
+   category <- result$category
+   
+  }
+ 
+  # Create data frame
+  df <- data.frame(iucn_sid = iucn_sid,
+                   sciname = sp,
+                   class = tolower(class),
+                   common = comm,
+                   category = category)
+  
+  iucn_info_fish <- rbind(iucn_info_fish, df) %>%
+    mutate(common = as.character(common),
+         sciname = as.character(sciname))
+}
+
+```
+
+### Add Missing Fish Info
+
+```{r find-missing-fish-info, eval=F}
+
+# Find spp where the iucn_sid is NA
+missing_fish_ids <- iucn_info_fish %>% 
+  filter(iucn_sid == "NA") %>% # some scinames are not actually species 
+  filter(sciname != "Data lost" & sciname != "no individuals seen" &
+         sciname != "NO SCORE" & sciname != "Oxycheilinus sp." & 
+         sciname != "Cheilinus sp.")
+
+# Try and find common names in fishbase
+fb_list <- species(missing_fish_ids$sciname) %>%
+  dplyr::select(Species, FBname) %>% 
+  filter(Species != is.na(Species),
+         FBname != is.na(FBname)) %>% 
+  rename(sciname = Species)
+
+# These species are "Not Evaluated" by the IUCN 
+missing_info <- missing_fish_ids %>% 
+  left_join(fb_list, by = "sciname") %>% 
+  mutate(category = "NE",
+         class = "actinopterygii",
+         class = as.character(class),
+         category = as.character(category)) %>% # all species are not evaluated
+  dplyr::select(-common) %>% 
+  dplyr::select(iucn_sid, sciname, class, common = FBname, category)
+
+
+# Add missing species info back to the fish list
+fish_filled <- iucn_info_fish %>% 
+  left_join(missing_info, by = "sciname") %>% 
+  mutate(class.x = as.character(class.x),
+         category.x = as.character(category.x),
+         class = ifelse(class.x == "na", class.y, class.x),
+         category = ifelse(category.x == "NA", category.y, category.x),
+         common = ifelse(common.x == "NA", common.y, common.x)) %>% 
+  filter(sciname != "Data lost" & sciname != "no individuals seen" &
+         sciname != "NO SCORE" & sciname != "Oxycheilinus sp." & 
+         sciname != "Cheilinus sp.") %>% # filter out the non species observations
+  dplyr::select(iucn_sid = iucn_sid.x, sciname, class, common, category)
+
+
+# Save to int folder
+write_csv(fish_filled, file.path(dir_goal, "int/fish_spp_list.csv"))
+```
+
+
+## Combine Lists 
+
+Cross reference the new bird and fish lists with the IUCN species list and add any species that weren't already on the list.  
+
+```{r combine-lists, eval=F}
+
+# Read in the three species lists
+iucn_list <- read_csv(file.path(dir_goal, "int/iucn_spp_info.csv")) %>% 
+  dplyr::select(-X1)
+fish_list <- read_csv(file.path(dir_goal, "int/fish_spp_list.csv"))
+bird_list <- read_csv(file.path(dir_goal, "int/bird_spp_list.csv"))
+
+# Check if the species are included in the iucn spp list
+setdiff(bird_list$sciname, iucn_list$sciname) # just one bird species isn't included
+setdiff(fish_list$sciname, iucn_list$sciname) # 182 fish species weren't included 
+
+# List of extirpated birds
+ex_birds <- c("Puffinus lherminieri", "Ardenna pacifica", "Pterodroma alba",
+              "Puffinus nativitatis", "Bulweria bulwerii", "Anous minutus",
+              "Anous ceruleus", "Onychoprion lunatus")
+
+# Combine lists
+all_spp <- iucn_list %>% 
+  full_join(bird_list, by = "sciname") %>% 
+  mutate(iucn_sid.x = ifelse(is.na(iucn_sid.x), iucn_sid.y, iucn_sid.x),
+         class.x = ifelse(is.na(class.x), class.y, class.x),
+         common.x = ifelse(is.na(common.x), common.y, common.x),
+         category.x = ifelse(sciname %in% ex_birds, "EX", category.x)) %>% 
+  dplyr::select(-iucn_sid.y, -class.y, -category.y, -common.y) %>% 
+  full_join(fish_list, by = "sciname") %>% 
+  mutate(iucn_sid.x = ifelse(is.na(iucn_sid.x), iucn_sid, iucn_sid.x),
+         class.x = ifelse(is.na(class.x), class, class.x),
+         common.x = ifelse(is.na(common.x), common, common.x),
+         category.x = ifelse(is.na(category.x), category, category.x)) %>% 
+  dplyr::select(iucn_sid = iucn_sid.x, sciname, class = class.x, common = common.x, category = category.x)
+
+# Save to int folder
+write_csv(all_spp, file.path(dir_goal, "int/all_spp_list.csv"))
+```
+
