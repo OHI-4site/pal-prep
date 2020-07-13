@@ -19,9 +19,8 @@ editor_options:
 
 Additional species lists were obtained for Palmyra fish and birds. These lists are added to the IUCN species list created in `1_iucn_spp_lists.Rmd`.   
 
-# Methods
 
-## Setup 
+# Setup 
 
 ```{r setup, message = F, warning = F}
 knitr::opts_chunk$set(echo = FALSE)
@@ -42,6 +41,8 @@ api_file <- file.path(dir_M, 'git-annex/globalprep/spp',
                       'api_key_gc.csv')
 api_key <- scan(api_file, what = 'character')
 ```
+
+# Methods
 
 ## Palmyra Bird Lists
 

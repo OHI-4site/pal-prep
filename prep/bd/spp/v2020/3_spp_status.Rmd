@@ -19,9 +19,7 @@ editor_options:
 
 This is the third script in the species data prep. It takes the fully combined IUCN and Palmyra species lists and calculates the status score.   
 
-# Methods
-
-## Setup 
+# Setup 
 
 ```{r setup, message = F, warning = F}
 knitr::opts_chunk$set(echo = FALSE)
@@ -35,6 +33,8 @@ source(here('src/R/common.R'))
 dir_goal   <- '~/github/pal-prep/prep/bd/spp/v2020'
 
 ```
+
+# Methods
 
 ## Calculate Species Scores
 
