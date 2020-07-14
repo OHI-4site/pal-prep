@@ -1,0 +1,67 @@
+---
+title: 'OHI+ Palmyra 2020: Habitats Subgoal Coral Trend'
+author: "*Compiled on `r date()` by `r Sys.info()['user']`*"
+output: 
+  html_document:
+    toc: true
+    number_sections: true
+    theme: cerulean
+    highlight: haddock
+    includes: 
+     #in_header: '../../../workflow/templates/ohi_hdr.html' - need to update this
+  pdf_document:
+    toc: true
+editor_options: 
+  chunk_output_type: console
+---
+
+# Summary
+
+This script uses historic data gathered from coral reef surveys to estimate trends in coral condition. 
+
+# Setup
+
+```{r setup, message = F, warning = F}
+knitr::opts_chunk$set(echo = FALSE)
+
+library(tidyverse)
+library(sf)
+library(mapview)
+library(here)
+
+# Source and set file paths
+source(here('src/R/common.R'))
+
+dir_goal   <- '~/github/pal-prep/prep/bd/hab/v2020'
+dir_anx    <- file.path(dir_M, 'git-annex/foursite/palmyra')
+```
+
+# Data 
+
+The survey data was gathered by scientists at Scripps Institution of Oceanography and NOAA’s Pacific Islands Fisheries Science Center (PIFSC), Coral Reef Ecosystem Division (CRED). The site location data was re-created from Table 1 and the coral cover data was re-created from Table 2.  
+
+Citation: Braun, C., P.S. Vroom, and J.E. Smith (2009) Examination of algal diversity and benthic community structure at Palmyra Atoll, U.S. Line Islands. Proceedings of the 11th Coral Reef Symposium. [Available here](https://scripps.ucsd.edu/labs/coralreefecology/wp-content/uploads/sites/84/2010/09/Braun-et-al._Examination-of-Algal-Diversity-and-Benthic-community-structure-at-Palmyra-Atoll-U.S.-Line-Islands.pdf)   
+
+# Methods
+
+## Get Survey Locations
+
+```{r survey-locations, eval=F}
+
+sites <- read_csv(file.path(dir_goal, "raw/survey_sites.csv"))
+
+# Convert the sites csv into a simple features object
+sites_sf <- st_as_sf(sites, coords = c("long", "lat"), crs = wgs84)
+
+# Coral Zones 
+coral_zone <- st_read(file.path(dir_goal, 'int/'), layer = "coral_zones") %>% 
+  st_transform(wgs84)
+
+# Plot the survey sites and the shoreline
+ggplot() + 
+  geom_sf(data = coral_zone, aes(fill = zone)) +
+  geom_sf(data = sites_sf, size = 1) + 
+  coord_sf()
+
+```
+
