@@ -89,7 +89,10 @@ zones <- coral_map %>%
                                p_coral_cv == "10% - <50%" ~ 2,
                                p_coral_cv == "0% - <10%"  ~ 1))
 
-# Save layer to int folder
+# Save layer to int folder as shp
+st_write(zones, file.path(dir_goal, "int/coral_zones.shp"), driver = 'ESRI Shapefile')
+
+# Also save layer as csv
 write_csv(zones, file.path(dir_goal, "int/coral_zones.csv"))
 ```
 
