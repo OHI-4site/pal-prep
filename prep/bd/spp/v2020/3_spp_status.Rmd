@@ -62,6 +62,43 @@ spp_status <- all_spp %>%
 
 ```
 
+## Test Alternate Status 
+
+Testing a second method for calculating status. The reference point here is 100% of historically occurring species are present in healthy abundance. Healthy is defined as being a category of "Least Concern" in the IUCN Red List.   
+
+The status is first calculated for each class as the proportion of species in the class with a rank of "Least Concern". The overall status is then the average of the status score for each class, as given by the following equations:   
+
+$class_{status}~=~n_{LC}~/~n_{class}$   
+
+Where $n_{LC}$ is the number of species in each class that have a rank of "Least Concern" and $n_{class}$ is the total number of species in each class. 
+
+$spp_{status}~=~mean(class_{status})$   
+
+
+```{r calc-species-status2, eval=F}
+# Use the combined all species lists
+all_spp <- read_csv(file.path(dir_goal, 'int/all_spp_list.csv')) 
+
+# Find the number of species in each class 
+class_counts <- all_spp %>% 
+  group_by(class) %>% 
+  tally() %>% 
+  rename(total = n)
+
+# Find the number of species ranked LC in each class 
+class_status <- all_spp %>%
+  group_by(class, category) %>% 
+  tally() %>% 
+  rename(number_spp = n) %>% 
+  left_join(class_counts, by = "class") %>% 
+  filter(category == "LC") %>% 
+  mutate(status = number_spp / total)
+
+# Check score to compare:
+spp_score <- mean(class_status$status) * 100
+  
+```
+
 ## Save to Toolbox 
 
 Write out csv to the toolbox
