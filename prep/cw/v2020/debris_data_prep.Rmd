@@ -17,8 +17,11 @@ editor_options:
 
 # Summary
 
-This script calculates the status for the marine debris layer of the Clean Waters goal. The main type of marine debris on Palmyra is drifting fish aggregation devices (dFADs). Data used for this layer was obtained from Alex Wegmann at The Nature Conservancy.          
+This script calculates the status for the marine debris layer of the Clean Waters goal. The main type of marine debris on Palmyra is drifting fish aggregation devices (dFADs).         
 
+# Data 
+
+The data for this layer was obtained from Alex Wegmann at The Nature Conservancy on July 8, 2020.
 
 # Setup
 
@@ -84,7 +87,7 @@ write_csv(fads_per_yr, file.path(dir_goal, "int/fad_groundings_annual.csv"))
 
 Reference Point: Reduce FAD groundings by 50% of the highest annual recorded number of groundings between 2009-2019.   
 
-The highest annual groundings occured in 2016, with 12 groundings, so the reference point will be 6 annual FAD groundings. Any year where six or less FAD groundings were recorded will receive a perfect score.
+The highest annual groundings occurred in 2016, with 12 groundings, so the reference point will be 6 annual FAD groundings. Any year where six or less FAD groundings were recorded will receive a perfect score.
 
 The status is given by the following equation:  
 

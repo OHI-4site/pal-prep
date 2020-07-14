@@ -19,6 +19,9 @@ editor_options:
 
 This script calculates the status of employment in conservation science on Palmyra as part of the Research goal.      
 
+# Data 
+
+Data for this layer was gathered through verbal communication with Alex Wegmann at The Nature Conservancy on July 8, 2020. Palmyra supported 2 FTE positions in conservation science prior to 2019 and has supported 5 FTE positions in conservation science in 2019 and 2020.       
 
 # Setup
 
@@ -39,7 +42,7 @@ dir_goal   <- '~/github/pal-prep/prep/rs/v2020'
 
 ## Create Raw Data
 
-Data on full time equivalent (FTE) positions on Palmyra was gathered through verbal communication with Alex Wegmann at The Nature Conservancy. Palmyra supported 2 FTE positions in conservation science prior to 2019 and has supported 5 FTE positions in conservation science in 2019 and 2020.  
+Palmyra supported 2 FTE positions in conservation science prior to 2019 and has supported 5 FTE positions in conservation science in 2019 and 2020.  
 
 ```{r create-raw-data, eval=F}
 
