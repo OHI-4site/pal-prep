@@ -192,3 +192,17 @@ zonal_sums_km2 <- zonal_sums_df %>%
 ## its the same data set... just a subset of the bigger one like we did above. 
 ```
 
+## 2011 Reef Area
+
+```{r find-reef-area, eval=F}
+# 2011 coral reef map 
+hab_map <- st_read(file.path(dir_anx, '_raw_data/NCCOS_data/habitat_map'), layer = "Palmyra_Habitat_Map_Final") %>% 
+  st_transform(crs = us_alb)
+
+# Find the area of coral reefs
+reefs <- hab_map %>% 
+  filter(ZONE != "Land", ZONE != "Unknown")
+
+reef_area <- sum(reefs$AREA) # Converts to 50.28 km2
+reef_acres <- sum(reefs$ACRES) # Converts to 50.28 km2
+```
