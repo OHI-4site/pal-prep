@@ -1,0 +1,131 @@
+---
+title: 'OHI+ Palmyra 2020: Research Goal Scientific Papers Layer'
+author: "*Compiled on `r date()` by `r Sys.info()['user']`*"
+output: 
+  html_document:
+    toc: true
+    number_sections: true
+    theme: cerulean
+    highlight: haddock
+    includes: 
+     #in_header: '../../../workflow/templates/ohi_hdr.html' - need to update this
+  pdf_document:
+    toc: true
+editor_options: 
+  chunk_output_type: console
+---
+
+# Summary
+
+This script calculates the status of scientific research conducted on Palmyra as part of the Research goal.      
+
+# Data 
+
+Data for this layer was shared by Alex Wegmann at The Nature Conservancy on June 17, 2020. The scientific library data sheet is a list of scientific publications concerning natural resources on Palmyra Atoll.        
+
+# Setup
+
+```{r setup, message = F, warning = F}
+knitr::opts_chunk$set(echo = FALSE)
+
+library(tidyverse)
+library(janitor)
+library(lubridate)
+library(here)
+
+# Source and set file paths
+source(here('src/R/common.R'))
+
+dir_goal   <- '~/github/pal-prep/prep/rs/v2020'
+```
+
+# Methods
+
+## Get Raw Data
+
+```{r scientific-library, eval=F}
+
+raw_sci_lib <- read_csv(file.path(dir_goal, "raw/Raw_Palmyra_Scientific_Library.csv"))
+
+# Clean up the data:
+sci_data <- raw_sci_lib %>% 
+  clean_names() %>% 
+  filter(title != is.na(title)) %>% 
+  dplyr::select(title, record_date)
+
+# Find the year of publication for all papers
+sci_lib <- sci_data %>% 
+  mutate(published = parse_date_time(sci_data$record_date, orders = c('y', 'dm', 'dmy', 'my'))) %>% 
+  mutate(year_published = year(published),
+         year_published = ifelse(year_published == 2020, "NA", year_published))
+# Any record without a year was automatically given year 2020 - turn these to NA so we can find the correct year 
+
+# Fill in missing publication dates
+# Set search title expression to look for digits (publication year)
+regexp <- "[[:digit:]]+"
+
+years_missing <- sci_lib %>% 
+  dplyr::filter(is.na(year_published) | year_published == "NA") %>% 
+  arrange(title) %>% 
+  mutate(extract_year = as.numeric(str_extract(title, regexp))) %>% 
+  dplyr::select(title, extract_year) %>% 
+  filter(extract_year != 111 & extract_year != 2 &
+         extract_year != 140 & extract_year != 146 &
+         extract_year != 122) # filter out the dates that aren't actually dates 
+
+# Add the dates back into the original data frame 
+sci_lib_years <- sci_lib %>% 
+  left_join(years_missing, by = "title") %>% 
+  mutate(year_published = ifelse(year_published == "NA", extract_year, year_published)) %>% 
+  mutate(year_published = ifelse(is.na(year_published), extract_year, year_published)) %>% 
+  filter(year_published != is.na(year_published)) %>% 
+  dplyr::select(title, year_published) 
+
+# Save to int folder 
+write_csv(sci_lib_years, file.path(dir_goal, "int/sci_lib.csv"))
+```
+
+## Find Publications By Year
+
+```{r pubs-by-year, eval=F}
+
+sci_lib <- read_csv(file.path(dir_goal, "int/sci_lib.csv"))
+
+pubs_year <- sci_lib %>% 
+  group_by(year_published) %>% 
+  tally() %>% 
+  rename(publications = n,
+         year = year_published)
+
+# Save to int folder
+write_csv(pubs_year, file.path(dir_goal, "int/pubs_year.csv"))
+```
+
+## Calculate Status 
+
+The reference point for publications is 10 scientific publications per year. The scientific papers layer is calculated as the following:   
+
+$status~=~publications_{y}~/~reference$   
+
+Where $publications_{y}$ is the number of publications in year y and $reference$ is the reference point of 10.   
+
+```{r calc-status, eval=F}
+
+pubs_year <- read_csv(file.path(dir_goal, "int/pubs_year.csv"))
+
+# Define reference point 
+ref_point <- 10
+
+# Need to repeat year 2019 for 2020
+pubs_2020 <- data.frame(year = 2020,
+                        publications = 1)
+
+sci_status <- pubs_year %>% 
+  rbind(pubs_2020) %>% 
+  mutate(status = publications / ref_point,
+         status = ifelse(status > 1, 1, status)) %>% # Adjust scores so they don't go above 1
+  filter(year >= 2014) %>% # Data years only need to be 2019-2020
+  mutate(region_id = 1) %>% 
+  dplyr::select(region_id, year, status)
+```
+
