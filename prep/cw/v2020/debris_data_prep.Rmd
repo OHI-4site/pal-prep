@@ -119,9 +119,13 @@ write_csv(fad_status, file.path(dir_goal, "output/fad_status.csv"))
 ## Save to Toolbox
 
 ```{r save-to-toolbox, eval=F}
+
+# Output layer
+fad_status <- read_csv(file.path(dir_goal, "output/fad_status.csv"))
+
 # Save to toolbox
 dir_scores <- '~/github/pal-scores/region'
 
-write_csv(fad_status, file.path(dir_scores, 'layers/cw_fad_status.csv'))
+write_csv(fad_status, file.path(dir_scores, 'layers/cw_debris_status.csv'))
 ```
 
