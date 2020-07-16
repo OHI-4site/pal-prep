@@ -120,6 +120,7 @@ ref_point <- 10
 pubs_2020 <- data.frame(year = 2020,
                         publications = 1)
 
+# Calculate status 
 sci_status <- pubs_year %>% 
   rbind(pubs_2020) %>% 
   mutate(status = publications / ref_point,
@@ -129,3 +130,11 @@ sci_status <- pubs_year %>%
   dplyr::select(region_id, year, status)
 ```
 
+## Save to Toolbox 
+
+```{r save-to-toolbox, eval=F}
+# Save to toolbox
+dir_scores <- '~/github/pal-scores/region'
+
+write_csv(sci_status, file.path(dir_scores, 'layers/rs_sci_papers_status.csv'))
+```
