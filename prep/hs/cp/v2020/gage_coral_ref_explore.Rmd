@@ -195,6 +195,9 @@ zonal_sums_km2 <- zonal_sums_df %>%
 ## 2011 Reef Area
 
 ```{r find-reef-area, eval=F}
+
+dir_anx    <- file.path(dir_M, 'git-annex/foursite/palmyra')
+
 # 2011 coral reef map 
 hab_map <- st_read(file.path(dir_anx, '_raw_data/NCCOS_data/habitat_map'), layer = "Palmyra_Habitat_Map_Final") %>% 
   st_transform(crs = us_alb)
