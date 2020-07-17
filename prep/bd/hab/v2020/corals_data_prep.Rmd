@@ -139,3 +139,11 @@ coral_status <- zone_n %>%
 ```
 
 ## Save to Toolbox 
+
+```{r save-to-toolbox, eval=F}
+
+# Save to toolbox
+dir_scores <- '~/github/pal-scores/region'
+
+write_csv(coral_status, file.path(dir_scores, 'layers/hab_coral_status.csv'))
+```
