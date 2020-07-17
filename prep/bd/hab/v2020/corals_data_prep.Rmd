@@ -135,7 +135,11 @@ coral_status <- zone_n %>%
   mutate(n_total = case_when(zone == "Back Reef" ~ 126,
                              zone == "Fore Reef" ~ 156,
                              zone == "Lagoon" ~ 146),
-         status = n_ref / n_total)
+         status = n_ref / n_total,
+         region_id = 1, 
+         year = 2020,
+         habitat = "coral") %>%
+  dplyr::select(region_id, habitat, zone, year, status)
 ```
 
 ## Save to Toolbox 
