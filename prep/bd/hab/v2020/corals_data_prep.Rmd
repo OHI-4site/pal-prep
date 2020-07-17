@@ -16,7 +16,14 @@ editor_options:
 ---
 
 # Summary
+
 This script uses benthic habitat mapping shapefiles to calculate the percent live coral cover across three regions of interest on the reef to estimate the condition of coral reef habitats. 
+
+# Data 
+
+Coral cover maps were downloaded from the National Centers for Coastal Ocean Science (NCCOS) benthic habitat mapping project for Palmyra Atoll, found [here](https://products.coastalscience.noaa.gov/collections/benthic/e58palmyra/#horizontalTab3)   
+
+Data was downloaded on June 30, 2020, and habitat maps were completed in December 2011.   
 
 # Setup
 
@@ -40,11 +47,7 @@ dir_anx    <- file.path(dir_M, 'git-annex/foursite/palmyra')
 
 ## Get Coral Cover Maps
 
-Coral cover maps were downloaded from the National Centers for Coastal Ocean Science (NCCOS) benthic habitat mapping project for Palmyra Atoll, found [here](https://products.coastalscience.noaa.gov/collections/benthic/e58palmyra/#horizontalTab3)   
-
-Data was downloaded on June 30, 2020, and habitat maps were completed in December 2011.   
-
-Cover categories are adapted to a numeric scale as follows:  
+Cover categories in the raw data are adapted to a numeric scale as follows:  
 
  - 0   - <10% = 1   
  - 10% - <50% = 2   
@@ -140,6 +143,9 @@ coral_status <- zone_n %>%
          year = 2020,
          habitat = "coral") %>%
   dplyr::select(region_id, habitat, zone, year, status)
+
+# Save to output for use in coastal protection data prep
+write_csv(coral_status, file.path(dir_goal, "output/coral_status.csv"))
 ```
 
 ## Save to Toolbox 
