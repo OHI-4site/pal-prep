@@ -17,7 +17,7 @@ editor_options:
 
 # Summary
 
-This script uses historic data gathered from coral reef surveys to estimate trends in coral condition. 
+This script estimates the trend in coral condition based on the OHI Global Assessment.   
 
 # Setup
 
@@ -25,43 +25,124 @@ This script uses historic data gathered from coral reef surveys to estimate tren
 knitr::opts_chunk$set(echo = FALSE)
 
 library(tidyverse)
-library(sf)
-library(mapview)
+library(ohicore)
 library(here)
 
 # Source and set file paths
 source(here('src/R/common.R'))
 
 dir_goal   <- '~/github/pal-prep/prep/bd/hab/v2020'
-dir_anx    <- file.path(dir_M, 'git-annex/foursite/palmyra')
+dir_global <- '~/github/ohiprep_v2020/globalprep'
 ```
 
 # Data 
 
-The survey data was gathered by scientists at Scripps Institution of Oceanography and NOAA’s Pacific Islands Fisheries Science Center (PIFSC), Coral Reef Ecosystem Division (CRED). The site location data was re-created from Table 1 and the coral cover data was re-created from Table 2.  
-
-Citation: Braun, C., P.S. Vroom, and J.E. Smith (2009) Examination of algal diversity and benthic community structure at Palmyra Atoll, U.S. Line Islands. Proceedings of the 11th Coral Reef Symposium. [Available here](https://scripps.ucsd.edu/labs/coralreefecology/wp-content/uploads/sites/84/2010/09/Braun-et-al._Examination-of-Algal-Diversity-and-Benthic-community-structure-at-Palmyra-Atoll-U.S.-Line-Islands.pdf)   
+Coral condition is lacking historic data for all areas of the reef used to estimate current status (fore reef, back reef, and lagoon). Therefore, the trend of coral condition will be estimated using the OHI global data. The OHI global trend data is calculated as a linear trend in coral condition, calculated on a per country basis across all available data from 1975-2006. More information on the coral trend method can be found in the [OHI Global Methods](https://raw.githack.com/OHI-Science/ohi-global/published/documents/methods/Supplement.html#62_biodiversity) documentation, Section 6.2.1.      
 
 # Methods
 
-## Get Survey Locations
+## Get Global Trend Data
 
-```{r survey-locations, eval=F}
+```{r get-global-trend-data, eval=F}
 
-sites <- read_csv(file.path(dir_goal, "raw/survey_sites.csv"))
+# Global coral trend data
+global_trend <- read_csv(file.path(dir_global, "hab_coral/v2012/data/habitat_trend_coral.csv"))
 
-# Convert the sites csv into a simple features object
-sites_sf <- st_as_sf(sites, coords = c("long", "lat"), crs = wgs84)
+# Find region ids 
+region_data() # Loads data frames needed to reference global region ids
 
-# Coral Zones 
-coral_zone <- st_read(file.path(dir_goal, 'int/'), layer = "coral_zones") %>% 
-  st_transform(wgs84)
+pal_id <- rgns_all %>% 
+  filter(rgn_name == "Palmyra Atoll") # Palmyra is region 150
 
-# Plot the survey sites and the shoreline
-ggplot() + 
-  geom_sf(data = coral_zone, aes(fill = zone)) +
-  geom_sf(data = sites_sf, size = 1) + 
-  coord_sf()
+# Check trend data for a Palmyra trend
+pal_trend <- global_trend %>% 
+  filter(rgn_id == 150) # No data - there is no trend estimate for Palmyra 
 
+# Get UN georegions
+UNgeorgn()
+
+# Find Palmyra's georegions
+pal_georgn <- UNgeorgn %>% 
+  filter(rgn_label == "Palmyra Atoll") # Micronesia or Oceania 
+```
+
+## Compare Trend by Georegion
+
+Global data resolution isn't the best and there is no estimate of coral trend for Palmyra Atoll. We will investigate the average trend in coral condition in both the Micronesia georegion and the Oceania georegion, as well as creating a region for just the U.S. Minor Outlying Islands.   
+
+The [U.S. Minor Outlying Islands](https://www.iso.org/obp/ui#iso:code:3166:UM) in the Pacific Ocean consist of the following atolls and islands:  
+
+ - Baker Island (Region 158)   
+ - Howland Island (Region 158)   
+ - Jarvis Island (Region 149)   
+ - Johnston Atoll (Region 159)   
+ - Kingman Reef (Not included)   
+ - Midway Islands (Not included)   
+ - Palmyra Atoll (Region 150)   
+ - Wake Island (Region 12)   
+
+```{r compare-trends, eval=F}
+
+# Create a UM rgn_id vector 
+um <- c(158,149,159,150,12)
+
+# Add georegions
+global_geo <- rgns_all %>% 
+  left_join(UNgeorgn, by = "rgn_id") %>% 
+  dplyr::select(rgn_id, rgn_name, r1_label, r2_label) %>% 
+  mutate(um_island = ifelse(rgn_id %in% um, "US Minor Outlying Island", "no")) # Add UM designation
+
+# Add coral trend data 
+corals_georgn <- global_geo %>% 
+  left_join(global_trend, by = "rgn_id") %>% 
+  dplyr::select(-habitat)
+
+# Find the different trends by Georegion
+oceania <- corals_georgn %>% 
+  filter(r1_label == "Oceania") %>% 
+  group_by(r1_label) %>% 
+  summarize(trend = mean(trend, na.rm=TRUE)) %>% 
+  dplyr::select(geo_rgn = r1_label, trend)
+
+micronesia <- corals_georgn %>% 
+  filter(r2_label == "Micronesia") %>% 
+  group_by(r2_label) %>% 
+  summarize(trend = mean(trend, na.rm=TRUE)) %>% 
+  dplyr::select(geo_rgn = r2_label, trend)
+
+usmi <- corals_georgn %>% 
+  filter(um_island == "US Minor Outlying Island") %>% 
+  group_by(um_island) %>% 
+  summarize(trend = mean(trend, na.rm=TRUE)) %>% 
+  dplyr::select(geo_rgn = um_island, trend)
+
+## Bind together to compare
+compare_trends <- oceania %>% 
+  rbind(micronesia) %>% 
+  rbind(usmi)
+```
+
+The smallest geo-region is probably the most preferred. The US Minor Outlying Islands only has one island with a trend so instead we'll use the Micronesia georegion as the trend estimate.   
+
+## Finalize Trend Data 
+
+```{r finalize-trend-df, eval=F}
+
+coral_trend <- micronesia %>% 
+  mutate(region_id = 1,
+         habitat = "coral",
+         year = 2020) %>% 
+  dplyr::select(region_id, habitat, year, trend)
+
+```
+
+## Save to Toolbox
+
+```{r save-to-toolbox, eval=F}
+
+# Save to toolbox
+dir_scores <- '~/github/pal-scores/region'
+
+write_csv(coral_trend, file.path(dir_scores, 'layers/hab_coral_trend.csv'))
 ```
 
