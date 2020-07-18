@@ -74,7 +74,7 @@ hab_map <- st_read(file.path(dir_anx, '_raw_data/NCCOS_data/habitat_map'), layer
 # Interested in the coral cover map which is column 'P_CORAL_CV'
 coral_map <- hab_map %>% 
   clean_names() %>% # lower case column names
-  dplyr::select(zone, p_coral_cv)
+  dplyr::select(zone, p_coral_cv, area)
 
 plot(coral_map)
 
@@ -93,7 +93,7 @@ zones <- coral_map %>%
                                p_coral_cv == "0% - <10%"  ~ 1))
 
 # Save layer to int folder as shp
-st_write(zones, file.path(dir_goal, "int/coral_zones.shp"), driver = 'ESRI Shapefile')
+st_write(zones, file.path(dir_goal, "int/coral_zones.shp"), driver = 'ESRI Shapefile', append=FALSE)
 
 # Also save layer as csv
 write_csv(zones, file.path(dir_goal, "int/coral_zones.csv"))
