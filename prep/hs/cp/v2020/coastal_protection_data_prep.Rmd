@@ -1,0 +1,108 @@
+---
+title: 'OHI+ Palmyra 2020: Habitat Services Subgoal Coastal Protection'
+author: "*Compiled on `r date()` by `r Sys.info()['user']`*"
+output: 
+  html_document:
+    toc: true
+    number_sections: true
+    theme: cerulean
+    highlight: haddock
+    includes: 
+     #in_header: '../../../workflow/templates/ohi_hdr.html' - need to update this
+  pdf_document:
+    toc: true
+editor_options: 
+  chunk_output_type: console
+---
+
+# Summary 
+
+This script calculates the status of coastal protection from coral reef habitats on Palmyra.  
+
+# Data 
+
+There are three data inputs for calculating the coastal protection status: coral reef condition, coral reef extent, and a protectiveness rank.  
+
+*Coral Reef Extent and Condition*   
+Coral reef extent and condition data are the same data used in the coral habitat status layer. Coral cover maps were downloaded from the National Centers for Coastal Ocean Science (NCCOS) benthic habitat mapping project for Palmyra Atoll, found [here](https://products.coastalscience.noaa.gov/collections/benthic/e58palmyra/#horizontalTab3)   
+
+Data was downloaded on June 30, 2020, and habitat maps were completed in December 2011.   
+
+*Protectiveness Ranks*   
+
+Protectiveness ranks are taken from Tallis *et al* 2011 and are replicated in the talbe below:    
+
+Coastal protectiveness ranks Scores range from 1-4, with 4 being the most protective.
+
+| Habitat         |	Protectiveness rank (w) |
+|-----------------|-------------------------|
+| Mangroves	      | 4                       |
+| Salt marshes	  | 4                       |
+| Coastal sea ice |	4                       |
+| Coral reefs     |	3                       |
+| Seagrasses	    | 1                       |
+
+Citation: Tallis, H.T., Ricketts, T., Guerry, A., Wood, S., Sharp, R., Nelson, E., Ennaanay, D., Wolny, S., Olwero, N., Vigerstol, K. & others. (2011). InVEST 2.2.1 user’s guide. The Natural Capital Project, Stanford University.   
+
+# Setup 
+
+
+```{r setup, message = F, warning = F}
+knitr::opts_chunk$set(echo = FALSE)
+
+library(tidyverse)
+library(here)
+
+# Source and set file paths
+source(here('src/R/common.R'))
+
+dir_goal   <- '~/github/pal-prep/prep/hs/cp/v2020' 
+dir_hab    <- '~/github/pal-prep/prep/bd/hab/v2020'
+dir_anx    <- file.path(dir_M, 'git-annex/foursite/palmyra')
+```
+
+
+# Methods 
+
+## Coral Condition
+
+Use the coral status layer to find the coral condition. Coral condition will be the average status of the three zones: fore reef, back reef, and lagoon.   
+
+```{r coral-condition, eval=F}
+
+hab_status <- read_csv(file.path(dir_hab, "output/coral_status.csv"))
+
+# Find a single estimate of condition by averaging the status of each zone 
+coral_condition <- hab_status %>% 
+  group_by(region_id) %>% 
+  summarize(value = mean(status)) %>% 
+  mutate(dimension = "condition") %>% 
+  dplyr::select(region_id, dimension, value)
+
+# Save to int 
+write_csv(coral_condition, file.path(dir_goal, "int/coral_condition.csv"))
+```
+
+## Coral Extent 
+
+Use the shapefiles from the coral habitats layer to find the area (extent).   
+
+```{r coral-extent, eval=F}
+
+# 2011 coral reef map in an equal area projection
+zones_shp <- st_read(file.path(dir_hab, 'int/'), layer = "coral_zones") %>% 
+  st_transform(crs = us_alb)
+
+# Find the area of coral reefs that are included in the condition estimate
+reef_area_m2 <- sum(zones_shp$area) 
+reef_area_km2 <- reef_area_m2 * 0.000001
+
+# Create an extent data frame 
+coral_extent <- data.frame(region_id = 1, 
+                           dimension = "extent",
+                           value = reef_area_km2) 
+
+# Save to int folder
+write_csv(coral_extent, file.path(dir_goal, "int/coral_extent.csv"))
+```
+
