@@ -16,8 +16,18 @@ editor_options:
 ---
 
 # Summary
+
 This script classifies tree species into native and nonnative groups and finds the percent of total area occupied by native tree species. The carbon storage status is based on the percent of land occupied by native tree species compared to the reference point percentage of land occupied by native tree species.   
 
+# Data 
+
+*Rainforest Tree Maps*   
+
+Tree cover maps were downloaded from the U.S. Geological Survey vegetation community mapping project for Palmyra Atoll, found [here](https://www.sciencebase.gov/catalog/item/5c66fc5be4b0fe48cb3aca49).    
+
+Data was downloaded on July 7, 2020, and vegetation maps were completed in October 2016 and published in June 2019. 
+
+Citation: Struckhoff, M.A., 2019, Woody species crown and vegetation community data, Palmyra Atoll, 2016: U.S. Geological Survey data release, https://doi.org/10.5066/P9GMPVIO.  
 
 # Setup
 
@@ -41,10 +51,6 @@ dir_anx    <- file.path(dir_M, 'git-annex/foursite/palmyra')
 # Methods
 
 ## Get Tree Cover Maps
-
-Tree cover maps were downloaded from the U.S. Geological Survey vegetation community mapping project for Palmyra Atoll, found [here](https://www.sciencebase.gov/catalog/item/5c66fc5be4b0fe48cb3aca49).    
-
-Data was downloaded on July 7, 2020, and vegetation maps were completed in October 2016 and published in June 2019.  
 
 ```{r get-tree-cover-maps, eval=F}
 
@@ -163,7 +169,7 @@ write_sf(tree_area, file.path(dir_goal, "int/tree_area.shp"), driver = "ESRI Sha
 Reference Point: 95% of the forest area dominated by native trees   
 
 
-The status is calculated as the current percent of forest dominated by native trees over the refernce point percentage   
+The status is calculated as the current percent of forest dominated by native trees over the reference point percentage   
 $status~=~percent~cover~/~reference~point~percent~cover$   
  
 ```{r calc-status, eval=F}
@@ -195,6 +201,17 @@ cs_status <- as.data.frame(cs_status) %>%
 
 # Save as csv to output
 write_csv(cs_status, file.path(dir_goal, "output/cs_status.csv"))
+```
+
+
+## Save to Toolbox 
+
+```{r save-to-toolbox, eval=F}
+
+# Save to toolbox
+dir_scores <- '~/github/pal-scores/region'
+
+write_csv(coral_trend, file.path(dir_scores, 'layers/hab_coral_trend.csv'))
 ```
  
  
