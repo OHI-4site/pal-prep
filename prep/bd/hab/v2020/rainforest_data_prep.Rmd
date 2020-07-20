@@ -21,7 +21,7 @@ This script uses data from a 2019 study quantifying coconut palm extent on the P
 
 # Data 
 
- - Burnett, M.W. et al. (2019). "Quantifying coconut palm extent on Pacific islands using spectral textural analysis of very high resolution imagery". *International Journal of Remote Sensing* 40(19): 7329-7355   
+ - Burnett, M.W. *et al.* (2019). "Quantifying coconut palm extent on Pacific islands using spectral textural analysis of very high resolution imagery". *International Journal of Remote Sensing* 40(19): 7329-7355   
   [Available here](https://www.tandfonline.com/doi/epub/10.1080/01431161.2019.1594440?needAccess=true). 
   
 The data comes from Table A1 downloaded on July 8, 2020 from [here](https://www.tandfonline.com/doi/figure/10.1080/01431161.2019.1594440?scroll=top&needAccess=true).  
@@ -47,7 +47,7 @@ dir_anx    <- file.path(dir_M, 'git-annex/foursite/palmyra')
 
 ## Get Vegetation Data
 
-Vegetation data is grouped into the following categories: cocos, native forest, scaelvola, and non-vegetated. Non-vegetated land area is excluded from the total area. Using the data we can find the total land area ($km^2$) and using the percent coverage, find the total area occupied by each vegetation category.  
+Vegetation data is grouped into the following categories: cocos, native forest, scaevola, and non-vegetated. Non-vegetated land area is excluded from the total area. Using the data we can find the total land area ($km^2$) and using the percent coverage, find the total area occupied by each vegetation category.  
 
 ```{r vegetation-data, eval=F}
 
@@ -150,7 +150,7 @@ The rainforest habitat status is calculated based on the area of rainforest curr
 
 $status = area_{current}~(km^2)~/~area_{potential}~(km^2)$   
 
-The current rainforest area ($area_{current}$) is based on the USGS mapping exercise from 2016 where forest is defined as the total area of the 9 vegetation communities listed above. 
+The current rainforest area ($area_{current}$) is based on the Burnett, M.W. *et al.* 2019 study where forest is defined as the total area of scaevola and native forests.    
 
 The potential rainforest area ($area_{potential}$) is based on a 2001 satellite image showing approximately 43% of the islands are dominated by coconut plantations and 53% of the islands are dominated by other vegetation communities as discussed in the [USGS Terrestrial Management Plan](https://pubs.usgs.gov/of/2011/1007/pdf/ofr20111007.pdf) The potential rainforest area is calculated as the land area added once 95% of the historic palm plantations are removed plus the original 53% of land area that was dominated by rainforests.  
 
