@@ -1,5 +1,5 @@
 ---
-title: 'OHI+ Palmyra 2020: Habitat Services Subgoal Coastal Protection'
+title: 'OHI+ Palmyra 2020: Habitat Services Subgoal Coastal Protection Status'
 author: "*Compiled on `r date()` by `r Sys.info()['user']`*"
 output: 
   html_document:
@@ -66,6 +66,12 @@ dir_anx    <- file.path(dir_M, 'git-annex/foursite/palmyra')
 
 ## Coral Condition
 
+Coral condition is the current condition of coral reef habitats relative to the reference point. 
+
+$C_{condition}~=~C_{current}~/~C_{ref}$   
+
+Where $C_{current}$ is the current status of coral habitats and $C_{ref}$ is the reference point of coral habitats. This is the same as the coral status calculated in the Biodiversity Habitats subgoal.   
+
 Use the coral status layer to find the coral condition. Coral condition will be the average status of the three zones: fore reef, back reef, and lagoon.   
 
 ```{r coral-condition, eval=F}
@@ -104,5 +110,47 @@ coral_extent <- data.frame(region_id = 1,
 
 # Save to int folder
 write_csv(coral_extent, file.path(dir_goal, "int/coral_extent.csv"))
+```
+## Calculate Status
+
+The coastal protection status is calculated as the relative health of the habitats that provide coastal protection weighted by their area and protectiveness rank. Coral reefs are the only habitat included in the coastal protection goal for Palmyra, and the status is found by the following equation:  
+
+$status~=~(C_{condition}~x~A~x~w)~/~(A~x~w)$   
+
+Where $C_{condition}$ is the condition of coral habitats as defined above, $A$ is the area of coral reef habitat, and $w$ is the protectiveness rank for coral reefs.  
+
+```{r calculate-status, eval=F}
+condition <- read_csv(file.path(dir_goal, "int/coral_condition.csv"))
+extent    <- read_csv(file.path(dir_goal, "int/coral_extent.csv"))
+
+# Assign values:
+C <- condition$value
+A <- extent$value
+w <- 3
+
+# Define function to calculate the status 
+status <- function(C,A,w) {
+  (C * A * w) / (A * w)
+}
+
+# Find status - should be the same as the condition (area and weighting cancel out)
+c_status <- status(C=C, A=A, w=w)   
+
+# Create status data frame 
+cp_status <- data.frame(
+  region_id = 1,
+  year = 2020, 
+  status = c_status
+)
+```
+
+## Save to Toolbox 
+
+```{r save-to-toolbox, eval=F}
+
+# Save to toolbox
+dir_scores <- '~/github/pal-scores/region'
+
+write_csv(cp_status, file.path(dir_scores, 'layers/hs_coastal_protection_status.csv'))
 ```
 
