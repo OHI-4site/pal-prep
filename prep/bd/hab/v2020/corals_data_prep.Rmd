@@ -23,7 +23,9 @@ This script uses benthic habitat mapping shapefiles to calculate the percent liv
 
 Coral cover maps were downloaded from the National Centers for Coastal Ocean Science (NCCOS) benthic habitat mapping project for Palmyra Atoll, found [here](https://products.coastalscience.noaa.gov/collections/benthic/e58palmyra/#horizontalTab3)   
 
-Data was downloaded on June 30, 2020, and habitat maps were completed in December 2011.   
+Data was downloaded on June 30, 2020, and habitat maps were completed in December 2011.  
+
+Citation: U.S. Department of Commerce, National Oceanic and Atmospheric Administration, National Center for Coastal Ocean Sciences. (2011). Palmyra Habitat Maps [Data file]. Retrieved from https://products.coastalscience.noaa.gov/collections/benthic/e58palmyra/
 
 # Setup
 
