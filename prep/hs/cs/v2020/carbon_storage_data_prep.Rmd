@@ -211,7 +211,7 @@ write_csv(cs_status, file.path(dir_goal, "output/cs_status.csv"))
 # Save to toolbox
 dir_scores <- '~/github/pal-scores/region'
 
-write_csv(coral_trend, file.path(dir_scores, 'layers/hab_coral_trend.csv'))
+write_csv(cs_status, file.path(dir_scores, 'layers/hs_carbon_storage_status.csv'))
 ```
  
  
