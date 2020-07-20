@@ -134,6 +134,8 @@ coral_trend <- micronesia %>%
          year = 2020) %>% 
   dplyr::select(region_id, habitat, year, trend)
 
+# Save to output for use in cp trend
+write_csv(coral_trend, file.path(dir_goal, "output/coral_trend.csv"))
 ```
 
 ## Save to Toolbox
