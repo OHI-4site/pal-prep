@@ -16,7 +16,11 @@ output:
     toc: true
 ---
 
-Creating base rasters for data prep 
+# Summary
+
+Creating base rasters for data prep. Rasters were created at 100 m resolution and 1000 m resolution for both the 50nm boundary and the 3nm boundary.   
+
+# Setup
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -38,7 +42,13 @@ pkgs <- c("sf", "raster", "fasterize")
 p4s_wgs84 <- '+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0'
 p4s_nad83 <- '+proj=longlat +ellps=GRS80 +datum=NAD83 +no_defs +towgs84=0,0,0'
 us_alb    <- raster::crs("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +datum=NAD83 +units=m +no_defs") 
+```
+# Methods 
 
+## Extents for Cropping
+
+Project shapefiles into both wgs and us albers and save the extent for both the 3nm buffer and the 50nm buffer in common.R.   
+```{r extents, eval=F}
 # Shapefiles
 pal_boundary <- pal_monument
 pal_buffer <- pal_buffer_3nm
@@ -83,53 +93,89 @@ plot(alb_ext_3nm)
 plot(pal_buffer_alb, add = T)
 ```
 
-Create a base raster clipped to the extent for the marine monument boundary 
-```{r create_boundary_raster}
-# create a base raster with 100x100, crs = us_alb and pal extent defined above
-base_50nm <- raster(crs = us_alb, alb_ext_50nm, res = 100)
 
-r_50nm <- fasterize(pal_boundary_alb, base_50nm, field = "rgn_id")
+## 100 Meter Resolution  
 
-plot(r_50nm)
-plot(pal_boundary_alb, add = T)
-
-
-```
-
+### Base Rasters
 
 Create a base raster clipped to the extent for the 3nm buffer
-```{r create_buffer_raster}
+```{r create-base-rastser-3nm, eval=F}
 # create a base raster with 100x100, crs = us albers and pal extent defined above
 base_3nm <- raster(crs = us_alb, alb_ext_3nm, res = 100)
+base_3nm[base_3nm] <- 1
 
-r_3nm <- fasterize(pal_buffer_alb, base_3nm, field = "rgn_id")
-
-plot(r_3nm)
+plot(base_3nm)
 plot(pal_buffer_alb, add = T)
 ```
+Create a base raster clipped to the extent for the marine monument boundary 
+```{r create-base-raster-50nm, eval=F}
+# create a base raster with 100x100, crs = us_alb and pal extent defined above
+base_50nm <- raster(crs = us_alb, alb_ext_50nm, res = 100)
+base_50nm[base_50nm] <- 1
 
-Mask out land to create ocean raster at 50 nm 
-```{r mask_ocean_50nm}
-all_ras_50nm <- mask(r_50nm, pal_boundary_alb)
-ocean_ras_50nm <- mask(r_50nm, land, inverse = T) 
+plot(base_50nm)
+plot(pal_boundary_alb, add = T)
+```
 
+### Ocean Rasters
+
+Mask out land to create ocean raster
+```{r ocean-rasters-100m, eval=F}
+# 3 nm
+all_ras_3nm   <- mask(base_3nm, pal_buffer_alb)
+ocean_ras_3nm <- mask(base_3nm, land, inverse = T)
+
+plot(ocean_ras_3nm)
+plot(land, add = T) 
+
+# 50 nm
+all_ras_50nm <- mask(base_50nm, pal_boundary_alb)
+ocean_ras_50nm <- mask(base_50nm, land, inverse = T) 
 
 plot(ocean_ras_50nm)
 plot(land, add = T) 
 ```
-Mask out land to create ocean raster at 3 nm 
-```{r mask_ocean_3nm}
-all_ras_3nm <- mask(r_3nm, pal_buffer_alb)
-ocean_ras_3nm <- mask(r_3nm, land, inverse = T) 
+### Save Rasters
 
-plot(ocean_ras_3nm)
-plot(land, add = T) 
+Write out both ocean rasters for 50 nm boundary and the 3 nm buffer at 100 m resolution
+```{r write_rasters-100m, eval=F}
+writeRaster(ocean_ras_50nm, filename = "~/github/pal-prep/spatial/rasters/ocean_ras50nm_100m.tif", overwrite = T)
+writeRaster(ocean_ras_3nm, filename = "~/github/pal-prep/spatial/rasters/ocean_ras3nm_100m.tif", overwrite = T)
 ```
 
+## 1000 Meter Resolution
 
-Write out both ocean rasters for 50 nm boundary and the 3 nm buffer
-```{r write_rasters}
-writeRaster(ocean_ras_50nm, filename = "~/github/pal-prep/spatial/rasters/ocean_ras_50nm.tif", overwrite = T)
-writeRaster(ocean_ras_3nm, filename = "~/github/pal-prep/spatial/rasters/ocean_ras_3nm.tif", overwrite = T)
+Repeat the above process for 1000 meter resolution   
+
+```{r 1000m-rasters, eval=F}
+# Create a base rasters with 1000x1000, crs = us_alb and Palmyra extent defined above
+base_3nm_1000 <- raster(crs = us_alb, alb_ext_3nm, res = 1000)
+base_3nm_1000[base_3nm_1000] <- 1
+
+plot(base_3nm_1000)
+plot(pal_buffer_alb)
+
+base_50nm_1000 <- raster(crs = us_alb, alb_ext_50nm)
+base_50nm_1000[base_50nm_1000] <- 1
+
+plot(base_50nm_1000)
+plot(pal_boundary_alb, add = T) 
+
+# Ocean rasters
+all_ras3_1k   <- mask(base_3nm_1000, pal_buffer_alb) 
+ocean_ras3_1k <- mask(base_3nm_1000, land, inverse = T) 
+
+all_ras50_1k   <- mask(base_50nm_1000, pal_boundary_alb)
+ocean_ras50_1k <- mask(base_50nm_1000, land, inverse = T) 
+
+plot(ocean_ras3_1k) 
+plot(land, add=T) # Doesn't seem to be working?
+
+
+plot(ocean_ras50_1k)
+plot(land, add = T) # Doesn't seem to be working? 
 ```
-
+```{r save-rasters-1000m, eval=F}
+writeRaster(ocean_ras3_1k, filename = "~/github/pal-prep/spatial/rasters/ocean_ras3nm_1000m.tif", overwrite = T)
+writeRaster(ocean_ras50_1k, filename = "~/github/pal-prep/spatial/rasters/ocean_ras50nm_1000m.tif", overwrite = T)
+```
