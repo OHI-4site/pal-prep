@@ -4,20 +4,24 @@ author: "*Compiled on `r date()` by `r Sys.info()['user']`*"
 output: 
   html_document:
     toc: true
-    number_sections: true
+    number_depth: 3 
+    toc_float: yes
+    number_sections: false
     theme: cerulean
     highlight: haddock
     includes: 
-     #in_header: '../../../workflow/templates/ohi_hdr.html' - need to update this
+     in_header: '../../../src/templates/ohi_hdr.html' 
   pdf_document:
     toc: true
-editor_options: 
-  chunk_output_type: console
 ---
 
 # Summary
 
-This script estimates the trend in coral condition based on the OHI Global Assessment.   
+This script estimates the trend in coral condition based on coral trends from the OHI Global Assessment.   
+
+# Data 
+
+Coral condition is lacking historic data for all areas of the reef used to estimate current status (fore reef, back reef, and lagoon). Therefore, the trend of coral condition will be estimated using the OHI global data. The OHI global trend data is calculated as a linear trend in coral condition, on a per country basis across all available data from 1975-2006. More information on the coral trend method can be found in the [OHI Global Methods](https://raw.githack.com/OHI-Science/ohi-global/published/documents/methods/Supplement.html#62_biodiversity) documentation, Section 6.2.1.      
 
 # Setup
 
@@ -33,11 +37,8 @@ source(here('src/R/common.R'))
 
 dir_goal   <- '~/github/pal-prep/prep/bd/hab/v2020'
 dir_global <- '~/github/ohiprep_v2020/globalprep'
+dir_scores <- '~/github/pal-scores/region'
 ```
-
-# Data 
-
-Coral condition is lacking historic data for all areas of the reef used to estimate current status (fore reef, back reef, and lagoon). Therefore, the trend of coral condition will be estimated using the OHI global data. The OHI global trend data is calculated as a linear trend in coral condition, calculated on a per country basis across all available data from 1975-2006. More information on the coral trend method can be found in the [OHI Global Methods](https://raw.githack.com/OHI-Science/ohi-global/published/documents/methods/Supplement.html#62_biodiversity) documentation, Section 6.2.1.      
 
 # Methods
 
@@ -141,10 +142,6 @@ write_csv(coral_trend, file.path(dir_goal, "output/coral_trend.csv"))
 ## Save to Toolbox
 
 ```{r save-to-toolbox, eval=F}
-
-# Save to toolbox
-dir_scores <- '~/github/pal-scores/region'
-
 write_csv(coral_trend, file.path(dir_scores, 'layers/hab_coral_trend.csv'))
 ```
 

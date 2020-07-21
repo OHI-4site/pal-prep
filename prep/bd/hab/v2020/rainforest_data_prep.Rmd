@@ -4,28 +4,38 @@ author: "*Compiled on `r date()` by `r Sys.info()['user']`*"
 output: 
   html_document:
     toc: true
-    number_sections: true
+    number_depth: 3 
+    toc_float: yes
+    number_sections: false
     theme: cerulean
     highlight: haddock
     includes: 
-     #in_header: '../../../workflow/templates/ohi_hdr.html' - need to update this
+     in_header: '../../../src/templates/ohi_hdr.html' 
   pdf_document:
     toc: true
-editor_options: 
-  chunk_output_type: console
 ---
 
 # Summary
 
-This script uses data from a 2019 study quantifying coconut palm extent on the Pacific Islands to estimate the extent of the rainforest relative to what it could be if palm plantations on the island were removed.   
+This script quantifies the current area of rainforests on Palmyra Atoll to calculate a habitat status.        
 
 # Data 
 
- - Burnett, M.W. *et al.* (2019). "Quantifying coconut palm extent on Pacific islands using spectral textural analysis of very high resolution imagery". *International Journal of Remote Sensing* 40(19): 7329-7355   
+The rainforest status score is calculated based on two forest studies.   
+
+*2019 Data*   
+The most recent estimates for rainforest coverage on Palmyra Atoll comes from a 2019 study quantifying coconut palm extent.  
+
+Citation: Burnett, M.W. *et al.* (2019). "Quantifying coconut palm extent on Pacific islands using spectral textural analysis of very high resolution imagery". *International Journal of Remote Sensing* 40(19): 7329-7355   
   [Available here](https://www.tandfonline.com/doi/epub/10.1080/01431161.2019.1594440?needAccess=true). 
   
 The data comes from Table A1 downloaded on July 8, 2020 from [here](https://www.tandfonline.com/doi/figure/10.1080/01431161.2019.1594440?scroll=top&needAccess=true).  
 
+*2001 Data*   
+The historic percent coverage of palm and rainforest will be used as the reference point for the status score. Historic values are based on a 2001 satellite image evaluated in the U.S. Geological Survey 2011 Terrestrial Forest Management Plan for Palmyra Atoll. There is no downloadable data, these numbers are pulled from the report to create the historic data frame.    
+
+Citation: Hathaway, S.A., McEachern K., & Fisher, R.N. (2011). "Terrestrial Forest Management Plan for Palmyra Atoll". U.S. Geological Survey Open-File Report 2011-1007.  
+  [Available here](https://permanent.fdlp.gov/gpo119875/ofr20111007.pdf)  
 
 # Setup
 
@@ -41,6 +51,7 @@ source(here('src/R/common.R'))
 
 dir_goal   <- '~/github/pal-prep/prep/bd/hab/v2020'
 dir_anx    <- file.path(dir_M, 'git-annex/foursite/palmyra')
+dir_scores <- '~/github/pal-scores/region'
 ```
 
 # Methods
@@ -104,12 +115,7 @@ write_csv(veg_area, file.path(dir_goal, "int/veg_area.csv"))
 
 ## Get Historic Data
 
-The historic percent coverage of palm and rainforest will be used as the reference point for the status score. Historic values are based on a 2001 satellite image evaluated in the U.S. Geological Survey 2011 Terrestrial Forest Management Plan for Palmyra Atoll. There is no downloadable data, these numbers are pulled from the report to create the historic data frame.    
-
-Citation: Hathaway, S.A., McEachern K., & Fisher, R.N. (2011). "Terrestrial Forest Management Plan for Palmyra Atoll". U.S. Geological Survey Open-File Report 2011-1007.  
-  [Available here](https://permanent.fdlp.gov/gpo119875/ofr20111007.pdf)  
-  
-This report states that references to the size of the island vary, so a total land area value was used from 2000, which is the closest estimate of the area of the island when the 2001 satellite image was taken. The 2000 estimated land area was manually derived and cited in the 2019 study where the current status data was downloaded.  
+A total land area value was used from 2000, which is the closest estimate of the area of the island when the 2001 satellite image was taken. The 2000 estimated land area was manually derived and cited in the 2019 study where the current status data was downloaded.  
 
 The report gives the following vegetation categories and percent coverage:  
 
@@ -194,9 +200,6 @@ write_csv(rainforest_status, file.path(dir_goal, "output/rainforest_status.csv")
 ## Save to Toolbox 
 
 ```{r save-to-toolbox, eval=F}
-# save to toolbox
-dir_scores <- '~/github/pal-scores/region'
-
 write_csv(rainforest_status, file.path(dir_scores, 'layers/hab_rainforest_status.csv'))
 ```
 
