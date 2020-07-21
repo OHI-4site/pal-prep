@@ -4,7 +4,7 @@ author: "*Compiled on `r date()` by `r Sys.info()['user']`*"
 output: 
   html_document:
     toc: true
-    number_depth: 3 
+    toc_depth: 3 
     toc_float: yes
     number_sections: false
     theme: cerulean
@@ -59,7 +59,6 @@ source(here('src/R/common.R'))
 
 dir_goal   <- '~/github/pal-prep/prep/hs/cp/v2020' 
 dir_hab    <- '~/github/pal-prep/prep/bd/hab/v2020'
-dir_scores <- '~/github/pal-scores/region'
 ```
 
 

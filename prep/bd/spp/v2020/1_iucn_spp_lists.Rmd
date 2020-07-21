@@ -4,21 +4,30 @@ author: "*Compiled on `r date()` by `r Sys.info()['user']`*"
 output: 
   html_document:
     toc: true
-    number_sections: true
+    toc_depth: 3 
+    toc_float: yes
+    number_sections: false
     theme: cerulean
     highlight: haddock
     includes: 
-     #in_header: '../../../workflow/templates/ohi_hdr.html' - need to update this
+     in_header: '../../../src/templates/ohi_hdr.html' 
   pdf_document:
     toc: true
-editor_options: 
-  chunk_output_type: console
 ---
 
 # Summary
 
 This script takes the OHI Palmyra region shapefile and compares it to the global shapefiles we have from IUCN to extract all species maps that fall within our region. We then get the conservation status for all the species falling within the Palmyra 50nm boundary and calculate the species scores. A lot of this code dips into the `spp_risk_dists` repo from Casey O'Hara: 
 https://github.com/saraorofino/spp_risk_dists  
+
+# Data 
+
+Species maps and conservation status was pulled from the IUCN Red List.  
+
+Citation: IUCN 2020. IUCN Red List of Threatened Species. Version 2020-1 <www.iucnredlist.org>
+  * __Accessed__: 9 June 2020 
+  * __Time range__: 1965-2020 (discrete past assessments by species) 
+  * __Format__:  JSON   
 
 # Setup
 
@@ -92,7 +101,7 @@ The following forloop goes through each species:
 - filters that list to just those in Palmyra
 - returns an aggregated dataframe (`taxa_cells_df`) with all species scientific names, their unique ids (sids), and cellIDs
 
-```{r get-spp-files, eval = F}
+```{r get-spp-files, eval=F}
 # grab each taxa's folder filepath
 taxa <- spp_maps$dbf_file %>%
     unique() %>%
@@ -186,7 +195,7 @@ miss_sp <- iucn_common_names %>%
 
 We are still missing `r nrow(filter(iucn_common_names, is.na(common)))`. Check fishbase
 
-```{r fishbase, eval = F}
+```{r fishbase, eval=F}
 
 # select scientific names of missing species
 sp <- iucn_common_names %>%
@@ -215,7 +224,7 @@ out <- iucn_common_names %>%
 
 Use the `taxize` R package to try and get more of the missing common names
 
-```{r taxize, eval = F}
+```{r taxize, eval=F}
 # missing scientific names
 missing_scinames <- out %>%
   filter(is.na(common_fb)) %>%
@@ -267,6 +276,8 @@ common_found$ncbi_common <- as.character(common_found$ncbi_common)
 
 None of the 104 remaining species had common names in the taxize 'itis' database but I found four more in the 'ncbi' database
 
+## Select Species Information
+
 Add common names and select final list of spp information
 
 ```{r add-common-names, eval=F}
@@ -308,6 +319,7 @@ iucn_spp_info <- iucn_spp_info %>%
 write.csv(iucn_spp_info, file.path(dir_goal, 'int/iucn_spp_info.csv'))
 ```
 
+## Explore Missing Common Names
 
 Some exploration of the species missing common names:  
 

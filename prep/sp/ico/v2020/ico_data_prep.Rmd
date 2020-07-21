@@ -4,7 +4,7 @@ author: "*Compiled on `r date()` by `r Sys.info()['user']`*"
 output: 
   html_document:
     toc: true
-    number_depth: 3 
+    toc_depth: 3 
     toc_float: yes
     number_sections: false
     theme: cerulean
@@ -56,7 +56,6 @@ dir_server <- file.path(dir_M, 'git-annex', goal)
 
 # Local filepaths
 dir_goal   <- '~/github/pal-prep/prep/sp/ico/v2020'
-dir_scores <- '~/github/pal-scores/region'
 
 # Ico specific functions
 source(file.path(dir_goal, 'ico_fxn.R'))

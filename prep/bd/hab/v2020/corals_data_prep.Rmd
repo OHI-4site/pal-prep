@@ -4,7 +4,7 @@ author: "*Compiled on `r date()` by `r Sys.info()['user']`*"
 output: 
   html_document:
     toc: true
-    number_depth: 3 
+    toc_depth: 3 
     toc_float: yes
     number_sections: false
     theme: cerulean
@@ -42,8 +42,6 @@ library(here)
 source(here('src/R/common.R'))
 
 dir_goal   <- '~/github/pal-prep/prep/bd/hab/v2020'
-dir_anx    <- file.path(dir_M, 'git-annex/foursite/palmyra')
-dir_scores <- '~/github/pal-scores/region'
 ```
 
 # Methods

@@ -4,20 +4,24 @@ author: "*Compiled on `r date()` by `r Sys.info()['user']`*"
 output: 
   html_document:
     toc: true
-    number_sections: true
+    toc_depth: 3 
+    toc_float: yes
+    number_sections: false
     theme: cerulean
     highlight: haddock
     includes: 
-     #in_header: '../../../workflow/templates/ohi_hdr.html' - need to update this
+     in_header: '../../../src/templates/ohi_hdr.html' 
   pdf_document:
     toc: true
-editor_options: 
-  chunk_output_type: console
 ---
 
 # Summary
 
 This is the third script in the species data prep. It takes the fully combined IUCN and Palmyra species lists and calculates the status score.   
+
+# Data 
+
+Data used in this script is the result of processing species lists in `01_iucn_spp_lists.Rmd` and `02_pal_spp_lits.Rmd`.  
 
 # Setup 
 
@@ -31,14 +35,14 @@ library(here)
 source(here('src/R/common.R'))
 
 dir_goal   <- '~/github/pal-prep/prep/bd/spp/v2020'
-
 ```
 
 # Methods
 
 ## Calculate Species Scores
 
-Add category weights to species list and calculate species status
+Add category weights to species list and calculate species status. Category weights are based on species risk extinction    
+    * 'LC' = 0, 'NT' = 0.2, 'CD' = 0.3, 'VU' = 0.4, 'T' = 0.6, 'EN' = 0.6, 'CR' = 0.8, 'EX' = 1.0    
 
 ```{r calc-spp-status, eval=F}
 # Use the combined all species lists
@@ -101,11 +105,6 @@ spp_score <- mean(class_status$status) * 100
 
 ## Save to Toolbox 
 
-Write out csv to the toolbox
-
-```{r save-to-toolbox, eval = F}
-# save to toolbox
-dir_scores <- '~/github/pal-scores/region'
-
+```{r save-to-toolbox, eval=F}
 write_csv(spp_status, file.path(dir_scores, 'layers/spp_status.csv'))
 ```
