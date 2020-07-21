@@ -4,60 +4,40 @@ author: "*Compiled on `r date()` by `r Sys.info()['user']`*"
 output: 
   html_document:
     toc: true
-    number_sections: true
+    number_depth: 3 
+    toc_float: yes
+    number_sections: false
     theme: cerulean
     highlight: haddock
     includes: 
-     #in_header: '../../../workflow/templates/ohi_hdr.html' - need to update this
+     in_header: '../../../src/templates/ohi_hdr.html' 
   pdf_document:
     toc: true
-editor_options: 
-  chunk_output_type: console
 ---
 
-# Summary:  Iconic Species Subgoal (Sense of Place)
+# Summary
 
-This script prepares scores (status and trend) for Iconic Species in Palmyra. For each iconic species, extinction risk category is pulled based on current and past assessments; by tracking the assessed extinction risk over time, we can understand the trends of extinction risk for iconic species directly rather than using the "population trend" method from prior OHI assessments.
+This script finds the current status for Iconic Species in Palmyra Atoll. For each iconic species, extinction risk category is pulled based on current and past assessments; by tracking the assessed extinction risk over time, we can understand the trends of extinction risk for iconic species directly rather than using the "population trend" method from prior OHI assessments.  
 
-The Iconic Species sub-goal model calculates status based upon an unweighted average of species health for all 'iconic' species found within the reporting region.
+# Data
 
-From Halpern et al (2012):
+Calculating the iconic species current status requires a list of iconic species and the current IUCN conservation status.  
 
-> Iconic species are those that are relevant to local cultural identity through a species’ relationship to one or more of the following: 1) traditional activities such as fishing, hunting or commerce; 2) local ethnic or religious practices; 3) existence value; and 4) locally-recognized aesthetic value (e.g., touristic attractions/common subjects for art such as whales). Habitat-forming species are not included in this definition of iconic species, nor are species that are harvested solely for economic or utilitarian purposes (even though they may be iconic to a sector or individual). ...
-> Ultimately, almost any species can be iconic to someone, and so the intent with this goal was to focus on those species widely seen as iconic within a country, and iconic from a cultural or existence value (rather than for a livelihoods or extractive reason). ...
-> The reference point is to have the risk status of all assessed species as Least Concern (i.e., a goal score = 1.0)
-The Status of this sub-goal (X~ICO~) is then the % of iconic species in each threat category (as defined by the IUCN Red List), such that:
+*List of iconic species:*
+A list of iconic species was created based on species listed on the U.S. Fish an Wildlife Service webpage for the Palmyra Atoll National Wildlife Refuge. 
 
-$$X_{ICO} = \frac{\displaystyle\sum_{category}S_{cat}*w_{cat}}{\displaystyle\sum_{category}S_{cat}}$$
-where for each IUCN threat category:
-* *S~cat~* is the number of assessed species in the category
-* *w~cat~* is the status weight assigned for that category (note, these are the inverse of the risk value used in the SPP calculations):
-    * 'LC' = 1.0, 'NT' = 0.8, 'VU' = 0.6, 'EN' = 0.4, 'CR' = 0.2, 'EX' = 0.0
+Citation: U.S. Fish and Wildlife Service. (2016, January 14). Wildlife and Habitat. Retrieved from <https://www.fws.gov/refuge/Palmyra_Atoll/wildlife_and_habitat/index.html> 
+  *__Accessed__: 04 June 2020   
 
-ICO trend is calculated in a similar manner, but weightings are assigned according to IUCN population trend: 'Decreasing' = -0.5, 'Stable' = 0.0, 'Increasing' = +0.5.  
+*Conservation Status:*
+Conservation status was pulled from the IUCN Red List.  
 
+Citation: IUCN 2020. IUCN Red List of Threatened Species. Version 2020-1 <www.iucnredlist.org>
+  * __Accessed__: 9 June 2020 
+  * __Time range__: 1965-2020 (discrete past assessments by species) 
+  * __Format__:  JSON
 
-# Data Sources
-
-**List of iconic species:**
-
-* __Reference__: 
-    * U.S. Fish and Wildlife Service. (2016, January 14). Wildlife and Habitat. Retrieved from <https://www.fws.gov/refuge/Palmyra_Atoll/wildlife_and_habitat/index.html> 
-        * __Accessed__: 04 June 2020   
-
-**Species native country information:**
-
-* __Reference__: 
-    * IUCN 2020. IUCN Red List of Threatened Species. Version 2020-1 <www.iucnredlist.org>
-        * __Accessed__: 9 June 2020 
-* __Native data resolution__: Country level (by country name)
-* __Time range__: 1965-2020 (discrete past assessments by species) 
-* __Format__:  JSON
-
-
-# Methods
-
-## Setup 
+# Setup 
 
 ```{r setup, echo = FALSE, message = FALSE, warning = FALSE, eval=FALSE}
 
@@ -67,21 +47,26 @@ library(tidyverse)
 library(dplyr)
 library(raster)
 library(here)
-
-# Set filepaths and source functions
 source(here('src/R/common.R'))
 
+# Global filepaths for API
 goal       <- 'globalprep/ico'
 scenario   <- 'v2020'
 dir_server <- file.path(dir_M, 'git-annex', goal)
-dir_goal   <- '~/github/pal-prep/prep/sp/ico/v2020'
 
+# Local filepaths
+dir_goal   <- '~/github/pal-prep/prep/sp/ico/v2020'
+dir_scores <- '~/github/pal-scores/region'
+
+# Ico specific functions
 source(file.path(dir_goal, 'ico_fxn.R'))
 
 # Set api for access to IUCN:
 api_file <- file.path(dir_M, 'git-annex/globalprep/spp', 'api_key_gc.csv')
 api_key <- scan(api_file, what = 'character')
 ```
+
+# Methods
 
 ## Download Species List from IUCN 
 
@@ -192,7 +177,6 @@ ico_spp_pal <- ico_list_usfws %>%
 write_csv(ico_spp_pal, file.path(dir_goal, 'raw/ico_list_pal.csv'))
 ```
 
-
 ## Identify extant ICO species populations
 
 Filtering the complete IUCN species list for US Minor Outlying islands to include only the identified Iconic Species from either the USFWS website or the 2011 ico list.  
@@ -284,9 +268,13 @@ df <- as.data.frame(out)
 write_csv(raw_ico_assess, file.path(dir_goal,'int/raw_ico_assess.csv'))
 ```
 
-# Clean Up Assessment Data
+## Category Scores
 
-Want to break apart any dual categories and make sure all categories have a 1 or 2 digit upper case code 
+Break apart any dual categories and make sure all categories have a 1 or 2 digit upper case code 
+
+Category scores are the inverse of the risk value used in the SPP calculations:  
+    * 'LC' = 1.0, 'NT' = 0.8, 'VU' = 0.6, 'EN' = 0.4, 'CR' = 0.2, 'EX' = 0.0
+
 ```{r clean-raw-assessment-data, eval=F}
 raw_assess <- read_csv(file.path(dir_goal, 'int/raw_ico_assess.csv'))
 
@@ -322,7 +310,7 @@ write_csv(ico_assess, file.path(dir_goal,'int/ico_assess.csv'))
 ```
 
 
-# Gapfill Timeseries
+## Gapfill Timeseries
 
 Using `tidyr::complete()` and `tidyr::fill()`, we create a full time series for all species from 2014 to 2020. 
 
@@ -360,11 +348,11 @@ write_csv(ico_assess_2020, file.path(dir_goal,'int/ico_assess_full.csv'))
 ```
 
 
-# Prep layer for toolbox
+## Prep layer for toolbox
 
 The toolbox wants `rgn_id`, species `sciname`, and extinction risk `category` for the basic calculations.  Since some regions contain multiple subpops (or parent/subpop) we also include `iucn_sid` to differentiate. This information is included for each `year`, filtered back to the year 2014.  
 
-```{r final-ico-layer-prep}
+```{r final-ico-layer-prep, eval=F}
 
 ico_assessments <- read_csv(file.path(dir_goal,'int/ico_assess_full.csv'))
 pal_ico_list    <- read_csv(file.path(dir_goal, 'int/ico_list_prepped.csv')) 
@@ -387,9 +375,15 @@ ico_scinames <- ico_rgn %>%
 write_csv(ico_scinames, file.path(dir_goal,'output/ico_spp_scores.csv'))
 ```
 
-# Calculate Status
+## Calculate Status
 
-We will use the category scores for each species to calculate the status. The status for Palmyra is just the average of the status of each iconic species found in the region. 
+*Reference Point:* All species have a conservation status of Least Concern (LC) 
+
+We will use the category scores for each species to calculate the status. The status for Palmyra is just the average of the status of each iconic species found in the region, as defined by the following equation:  
+
+$status~=~mean(spp_{score})$   
+
+Where $spp_{score}$ is the category score for each species given by its IUCN conservation status.  
 
 ```{r calc-status, eval=F}
 ico_spp_scores <- read_csv(file.path(dir_goal,'output/ico_spp_scores.csv'))
@@ -405,9 +399,8 @@ ico_status <- ico_spp_scores %>%
 ```
 
 # Save to Toolbox
-```{r save-status-to-toolbox, eval=F}
-dir_scores <- '~/github/pal-scores/region'
 
+```{r save-to-toolbox, eval=F}
 write_csv(ico_status, file.path(dir_scores, 'layers/ico_status.csv'))
 ```
 

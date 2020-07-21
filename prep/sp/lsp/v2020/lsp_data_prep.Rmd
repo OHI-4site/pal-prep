@@ -4,39 +4,24 @@ author: "*Compiled on `r date()` by `r Sys.info()['user']`*"
 output: 
   html_document:
     toc: true
-    number_sections: true
+    number_depth: 3 
+    toc_float: yes
+    number_sections: false
     theme: cerulean
     highlight: haddock
     includes: 
-     #in_header: '../../../workflow/templates/ohi_hdr.html' - need to update this
+     in_header: '../../../src/templates/ohi_hdr.html' 
   pdf_document:
     toc: true
-editor_options: 
-  chunk_output_type: console
 ---
 
 # Summary
 
-From Halpern et al. 2012 supplemental info: 
+This script calculates the current status of lasting special places on Palmyra Atoll. While lasting special places are challenging to quantify, this goal assumes areas that are protected represent special places (i.e. the effort to protect them suggests they are important places) (Halpern *et al* 2012).    
 
-> The ‘Lasting Special Places’ sub-goal focuses instead on those geographic locations that hold particular value for aesthetic, spiritual, cultural, recreational or existence reasons57. This sub-goal is particularly hard to quantify. Ideally one would survey every community around the world to determine the top list of special places, and then assess how those locations are faring relative to a desired state (e.g., protected or well managed). The reality is that such lists do not exist. Instead, we assume areas that are protected represent these special places (i.e. the effort to protect them suggests they are important places).
+# Data 
 
-> Clearly this is an imperfect assumption but in many cases it will be true. Using lists of protected areas as the catalogue of special places then creates the problem of determining a reference condition. We do not know how many special places have yet to be protected, and so we end up having all identified special places also being protected. To solve this problem we make two important assumptions. First, we assume that all countries have roughly the same percentage of their coastal waters and coastline that qualify as lasting special places. In other words, they all have the same reference target (as a percentage of the total area). Second, we assume that the target reference level is 30% of area protected.
-
-The model for this goal considers the inland coastal zone (up to 1 km inland) independently from, and equally weighted with, the offshore coastal zone (up to 3 nm offshore).  The status for this goal is calculated as:
-
-$$X_{LSP} = \frac{\left(\frac{Area_{P}}{Area_{P_{ref}}} + \frac{Area_{MPA}}{Area_{MPA_{ref}}}\right)}{2}$$  
-
-
-where: 
-
-* $Area_{P}$ = Protected area for inland 1 km buffer
-* ${Area_{P_{ref}}}$ = Reference value for inland protected area
-* $Area_{MPA}$ = Marine protected area for offshore 3 nm buffer
-* ${Area_{MPA_{ref}}}$ = Reference value for marine protected area within offshore 3 nm buffer
-* $Ref$ = 30% of total area within buffer zone is protected
-
-***
+Data for this goal was given verbally by Alex Wegmann at The Nature Conservancy on June 29, 2020. Palmyra Atoll is 100% protected, the Wildlife Refuge at Palmyra was [established in 2001](https://www.fisheries.noaa.gov/pacific-islands/habitat-conservation/pacific-remote-islands-marine-national-monument). 
 
 # Setup
 
@@ -52,27 +37,16 @@ library(here)
 source(here('src/R/common.R'))
 source(ohicore)
 
-goal     <- 'lsp'
-scenario <- 'v2020'
-dir_anx       <- file.path(dir_M, 'git-annex/globalprep') 
-dir_goal      <- file.path(here('globalprep', goal, scenario)) 
-dir_goal_anx  <- file.path(dir_anx, goal, scenario)
-dir_github    <- '~/github/pal-prep'
-
+dir_goal   <- '~/github/pal-prep/sp/lsp/v2020'
+dir_scores <- '~/github/pal-scores/region'
 ```
 
 # Methods
 
-Since 100% of Palmyra is a protected area, it would get a perfect score for the lasting special places goal. The Wildlife Refuge at Palmyra was [established in 2001](https://www.fisheries.noaa.gov/pacific-islands/habitat-conservation/pacific-remote-islands-marine-national-monument).    
+## Offshore Region Area  
 
-Two output files are required: 
+Create the offshore region area output file based on the Palmyra shapefiles. The offshore region is based on a 3 nm buffer around the island.  
 
- * rgn_area_offshore3nm with the following columns: rgn_id, area ($km^2$)   
- * rgn_area_inland1km with the following columns: rgn_id, area ($km^2$)   
- * lsp_prot_area_offshore3nm with the following columns: rgn_id, year, a_prot_3nm ($km^2$)  
- * lsp_prot_area_inland1km with the following columns: rgn_id, year, a_prot_1km ($km^2$)   
- 
-Create the offshore region area output file:  
 ```{r create-rgn-area-offshore, eval=F}
 
 # Calculate region area from the 3nm buffer shapefile:
@@ -88,10 +62,13 @@ area_3nm <- as.numeric(buff_3nm$area_km2)
 rgn_area_offshore3nm <- data.frame(rgn_id = 1, area = area_3nm)
 
 # Save to output folder:
-write_csv(rgn_area_offshore3nm, file.path(dir_github, 'prep/sp/lsp/v2020/output/rgn_area_offshore3nm'))
+write_csv(rgn_area_offshore3nm, file.path(dir_goal, 'output/rgn_area_offshore3nm'))
 ```
 
-Create inland region area output file:  
+## Inland Region Area
+
+Create inland region area output file. The entire land area of Palmyra Atoll will be included in the inland region.  
+
 ```{r create-rgn-area-inland, eval=F}
 
 # Calculate region area from the land shapefile:
@@ -108,14 +85,15 @@ area_1km <- as.numeric(land$area_km2)
 rgn_area_inland1km <- data.frame(rgn_id = 1, area = area_1km)
 
 # Save to output folder:
-write_csv(rgn_area_inland1km, file.path(dir_github, 'prep/sp/lsp/v2020/output/rgn_area_inland1km'))
+write_csv(rgn_area_inland1km, file.path(dir_goal, 'output/rgn_area_inland1km'))
 ```
 
-Create the offshore protected area file
-```{r create-lsp-prot-area-offshore, eval=F}
-# global uses 2000-2019 for years
-# Wildlife Refuge was established in 2001 so I'll use years 2001-2019
+## Offshore Protected Areas 
 
+Find the total offshore area that is protected on Palmyra. Since the establishment of the Wildlife Refuge in 2001, the entire island offshore area has been protected.   
+
+```{r create-lsp-prot-area-offshore, eval=F}
+# Wildlife Refuge was established in 2001 so I'll use years 2001-2019
 years <- seq(2001,2020,1)
 
 # Create output file
@@ -127,9 +105,12 @@ lsp_prot_area_offshore3nm <- data.frame(rgn_id = rep(1, length(years)),
 write_csv(lsp_prot_area_offshore3nm, file.path(dir_github, 'prep/sp/lsp/v2020/output/lsp_prot_area_offshore3nm'))
 ```
 
-Create the inland protected area file
+## Inland Protected Areas 
+
+Find the total inland area that is protected on Palmyra. The Nature Conservancy bought Palmyra in 2000 and the entire island area has been protected.  
+
 ```{r create-lsp-prot-area-inland, eval=F}
-# global uses 2000-2020 for years
+# Use same years as offshore
 years <- seq(2001,2020,1)
 
 # Create output file
@@ -141,9 +122,23 @@ lsp_prot_area_inland1km <- data.frame(rgn_id = rep(1, length(years)),
 write_csv(lsp_prot_area_inland1km, file.path(dir_github, 'prep/sp/lsp/v2020/output/lsp_prot_area_inland1km'))
 ```
 
-# Calculate Status 
+## Calculate Status 
 
-```{r calc_status}
+*Reference Point:* 99% of Palmyra Atoll is protected   
+
+The lasting special places status is calculated for offshore + inland areas relative to the reference point, and the average status of both is used as the overall status score.  
+
+$status_{offshore}~=~pct_{offshore}~/~pct~ref_{offshore}$   
+
+$status_{inland}~=~pct_{inland}~/~pct~ref_{inland}$    
+
+Where $pct_{offshore}$, $pct_{inland}$ is the percent of offshore and inland areas, respectively, that are protected and $pct~ref_{offshore}$, $pct~ref_{inland}$ are the reference point percentages of protected areas offshore and inland, respectively.  
+
+Finally, the status of offshore and inland areas are averaged to find the overall status.  
+
+$status~=~(status_{offshore}~+status_{inland})~/~2$
+
+```{r calc_status, eval=F}
 # Read in the output data files:  
 rgn_area_inland1km <- read_csv(file.path(dir_github, 'prep/sp/lsp/v2020/output/rgn_area_inland1km')) %>% 
   mutate(layer = "rgn_area_inland1km")
@@ -185,10 +180,11 @@ inland <- lsp_prot_area_inland1km %>%
                 status)
 ```
 
-Save the two output to the toolbox as 'lsp_offshore.csv' and 'lsp_inland.csv'   
-```{r save-to-toolbox}
-dir_scores <- '~/github/pal-scores/region'
+## Save To Toolbox 
 
+Save the two output to the toolbox as `lsp_offshore.csv` and `lsp_inland.csv`      
+
+```{r save-to-toolbox, eval=F}
 write_csv(offshore, file.path(dir_scores, 'layers/lsp_offshore.csv'))
 write_csv(inland, file.path(dir_scores, 'layers/lsp_inland.csv'))
 ```
