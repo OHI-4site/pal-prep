@@ -35,6 +35,12 @@ mollCRS=raster::crs('+proj=moll +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +units=m +no
 us_alb=raster::crs("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +datum=NAD83 +units=m +no_defs") 
 wgs84=raster::crs("+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")
 
+## Palmyra Extent
+wgs_ext50   <- raster::extent(-163.1878, -161.2008, 5.026111, 7.243889)
+wgs_ext3    <- raster::extent(-162.1682, -161.9929, 5.825669, 5.938073)
+usalb_ext50 <- raster::extent(-7665003, -7335955, -790775.4, -482192.8)
+usalb_ext3  <- raster::extent(-7514746, -7496806, -682084.3, -665336.8)
+
 
 ## Palmyra shapefiles
 pal_buffer_3nm <- sf::st_read(dsn = here("spatial/shapefiles"), layer = "pal_buffer_3nm",
@@ -45,6 +51,10 @@ pal_shoreline <- sf::st_read(dsn = here("spatial/shapefiles"), layer = "pal_shor
 
 pal_monument <- sf::st_read(dsn = here("spatial/shapefiles"), layer = "marine_monument_boundary",
                               quiet=T)
+## Palmyra rasters
+### 100 m resolution
+ocean_rast3_100  <- raster::raster('~/github/pal-prep/spatial/rasters/ocean_ras3nm_100m.tif')
+ocean_rast50_100 <- raster::raster('~/github/pal-prep/spatial/rasters/ocean_ras50nm_100m.tif')
 
 ## Palmyra Filepaths 
 dir_anx    <- file.path(dir_M, 'git-annex/foursite/palmyra')
