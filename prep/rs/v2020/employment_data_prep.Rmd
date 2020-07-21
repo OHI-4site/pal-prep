@@ -47,7 +47,7 @@ Palmyra supported 2 FTE positions in conservation science prior to 2019 and has 
 
 emp_raw <- data.frame(
   year = seq(2014,2020,1),
-  positions = c(1,1,1,1,1,5,5)
+  positions = c(2,2,2,2,2,5,5)
 )
 
 # Save raw data 
