@@ -55,6 +55,7 @@ dir_global <- '~/github/ohiprep_v2020/globalprep'
 glb_anx    <- file.path(dir_M, 'git-annex/globalprep')
 
 ## Colors
+library(RColorBrewer)
 cols = rev(colorRampPalette(brewer.pal(9, 'Spectral'))(255)) # rainbow color scheme
 
 ## Helpful functions
