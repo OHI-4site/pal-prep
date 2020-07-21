@@ -4,20 +4,20 @@ author: "*Compiled on `r date()` by `r Sys.info()['user']`*"
 output: 
   html_document:
     toc: true
-    number_sections: true
+    number_depth: 3 
+    toc_float: yes
+    number_sections: false
     theme: cerulean
     highlight: haddock
     includes: 
-     #in_header: '../../../workflow/templates/ohi_hdr.html' - need to update this
+     in_header: '../../../src/templates/ohi_hdr.html' 
   pdf_document:
     toc: true
-editor_options: 
-  chunk_output_type: console
 ---
 
 # Summary
 
-This script calculates the status for the marine debris layer of the Clean Waters goal. The main type of marine debris on Palmyra is drifting fish aggregation devices (dFADs).         
+This script calculates the status of marine debris on Palmyra Atoll. The main type of marine debris on Palmyra is drifting fish aggregation devices (dFADs).         
 
 # Data 
 
@@ -37,6 +37,7 @@ library(here)
 source(here('src/R/common.R'))
 
 dir_goal   <- '~/github/pal-prep/prep/cw/v2020'
+dir_scores <- '~/github/pal-scores/region'
 ```
 
 # Methods
@@ -58,7 +59,7 @@ fad_clean <- fad_raw %>%
 fad_dates <- fad_clean %>% 
   mutate(date_logged = parse_date_time(fad_clean$date_found, orders = c('mdy', 'dmy'))) %>% 
   mutate(year_found = lubridate::year(fad_dates$date_logged),
-         year_found = ifelse(is.na(year_found), 2016, year_found)) %>% # Missing dates are all from 2016 according the fad number
+         year_found = ifelse(is.na(year_found), 2016, year_found)) %>% # Missing dates all 2016 according the fad #
   dplyr::select(fad_number, year_found)
 
 # Save to int folder
@@ -85,7 +86,7 @@ write_csv(fads_per_yr, file.path(dir_goal, "int/fad_groundings_annual.csv"))
 
 ## Calculate Status 
 
-Reference Point: Reduce FAD groundings by 50% of the highest annual recorded number of groundings between 2009-2019.   
+*Reference Point:* Reduce FAD groundings by 50% of the highest annual recorded number of groundings between 2009-2019.   
 
 The highest annual groundings occurred in 2016, with 12 groundings, so the reference point will be 6 annual FAD groundings. Any year where six or less FAD groundings were recorded will receive a perfect score.
 
@@ -119,13 +120,6 @@ write_csv(fad_status, file.path(dir_goal, "output/fad_status.csv"))
 ## Save to Toolbox
 
 ```{r save-to-toolbox, eval=F}
-
-# Output layer
-fad_status <- read_csv(file.path(dir_goal, "output/fad_status.csv"))
-
-# Save to toolbox
-dir_scores <- '~/github/pal-scores/region'
-
 write_csv(fad_status, file.path(dir_scores, 'layers/cw_debris_status.csv'))
 ```
 

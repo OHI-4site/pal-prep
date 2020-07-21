@@ -4,15 +4,15 @@ author: "*Compiled on `r date()` by `r Sys.info()['user']`*"
 output: 
   html_document:
     toc: true
-    number_sections: true
+    number_depth: 3 
+    toc_float: yes
+    number_sections: false
     theme: cerulean
     highlight: haddock
     includes: 
-     #in_header: '../../../workflow/templates/ohi_hdr.html' - need to update this
+     in_header: '../../../src/templates/ohi_hdr.html' 
   pdf_document:
     toc: true
-editor_options: 
-  chunk_output_type: console
 ---
 
 # Summary 
@@ -39,6 +39,7 @@ library(here)
 source(here('src/R/common.R'))
 
 dir_goal   <- '~/github/pal-prep/prep/cw/v2020'
+dir_scores <- '~/github/pal-scores/region'
 ```
 
 
@@ -134,10 +135,6 @@ contaminant_status <- data.frame(
 *Not run for v2020*   
 
 ```{r save-to-toolbox, eval=F}
-
-# Save to toolbox
-dir_scores <- '~/github/pal-scores/region'
-
 write_csv(contaminant_status, file.path(dir_scores, 'layers/cw_contaminant_status.csv'))
 ```
 
