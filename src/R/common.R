@@ -1,10 +1,11 @@
+########### OHI+ Palmyra ####################
 
-## spatial libraries
+## Spatial libraries
 
-#library(sp)
-#library(rgdal)
-#library(sf)
-#library(raster)
+library(sp)
+library(rgdal)
+library(sf)
+library(raster)
 
 cat("This file makes it easier to process data for the OHI global assessment\n",
     "by creating the following objects:\n\n",
@@ -18,23 +19,22 @@ cat("This file makes it easier to process data for the OHI global assessment\n",
     "* UNgeorgn = function to load dataframe of UN geopolitical designations used to gapfill missing data")
 
 
-## set the mazu and neptune data_edit share based on operating system
+## Set the mazu and neptune data_edit share based on operating system
 dir_M             <- c('Windows' = '//mazu.nceas.ucsb.edu/ohi',
                        'Darwin'  = '/Volumes/ohi',    ### connect (cmd-K) to smb://mazu/ohi
                        'Linux'   = '/home/shares/ohi')[[ Sys.info()[['sysname']] ]]
 
-# warning if Mazu directory doesn't exist
+# Warning if Mazu directory doesn't exist
 if (Sys.info()[['sysname']] != 'Linux' & !file.exists(dir_M)){
   warning(sprintf("The Mazu directory dir_M set in src/R/common.R does not exist. Do you need to mount Mazu: %s?", dir_M))
 }
 
 
-## standard projections for data
+## Standard projections for data
 mollCRS=raster::crs('+proj=moll +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +units=m +no_defs')
 us_alb=raster::crs("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +datum=NAD83 +units=m +no_defs") 
 wgs84=raster::crs("+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")
 
-### OHI+
 
 ## Palmyra shapefiles
 pal_buffer_3nm <- sf::st_read(dsn = here("spatial/shapefiles"), layer = "pal_buffer_3nm",
@@ -46,6 +46,19 @@ pal_shoreline <- sf::st_read(dsn = here("spatial/shapefiles"), layer = "pal_shor
 pal_monument <- sf::st_read(dsn = here("spatial/shapefiles"), layer = "marine_monument_boundary",
                               quiet=T)
 
+## Palmyra Filepaths 
+dir_anx    <- file.path(dir_M, 'git-annex/foursite/palmyra')
+dir_scores <- '~/github/pal-scores/region'
+
+## Global Filepaths
+dir_global <- '~/github/ohiprep_v2020/globalprep'
+glb_anx    <- file.path(dir_M, 'git-annex/globalprep')
+
+## Colors
+cols = rev(colorRampPalette(brewer.pal(9, 'Spectral'))(255)) # rainbow color scheme
+
+## Helpful functions
+"%!in%" <- function(x,y)!('%in%'(x,y))
 
 
 
@@ -53,12 +66,7 @@ pal_monument <- sf::st_read(dsn = here("spatial/shapefiles"), layer = "marine_mo
 
 
 
-
-
-
-
-
-## OHI region files
+###################### OHI GLOBAL ############################################
 
 ### Shapefile:
 ## OHI eez, antarctica, and high seas regions
