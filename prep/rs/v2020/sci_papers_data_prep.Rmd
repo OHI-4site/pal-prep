@@ -4,20 +4,20 @@ author: "*Compiled on `r date()` by `r Sys.info()['user']`*"
 output: 
   html_document:
     toc: true
-    number_sections: true
+    number_depth: 3 
+    toc_float: yes
+    number_sections: false
     theme: cerulean
     highlight: haddock
     includes: 
-     #in_header: '../../../workflow/templates/ohi_hdr.html' - need to update this
+     in_header: '../../../src/templates/ohi_hdr.html' 
   pdf_document:
     toc: true
-editor_options: 
-  chunk_output_type: console
 ---
 
 # Summary
 
-This script calculates the status of scientific research conducted on Palmyra as part of the Research goal.      
+This script calculates the status of scientific research conducted on Palmyra Atoll.         
 
 # Data 
 
@@ -37,6 +37,7 @@ library(here)
 source(here('src/R/common.R'))
 
 dir_goal   <- '~/github/pal-prep/prep/rs/v2020'
+dir_scores <- '~/github/pal-scores/region'
 ```
 
 # Methods
@@ -103,7 +104,9 @@ write_csv(pubs_year, file.path(dir_goal, "int/pubs_year.csv"))
 
 ## Calculate Status 
 
-The reference point for publications is 10 scientific publications per year. The scientific papers layer is calculated as the following:   
+*Reference Point:* 10 scientific publications per year. 
+
+The scientific papers current status is calculated as the following:   
 
 $status~=~publications_{y}~/~reference$   
 
@@ -133,8 +136,5 @@ sci_status <- pubs_year %>%
 ## Save to Toolbox 
 
 ```{r save-to-toolbox, eval=F}
-# Save to toolbox
-dir_scores <- '~/github/pal-scores/region'
-
 write_csv(sci_status, file.path(dir_scores, 'layers/rs_sci_papers_status.csv'))
 ```

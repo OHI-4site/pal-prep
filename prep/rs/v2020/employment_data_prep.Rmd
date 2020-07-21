@@ -4,25 +4,24 @@ author: "*Compiled on `r date()` by `r Sys.info()['user']`*"
 output: 
   html_document:
     toc: true
-    number_sections: true
+    number_depth: 3 
+    toc_float: yes
+    number_sections: false
     theme: cerulean
     highlight: haddock
     includes: 
-     #in_header: '../../../workflow/templates/ohi_hdr.html' - need to update this
+     in_header: '../../../src/templates/ohi_hdr.html' 
   pdf_document:
     toc: true
-editor_options: 
-  chunk_output_type: console
 ---
 
 # Summary
 
-This script calculates the status of employment in conservation science on Palmyra as part of the Research goal.      
+This script calculates the status of employment in conservation science on Palmyra Atoll.             
 
 # Data 
 
-Data for this layer was gathered through verbal communication with Alex Wegmann at The Nature Conservancy on July 8, 2020. Palmyra supported 2 FTE positions in conservation science prior to 2019 and has supported 5 FTE positions in conservation science in 2019 and 2020.       
-
+Data for this layer was gathered through verbal communication with Alex Wegmann at The Nature Conservancy on July 8, 2020.         
 # Setup
 
 ```{r setup, message = F, warning = F}
@@ -35,6 +34,7 @@ library(here)
 source(here('src/R/common.R'))
 
 dir_goal   <- '~/github/pal-prep/prep/rs/v2020'
+dir_scores <- '~/github/pal-scores/region'
 ```
 
 
@@ -57,15 +57,14 @@ write_csv(emp_raw, file.path(dir_goal, "raw/emp_raw.csv"))
 
 ## Calculate Current Status 
 
-The reference point for employment is supporting 5 full time equivalent (FTE) positions focused on conservation science at Palmyra Atoll.   
+*Reference Point:* 5 full time equivalent (FTE) positions focused on conservation science at Palmyra Atoll      
 
 ```{r current-status, eval=F}
 
 emp_raw <- read_csv(file.path(dir_goal, "raw/emp_raw.csv"))
 
-# Define scenario year and reference point 
-scenario_year <- 2020
-ref_point     <- 5
+# Define reference point 
+ref_point <- 5
 
 # Calculate the status 
 emp_status <- emp_raw %>% 
@@ -78,9 +77,6 @@ emp_status <- emp_raw %>%
 ## Save to Toolbox 
 
 ```{r save-to-toolbox, eval=F}
-# Save to toolbox
-dir_scores <- '~/github/pal-scores/region'
-
 write_csv(emp_status, file.path(dir_scores, 'layers/rs_employment_status.csv'))
 ```
 
