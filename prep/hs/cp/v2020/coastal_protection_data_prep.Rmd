@@ -4,20 +4,20 @@ author: "*Compiled on `r date()` by `r Sys.info()['user']`*"
 output: 
   html_document:
     toc: true
-    number_sections: true
+    number_depth: 3 
+    toc_float: yes
+    number_sections: false
     theme: cerulean
     highlight: haddock
     includes: 
-     #in_header: '../../../workflow/templates/ohi_hdr.html' - need to update this
+     in_header: '../../../src/templates/ohi_hdr.html' 
   pdf_document:
     toc: true
-editor_options: 
-  chunk_output_type: console
 ---
 
 # Summary 
 
-This script calculates the status of coastal protection from coral reef habitats on Palmyra.  
+This script calculates the status of coastal protection from coral reef habitats on Palmyra Atoll.  
 
 # Data 
 
@@ -26,7 +26,9 @@ There are three data inputs for calculating the coastal protection status: coral
 *Coral Reef Extent and Condition*   
 Coral reef extent and condition data are the same data used in the coral habitat status layer. Coral cover maps were downloaded from the National Centers for Coastal Ocean Science (NCCOS) benthic habitat mapping project for Palmyra Atoll, found [here](https://products.coastalscience.noaa.gov/collections/benthic/e58palmyra/#horizontalTab3)   
 
-Data was downloaded on June 30, 2020, and habitat maps were completed in December 2011.   
+Habitat maps were completed in December 2011 and data were downloaded on June 30, 2020.  
+
+Citation: U.S. Department of Commerce, National Oceanic and Atmospheric Administration, National Center for Coastal Ocean Sciences. (2011). Palmyra Habitat Maps [Data file]. Retrieved from https://products.coastalscience.noaa.gov/collections/benthic/e58palmyra/     
 
 *Protectiveness Ranks*   
 
@@ -46,7 +48,6 @@ Citation: Tallis, H.T., Ricketts, T., Guerry, A., Wood, S., Sharp, R., Nelson, E
 
 # Setup 
 
-
 ```{r setup, message = F, warning = F}
 knitr::opts_chunk$set(echo = FALSE)
 
@@ -58,7 +59,7 @@ source(here('src/R/common.R'))
 
 dir_goal   <- '~/github/pal-prep/prep/hs/cp/v2020' 
 dir_hab    <- '~/github/pal-prep/prep/bd/hab/v2020'
-dir_anx    <- file.path(dir_M, 'git-annex/foursite/palmyra')
+dir_scores <- '~/github/pal-scores/region'
 ```
 
 
@@ -147,10 +148,6 @@ cp_status <- data.frame(
 ## Save to Toolbox 
 
 ```{r save-to-toolbox, eval=F}
-
-# Save to toolbox
-dir_scores <- '~/github/pal-scores/region'
-
 write_csv(cp_status, file.path(dir_scores, 'layers/hs_coastal_protection_status.csv'))
 ```
 
