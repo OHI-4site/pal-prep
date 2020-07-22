@@ -1,0 +1,104 @@
+---
+title: "sst"
+output: html_document
+---
+
+# Summary
+For the sea surface temperature pressure we calculated the number of times Palmyra's weekly SST was greater than the climatological mean for that week (an anomaly: greater than mean + one standard deviation) and summed the number of weekly anomalies in a single year. The maximum value a cell could have is 52 which would mean that cell had anomalous SST temperatures for each week of the year.
+
+To account for annual variation, we look at Sea Surface Temperature anomalies in 5 year periods, so the maximum value possible per cell is 260 anomalous weeks. To rescale the values from 0 to 1 we set a reference point. Previously, the reference point for SST has just been the maximum difference in anomalous weeks between the most recent time period and a historical reference period (1985-1989).
+
+This time we have decided to use a reference point that represents a regime shift. Once a given cell is anomalous for more than 50% of a five-year period, it has shifted into a new regime. All cells that have a value greater than 130 weeks (51% of a 5 year time period) are assigned a 1. The rest of the cells are scaled to this reference point by dividing by 130.
+
+# Data 
+
+The sea surface temperature layer uses data from [NOAA's Coral Health and Monitoring Program](https://www.coral.noaa.gov/champportal/).   
+
+**Version**: v1.12, released September 12, 2018
+**Values**: Sea surface temperature (Celsius)      
+**Time Range**: Daily data from January 1, 1998 - December 31, 2019     
+**Format**: csv  
+
+Data were downloaded on July 22, 2020.  
+
+Citation: National Oceanic and Atmospheric Administration (2018). Coral Health and Monitoring Program v1.12. Accessed [June 22, 2020].   
+
+# Setup 
+
+```{r setup, message = F, warning = F}
+knitr::opts_chunk$set(echo = FALSE)
+
+library(tidyverse)
+library(janitor)
+library(lubridate)
+library(here)
+
+# Source and set file paths
+source(here('src/R/common.R'))
+
+dir_prs   <- '~/github/pal-prep/prep/pressures/sst/v2020'
+```
+
+# Methods
+
+## Raw Data 
+
+There are two sensors collecting temperature data on Palmyra Atoll. We will average the readings from both sensors to get a single temperature value for each day from 1998 - 2019.  
+
+```{r get-raw-data, eval=F}
+temp_raw <- read_csv(file.path(dir_anx, "_raw_data/NOAA_data/champPortal-2020-07-22-1832-r089.csv")) %>% 
+  clean_names()
+
+# Wrangle dates and find the average of temperature readings
+temp_data <- temp_raw %>% 
+  mutate(date = as.Date(temp_raw$datetime),
+         year = year(date),
+         avg_temp = (pacp1_oisst_mwsst_degc + ppst1_oisst_mwsst_degc) / 2,
+         obs_id = seq(1:nrow(temp_raw))) %>% 
+  dplyr::select(obs_id, date, year, avg_temp)
+
+## Assign days of the week and # of weeks 
+# Create a vector of days of the week
+# Jan 1 1998 was a Thursday, so start the vector on Thursday 
+days <- c("SU", "M", "T", "W", "TH", "F", "SA")
+
+# Find how many times to repeat the days sequence
+reps <- floor(nrow(temp_data) / 7) # round down for number of times to repeat the full sequence
+days_needed <- nrow(temp_data) - (reps * 7) # need 5 more days of the week
+
+# Create final days of week vector for the temp data
+# January 1, 1998 was Thursday, so start with Thurs then repeat date sequence from Sunday
+days_wk <- c("TH", "F", "SA", rep(days, reps), "SU", "M") # Check to make sure this is the right # of observations
+
+# Create a vector for # of weeks
+# First TH-SA is Week 1, then there are 1147 full weeks, then SU-M
+wk <- c(1,1,1, rep(2:1148, each = 7), 1149, 1149) # Check to make sure this is the right # of observations
+
+# Add days of the week and the week number
+temp_dates <- temp_data %>% 
+  mutate(day_wk = days_wk,
+         wk = wk) 
+
+# Save to int folder
+write_csv(temp_dates, file.path(dir_prs, "int/sst_daily.csv"))
+```
+
+## Weekly Average Temperatures
+
+Using the daily temperature data, find the mean weekly temperature and weekly temperature standard deviation.
+
+```{r weekly-anomalies, eval=F}
+sst_daily <- read_csv(file.path(dir_prs, "int/sst_daily.csv"))
+
+# Find weekly mean and standard deviation 
+sst_wk <- sst_daily %>% 
+  group_by(wk) %>% 
+  mutate(wk_avg_temp = mean(avg_temp),
+         wk_sd_temp = sd(avg_temp)) %>% 
+  ungroup() %>% 
+  dplyr::select(obs_id, year, wk, wk_avg_temp, wk_sd_temp)
+
+# Save to int folder
+write_csv(sst_wk, file.path(dir_prs, "int/sst_wkly_avg.csv"))
+```
+
