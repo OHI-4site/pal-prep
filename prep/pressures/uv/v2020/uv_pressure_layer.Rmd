@@ -29,10 +29,10 @@ The Ultraviolet Radiation pressures layer uses the [Aura OMI GLobal Surface UVB 
 
 **Native Data Resolution**: 0.25 degrees  
 **Values**: OMI/Aura Surface UVB Irradiance and Erythemal Dose Daily L2 Global Gridded 0.25 degree x 0.25 degree V3  
-**Time Range**: Daily data from 2005 - 2016  
+**Time Range**: Daily data from 2005 - 2019  
 **Format**: HDF5
 
-Citation: Jari Hovila, Antii Arola, and Johanna Tamminen (2014), OMI/Aura Surface UVB Irradiance and Erythemal Dose Daily L2 Global Gridded 0.25 degree x 0.25 degree V3, NASA Goddard Space Flight Center, Goddard Earth Sciences Data and Information Services Center (GES DISC), Accessed [February 5, 2017] DOI:10.5067/Aura/OMI/DATA2028.  
+Citation: Jari Hovila, Antii Arola, and Johanna Tamminen (2014), OMI/Aura Surface UVB Irradiance and Erythemal Dose Daily L2 Global Gridded 0.25 degree x 0.25 degree V3, NASA Goddard Space Flight Center, Goddard Earth Sciences Data and Information Services Center (GES DISC), Accessed [June 22, 2020] DOI:10.5067/Aura/OMI/DATA2028.  
 
 # Setup 
 
