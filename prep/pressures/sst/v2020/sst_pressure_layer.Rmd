@@ -57,27 +57,19 @@ temp_data <- temp_raw %>%
          obs_id = seq(1:nrow(temp_raw))) %>% 
   dplyr::select(obs_id, date, year, avg_temp)
 
-## Assign days of the week and # of weeks 
-# Create a vector of days of the week
-# Jan 1 1998 was a Thursday, so start the vector on Thursday 
-days <- c("SU", "M", "T", "W", "TH", "F", "SA")
+## Assign first 7 days to Week 1, next 7 days to Week 2 etc. 
+# Group by year and each year should have 52 weeks, plus one extra day, leap years will have 2 extra days
+wk <- c(rep(1:52, each = 7), 53)
+wk_leap <- c(rep(1:52, each = 7), 53, 53)
 
-# Find how many times to repeat the days sequence
-reps <- floor(nrow(temp_data) / 7) # round down for number of times to repeat the full sequence
-days_needed <- nrow(temp_data) - (reps * 7) # need 5 more days of the week
-
-# Create final days of week vector for the temp data
-# January 1, 1998 was Thursday, so start with Thurs then repeat date sequence from Sunday
-days_wk <- c("TH", "F", "SA", rep(days, reps), "SU", "M") # Check to make sure this is the right # of observations
-
-# Create a vector for # of weeks
-# First TH-SA is Week 1, then there are 1147 full weeks, then SU-M
-wk <- c(1,1,1, rep(2:1148, each = 7), 1149, 1149) # Check to make sure this is the right # of observations
+# Define which years were leap years from 1998-2019
+leap_yrs <- c(2000,2004,2008,2012,2016)
 
 # Add days of the week and the week number
 temp_dates <- temp_data %>% 
-  mutate(day_wk = days_wk,
-         wk = wk) 
+  group_by(year) %>% 
+  mutate(wk = ifelse(year %in% leap_yrs, wk_leap, wk))
+
 
 # Save to int folder
 write_csv(temp_dates, file.path(dir_prs, "int/sst_daily.csv"))
@@ -92,7 +84,7 @@ sst_daily <- read_csv(file.path(dir_prs, "int/sst_daily.csv"))
 
 # Find weekly mean and standard deviation 
 sst_wk <- sst_daily %>% 
-  group_by(wk) %>% 
+  group_by(year, wk) %>% 
   mutate(wk_avg_temp = mean(avg_temp),
          wk_sd_temp = sd(avg_temp)) %>% 
   ungroup() %>% 
