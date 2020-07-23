@@ -58,13 +58,13 @@ Cover categories in the raw data are adapted to a numeric scale as follows:
 The following zones are grouped together to form the three major reef zone of interest:  
 
  - Back Reef: Not grouped with any other zone   
- - Fore Reef: Fore reef and the Bank/Shelf   
+ - Fore Reef: Fore reef, Bank/Shelf, Bank/Shelf Escarpment, and Reef Crest      
  - Lagoon: Lagoon and Channel   
 
 Using these groupings, the total number of observations in each zone are:   
 
  - Back Reef: 126   
- - Fore Reef: 156  
+ - Fore Reef: 169     
  - Lagoon:    146   
  
 ```{r coral-maps, eval=F}
@@ -82,16 +82,22 @@ plot(coral_map)
 # Extract the percent coral cover for backreef, forereef (and bank/shelf), and lagoon (and channel)
 zones <- coral_map %>% 
   filter(zone == "Back Reef" | zone == "Fore Reef" | zone == "Lagoon" |
-         zone == "Bank/Shelf" | zone == "Channel") %>% 
+         zone == "Bank/Shelf" | zone == "Channel" | zone == "Reef Crest" |
+         zone == "Bank/Shelf Escarpment") %>% 
   filter(p_coral_cv != "N/A") %>% 
   mutate(zone = as.character(zone),
          p_coral_cv = as.character(p_coral_cv),
          zone = ifelse(zone == "Bank/Shelf", "Fore Reef", zone),
+         zone = ifelse(zone == "Bank/Shelf Escarpment", "Fore Reef", zone),
+         zone = ifelse(zone == "Reef Crest", "Fore Reef", zone),
          zone = ifelse(zone == "Channel", "Lagoon", zone)) %>% 
   mutate(cover_cat = case_when(p_coral_cv == "90% - 100%" ~ 4,
                                p_coral_cv == "50% - <90%" ~ 3,
                                p_coral_cv == "10% - <50%" ~ 2,
                                p_coral_cv == "0% - <10%"  ~ 1))
+# Plot layer
+ggplot() +
+  geom_sf(data = zones, aes(fill = zone))
 
 # Save layer to int folder as shp
 st_write(zones, file.path(dir_goal, "int/coral_zones.shp"), driver = 'ESRI Shapefile', append=FALSE)
@@ -137,7 +143,7 @@ coral_status <- zone_n %>%
   group_by(zone) %>% 
   summarize(n_ref = sum(n_cover)) %>% 
   mutate(n_total = case_when(zone == "Back Reef" ~ 126,
-                             zone == "Fore Reef" ~ 156,
+                             zone == "Fore Reef" ~ 169,
                              zone == "Lagoon" ~ 146),
          status = n_ref / n_total,
          region_id = 1, 
