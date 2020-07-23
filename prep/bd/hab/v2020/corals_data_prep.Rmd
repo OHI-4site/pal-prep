@@ -131,7 +131,7 @@ ref_lag  <- 2
 
 # Find the number of data points for each cover category and add reference categories
 zone_n <- zones %>%
-  group_by(zone, cover_cat) %>%
+  group_by(zone, cover_cat, p_coral_cv) %>%
   summarise(n_cover = n()) %>% 
   mutate(ref = case_when(zone == "Fore Reef" ~ ref_fore,
                          zone == "Back Reef" ~ ref_back,
@@ -153,6 +153,20 @@ coral_status <- zone_n %>%
 
 # Save to output for use in coastal protection data prep
 write_csv(coral_status, file.path(dir_goal, "output/coral_status.csv"))
+
+## Make a dataframe to send to Alex/Nick 
+status_back <- coral_status$status[1]
+status_fore <- coral_status$status[2]
+status_lag  <- coral_status$status[3]
+
+exp_score <- zone_n %>% 
+  group_by(zone) %>% 
+  mutate(n_total = case_when(zone == "Back Reef" ~ 126,
+                             zone == "Fore Reef" ~ 169,
+                             zone == "Lagoon" ~ 146),
+         score = case_when(zone == "Back Reef" ~ status_back,
+                           zone == "Fore Reef" ~ status_fore,
+                           zone == "Lagoon" ~ status_lag))
 ```
 
 ## Save to Toolbox 
