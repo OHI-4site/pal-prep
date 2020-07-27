@@ -3,15 +3,14 @@ title: "create_pal_region"
 author: "*Compiled on `r date()` by `r Sys.info()['user']`*"
 output: 
   html_document:
-    code_folding: show
     toc: true
-    toc_depth: 3
+    toc_depth: 2 
     toc_float: yes
     number_sections: false
     theme: cerulean
     highlight: haddock
     includes: 
-     # in_header: '~/github/ne-prep/src/templates/ohi_hdr.html' # update with own header
+     in_header: '../../../src/templates/ohi_hdr.html' 
   pdf_document:
     toc: true
 ---
@@ -51,16 +50,17 @@ This script shows how I created the shapefile for the Palmrya region. I used the
 ```{r setup, message = F, warning = F, results = 'hide'}
 knitr::opts_chunk$set(message = FALSE, warning = FALSE)
 
-source('~/github/pal-prep/src/R/common.R') ### Palmyra common.R
-
-dir_git <- '~/github/pal-prep'
-dir_anx <- file.path(dir_M, 'git-annex/foursite/palmyra')
-
 library(tidyverse)
 library(sf)
 library(mapview)
 library(mapedit)
 library(leaflet)
+library(here)
+
+source('~/github/pal-prep/src/R/common.R') ### Palmyra common.R
+
+dir_git <- '~/github/pal-prep'
+dir_anx <- file.path(dir_M, 'git-annex/foursite/palmyra')
 ```
 
 
