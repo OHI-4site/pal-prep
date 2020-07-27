@@ -163,7 +163,7 @@ $area_{potential}~=~area_{added}~(km^2)~+~area_{original}~(km^2)$
 And where   
 
 $area_{added}~=~0.95~*~(0.43~*~2.46~(km^2))$   
-$area_{original}~=~0.48.2~*~2.46~(km^2)$   
+$area_{original}~=~0.482~*~2.46~(km^2)$   
 
 ```{r calculate-status, eval=F}
 
