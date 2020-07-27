@@ -156,14 +156,14 @@ $status = area_{current}~(km^2)~/~area_{potential}~(km^2)$
 
 The current rainforest area ($area_{current}$) is based on the Burnett, M.W. *et al.* 2019 study where forest is defined as the total area of scaevola and native forests.    
 
-The potential rainforest area ($area_{potential}$) is based on a 2001 satellite image showing approximately 43% of the islands are dominated by coconut plantations and 53% of the islands are dominated by other vegetation communities as discussed in the [USGS Terrestrial Management Plan](https://pubs.usgs.gov/of/2011/1007/pdf/ofr20111007.pdf) The potential rainforest area is calculated as the land area added once 95% of the historic palm plantations are removed plus the original 53% of land area that was dominated by rainforests.  
+The potential rainforest area ($area_{potential}$) is based on a 2001 satellite image showing approximately 43% of the islands are dominated by coconut plantations and 48% of the islands are dominated by other vegetation communities as discussed in the [USGS Terrestrial Management Plan](https://pubs.usgs.gov/of/2011/1007/pdf/ofr20111007.pdf) The potential rainforest area is calculated as the land area added once 95% of the historic palm plantations are removed plus the original 48.2% of land area that was dominated by rainforests.  
 
 $area_{potential}~=~area_{added}~(km^2)~+~area_{original}~(km^2)$   
 
 And where   
 
 $area_{added}~=~0.95~*~(0.43~*~2.46~(km^2))$   
-$area_{original}~=~0.53~*~2.46~(km^2)$   
+$area_{original}~=~0.48.2~*~2.46~(km^2)$   
 
 ```{r calculate-status, eval=F}
 
