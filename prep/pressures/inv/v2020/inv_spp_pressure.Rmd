@@ -1,0 +1,80 @@
+---
+title: 'OHI+ Palmyra 2020: Invasive Species Pressure'
+author: "*Compiled on `r date()` by `r Sys.info()['user']`*"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 2 
+    toc_float: yes
+    number_sections: false
+    theme: cerulean
+    highlight: haddock
+    includes: 
+     in_header: '../../../src/templates/ohi_hdr.html' 
+  pdf_document:
+    toc: true
+---
+
+# Summary 
+
+This script calculates the invasive species pressure for Palmyra Atoll.    
+
+# Data 
+
+A list of invasive species was compiled using three primary sources:  
+
+ - Global Invasive Species Database (http://www.issg.org/database). 
+ - Hathaway, S.A. and Fisher, R.N. (2010). Biosecurity plan for Palmyra Atoll: U.S. Geological Survey Open-File
+Report 2010-1097, 80 p.   
+   Available [here](https://pubs.usgs.gov/of/2010/1097/pdf/of20101097.pdf).  
+ - Knapp, I.S., Godwin, L.S., Smith, J.E., Williams, C.J., and Bell, J.J. (2011). Records of non-indigenous marine species at Palmyra Atoll in the U.S. Line Islands. *Marine Biodiversity Records* 4:E30. doi:10.1017/S1755267211000078  
+   Available [here](https://www.cambridge.org/core/journals/marine-biodiversity-records/article/records-of-nonindigenous-marine-species-at-palmyra-atoll-in-the-us-line-islands/5D8929D7A0894E2CFF06FBD2AE7792C3).  
+ 
+Raw data was compiled from the sources above with scientific name, year, and presence (0/1) where 0 represents species that have been eradicated (not present) and 1 represents species that are present on Palmyra Atoll that year. Presence/absence data isn't availble for all species before 2010 so the years for our data will span 2010 - 2020. 
+
+# Setup 
+
+```{r setup, message = F, warning = F}
+knitr::opts_chunk$set(echo = FALSE)
+
+library(tidyverse)
+library(here)
+
+# Source and set file paths
+source(here('src/R/common.R'))
+
+dir_prs   <- '~/github/pal-prep/prep/pressures/inv/v2020'
+```
+
+
+# Methods
+
+## Pressure Scores
+
+To calculate the pressure score, we will find the number of invasive species present in each year and divide by the total possible number of invasive species (18) to normalize the score between 0-1.   
+
+```{r spp-per-year, eval=F}
+
+inv_spp_raw <- read_csv(file.path(dir_prs, "raw/inv_spp_raw.csv"))
+
+inv_spp <- inv_spp_raw %>% 
+  group_by(year) %>% 
+  summarize(total_spp = sum(presence)) 
+
+inv_score <- inv_spp %>% 
+  mutate(pressure_score = total_spp / 18,
+         region_id = 1) %>% 
+  dplyr::select(region_id, year, pressure_score)
+
+# Save to output file
+write_csv(inv_score, file.path(dir_prs, "output/inv_spp_pressure.csv"))
+```
+
+
+## Save to Toolbox
+
+```{r save-to-toolbox, eval=F}
+
+```
+
+
