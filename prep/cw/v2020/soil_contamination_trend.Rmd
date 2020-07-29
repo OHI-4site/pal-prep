@@ -1,0 +1,196 @@
+---
+title: 'OHI+ Palmyra 2020: Clean Waters Goal Soil Contamination Trend'
+author: "*Compiled on `r date()` by `r Sys.info()['user']`*"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 2 
+    toc_float: yes
+    number_sections: false
+    theme: cerulean
+    highlight: haddock
+    includes: 
+     in_header: '../../../src/templates/ohi_hdr.html' 
+  pdf_document:
+    toc: true
+---
+
+# Summary
+
+
+# Data
+
+Data for this layer comes from an elemental soil contamination study completed by U.S. Geological Survey at sites on Palmyra Atoll in 2008 and 2010. Data was published in 2017 and can be accessed [here](https://www.sciencebase.gov/catalog/item/5925b2cae4b0b7ff9fb3ca3d).  
+
+Date Downloaded: July 28, 2020   
+
+Citation: Struckhoff, M.A., Papoulias, D.M., Orazio, C.E., Annis, M.L., Shaver, D.K. and Tillitt, D.E., 2017, Geospatial data of elemental contamination at Palmyra Atoll, 2008 and 2010: U.S. Geological Survey data release, https://doi.org/10.5066/F74F1P00   
+
+# Setup
+
+```{r setup, message = F, warning = F}
+knitr::opts_chunk$set(echo = FALSE)
+
+library(tidyverse)
+library(sf)
+library(janitor)
+library(ggplot2)
+library(RColorBrewer)
+library(here)
+
+# Source and set file paths
+source(here('src/R/common.R'))
+
+dir_goal   <- '~/github/pal-prep/prep/cw/v2020'
+```
+
+
+# Methods
+
+## Map Sample Sites 
+
+Map the sample sites over the shapefile of the island.  
+
+```{r map-sample-sites, eval=F}
+
+# Read in raw USGS shapefiles
+usgs <- st_read(file.path(dir_anx, "_raw_data/USGS_data/XRF_samples_Palmyra_Atoll_2008_and_2010"),
+                layer = "XRF_samples_Palmyra_Atoll_2008_and_2010") %>% 
+  clean_names()
+
+# Project shoreline file into WGS84
+pal_wgs84 <- pal_shoreline %>% 
+  st_transform(crs = wgs84)
+
+# Map the study sites
+ggplot() + 
+  geom_sf(data = pal_wgs84, fill = "grey") + 
+  geom_sf(data = usgs, color = "dodgerblue4")
+```
+
+## Contaminants by Site
+
+Assign a soil_type (marine or land) to the sample sites based on the reported soil or sediment classification. Most sites were sampled on a wet-weight basis, filter the 7 sites that were sampled on a dry-weight basis. Check if any of the sites have been sampled in both 2008 and 2010 and add a samp_repeated column to identify any sites with repeated sampling.   
+
+```{r contamination-by-site, eval=F}
+
+# Color by site type to get an idea of what sites are offshore
+ggplot() + 
+  geom_sf(data = pal_wgs84, fill = "grey") + 
+  geom_sf(data = usgs, aes(color = site_type))
+
+# Categorize offshore and inland 
+sites <- usgs %>%
+  mutate(dry = case_when(sample_matr == "Sludge-dry" ~ "Yes",
+                         sample_matr == "Sediment-dry" ~ "Yes",
+                         sample_matr == "Soil-dry" ~ "Yes",
+                         TRUE ~ "No")) %>% 
+  filter(dry != "Yes") %>%  # Filter out the repeated sites with wet/dry samples
+  mutate(soil_type = case_when(sample_matr == "Soil" ~ "soil",
+                               sample_matr == "Soil-wet" ~ "soil",
+                               sample_matr == "Sludge" ~ "soil",
+                               sample_matr == "Sludge-wet" ~ "soil",
+                               sample_matr == "Solid" ~ "soil",
+                               TRUE ~ "sediment")) # Everything else is sediment
+
+# Check if we got all offshore sites correct
+ggplot() + 
+  geom_sf(data = pal_wgs84, fill = "grey") + 
+  geom_sf(data = sites, aes(color = soil_type)) # Makes sense 
+
+
+# Check if any sites have been sampled in both 2008 and 2009
+check_years <- sites %>% 
+  group_by(site_sample, year) %>% 
+  tally()
+# Looks like only Cooper 01, Cooper 02, Paradise 01, and Quail 09 are sampled in both years 
+
+# Add repeated column and keep only necessary columns
+usgs_sites <- sites %>% 
+  mutate(samp_repeated = case_when(site_sample == "Cooper 01" ~ "Yes",
+                                   site_sample == "Cooper 02" ~ "Yes",
+                                   site_sample == "Paradise 01" ~ "Yes",
+                                   site_sample == "Quail 09" ~ "Yes", 
+                                   TRUE ~ "No")) %>% 
+  dplyr::select(site = site_sample, soil_type, year, samp_repeated, 15:27)
+
+# Tidy format where contaminant observation is a single row
+usgs_tidy <- pivot_longer(usgs_sites,
+                          cols = pb:p,
+                          names_to = "contaminant", values_to = "concentration") %>% 
+  group_by(site, year, contaminant) %>% 
+  mutate(concentration = mean(concentration)) %>% # Avg concentrations if study was repeated twice in same year
+  ungroup() %>% 
+  unique() %>% 
+  dplyr::select(site, soil_type, year, contam = contaminant, conc = concentration, repeated = samp_repeated, geometry)
+
+# Check for the right number of observations - 13 contaminants total 
+check <- usgs_tidy %>% 
+  group_by(site) %>% 
+  tally() # Only the four repeated sites should have 26, all others should be 13
+## This looks good 
+
+# Save to int folder 
+st_write(usgs_tidy, file.path(dir_goal, "int/contaminants.shp"), driver = 'ESRI Shapefile')
+```
+
+## Assign Reference Levels
+
+Reference levels were assigned based on U.S. Environmental Protection Agency threshold effect levels (TEL) for marine sediments and the lowest established ecological soil screening level (Eco-SSL) for any taxonomic group. TEL and Eco-SSL values (mg/km dry weight) for the most frequently detected contaminants on Palmyra are listed in Table 1 of Struckhoff *et al* 2018.  
+
+Citation: Struckhoff, M.A., Orazio, C.E., Tillitt, D.E., Shaver, D.K., and Papoulias, D.M. (2018). Mapping elemental contamination on Palmyra Atoll National Wildlife Refuge. *Marine Pollution Bulletin*, 128: 97-105. https://doi.org/10.1016/j.marpolbul.2017.12.065.  
+
+Replicated from Table 1 of Struckhoff *e al* 2018. NA indicates a toxicity threshold has not been established.     
+
+| Contaminant | Symbol | TEL   | Eco-SSL |
+|-------------|--------|-------|---------|
+| Antimony    | Sb     | NA    | 78      |
+| Arsenic     | As     | 7.24  | 18      |
+| Chromium    | Cr     | 52.3  | 26      |
+| Colbalt     | Co     | NA    | 13      |
+| Copper      | Cu     | 118.7 | 28      |
+| Lead        | Pb     | 30.24 | 11      |
+| Manganese   | Mn     | NA    | 220     |
+| Nickel      | Ni     | 15.9  | 38      |
+| Zinc        | Zn     | 124   | 46      |
+
+A total of 13 contaminants were sampled during the study. Contaminants not included in the table above are iron (Fe), titanium (Ti), sulfur (S), and phosphorus (P). Iron is generally considered non-toxic and titanium, sulfur, and phosphorus were detected but do not have established TEL or Eco-SSL levels, therefore they will excluded from the analysis.  
+
+The table reports thresholds in mg/kg of dry weight, however most of the samples collected were made on moist samples. Struckoff *et al* 2018 notes:   
+
+"Soil moisture values between 15 and 25% can reduce measured sample concentrations from 70 to 80% relative to lab-confirmed concentrations (U.S. Environmental Protection Agency, 2015). Given that most measurements were made on moist samples, XRF values reported above TELs or SSLs are conservative estimates of threshold exceedance."  
+
+```{r ref-levels}
+
+contaminant <- st_read(file.path(dir_goal, "int"),
+                layer = "contaminants") %>% 
+  filter(contam != "fe" & contam != "ti" & contam != "p" & contam != "s")
+
+# Set reference levels for each contaminant
+# Where TEL is unknown, the lowest eco-ssl is used in its place 
+refs <- data.frame(
+  contam = rep(c("sb", "as", "cr", "co", "cu", "pb", "mn", "ni", "zn"), each = 2),
+  soil_type = rep(c("sediment", "soil"), 9),
+  type = rep(c("tel", "eco-ssl"), 9),
+  ref_level = c(78, 78, 7.24, 18, 52.3, 26, 13, 13, 118.7, 28,
+                30.24, 11, 220, 220, 15.9, 38, 124, 46)
+)
+
+# Add reference levels to contaminants data
+contam_refs <- contaminant %>% 
+  left_join(refs, by = c("contam","soil_type")) # Soil uses eco-ssl, marine sediments use tel
+```
+
+## Calculate Status
+
+The current status for soil contamination will be found by dividing the observed concentration by the reference point for each contaminant at each site. 
+
+```{r calc-status, eval=F}
+
+# Find status score for each contaminant at each site 
+site_status <- contam_refs %>% 
+  mutate(s_status = conc / ref_level) %>% 
+  dplyr::select(site, year, soil_type, contam, s_status, geometry) %>% 
+  arrange(-s_status) # up to 900x greater than the ref level.... 
+```
+

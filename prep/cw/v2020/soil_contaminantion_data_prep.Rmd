@@ -31,8 +31,6 @@ Citation:
 knitr::opts_chunk$set(echo = FALSE)
 
 library(tidyverse)
-library(janitor)
-library(lubridate)
 library(here)
 
 # Source and set file paths
@@ -84,19 +82,15 @@ contaminants <- contamination_raw %>%
 
 ## Calculate Status
 
-The status will be found for each contaminant and then the average of all the contaminants as defined by the following equations:  
+The status will be found for each contaminant and then the average of all the contaminants will be used for the status score. At each site (s), the status of contamination is found by dividing the observed concentration of the contaminant by the reference level concentration, as in the following equation:   
 
-$status_{c_{n},s}~=~(conc~/~ref_{level})$   
+$status_{c_{n},s}~=~(conc_n~/~ref_n)$   
 
-Where $status_{c_{n},s}$ is the status of each contaminant $c_{n}$ at site $s$. The $conc$ is the observed concentration of the contaminant and the $ref_{level}$ is the reference level concentration. These values are rescaled between 0-1 by dividing by the value corresponding to the 99th quantile (values > 1 are capped at 1).  
+Where $status_{c_{n},s}$ is the status of each contaminant $c_n$ at site $s$. The $conc_n$ is the observed concentration of the contaminant ($c_n$) and the $ref_n$ is the reference level concentration of each contaminant ($c_n$).   
 
-$status_{c_{n}}~=~mean(status_{c_{n},s})$  
+The status for each contaminant is then found by averaging the status of the contaminant at each site. 
 
-Where $status_{c_{n}}$ is the status of contaminant $n$ found by averaging the status of the contaminant at every site $s$. 
-
-$status~=~1~-~mean(status_{c_{n}})$ 
-
-Where the overall status is the average of the status of each contaminant ($c_{n}$). Higher scores should be equated with lower levels of contamination, so the overall status is 1 minus the average contamination.  
+The overall status is the average of the status of each contaminant. Higher scores should be equated with lower levels of contamination, so the inverse is taken of the overall status (1 - overall status).  
 
 ```{r calculate-status, eval=F}
 
@@ -105,7 +99,7 @@ c_s_status <- contaminants %>%
   mutate(cs_status = conc / ref_level)
 
 # Find the 99th percentile value
-rescale_value <- quantile(c_s_status$cs_status, probs = 0.99)
+rescale_value <- quantile(c_s_status$cs_status, probs = 0.9999)
 
 # Rescale the status of each contaminant 
 contaminant_rescaled <- c_s_status %>% 

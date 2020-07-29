@@ -1,0 +1,57 @@
+---
+title: 'OHI+ Palmyra 2020: Clean Waters Goal Water Quality Layer'
+author: "*Compiled on `r date()` by `r Sys.info()['user']`*"
+output: 
+  html_document:
+    toc: true
+    number_depth: 2 
+    toc_float: yes
+    number_sections: false
+    theme: cerulean
+    highlight: haddock
+    includes: 
+     in_header: '../../../src/templates/ohi_hdr.html' 
+  pdf_document:
+    toc: true
+---
+
+# Summary
+
+
+# Data
+
+
+# Setup 
+
+```{r setup, message = F, warning = F}
+knitr::opts_chunk$set(echo = FALSE)
+
+library(tidyverse)
+library(ncdf4)
+library(here)
+
+# Source and set file paths
+source(here('src/R/common.R'))
+
+dir_goal   <- '~/github/pal-prep/prep/cw/v2020'
+dir_scores <- '~/github/pal-scores/region'
+```
+
+
+# Methods
+
+## Get WQ Data
+
+```{r}
+# OPeNDAT url for Palmyra Water Quality Data 
+temp_url <- "http://oos.soest.hawaii.edu/thredds/dodsC/pacioos/nss/pp03agg.ascii?lat[0:1:0],lon[0:1:0],time[0:1:66489],temp[0:1:66489][0:1:0][0:1:0][0:1:0]"
+
+# Destination to save raw data
+temp_dest <- file.path(dir_goal, "/raw/temp_raw.nc")
+
+download.file(url = temp_url, destfile = temp_dest)
+
+# Read raw data files and save them as csv files instead
+temp <- ncdf4::nc_open(file.path(dir_goal, "raw/temp_raw.nc")) # I can't get this to work - just says unknown file format; probably an issue with the way the file is written
+```
+
