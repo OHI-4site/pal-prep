@@ -122,3 +122,25 @@ write_csv(fad_status, file.path(dir_goal, "output/fad_status.csv"))
 write_csv(fad_status, file.path(dir_scores, 'layers/cw_debris_status.csv'))
 ```
 
+## Pressure Layer
+
+### Calculate Pressure Layer
+
+Debris will also be a pressure layer where higher scores indicate more marine debris. This is the inverse of the status score calculated above.  
+
+```{r debris-pressure-layer, eval=F}
+fad_status <- read_csv(file.path(dir_goal, "output/fad_status.csv"))
+
+pressure <- fad_status %>% 
+  mutate(pressure_score = 1 - status) %>% 
+  dplyr::select(-status)
+
+# Save to output folder 
+```
+
+### Save Pressure to Toolbox 
+
+```{r save-prs-toolbox, eval=F}
+
+```
+
