@@ -68,16 +68,7 @@ library(animation)
 source(here('src/R/common.R'))
 
 dir_git       <- '~/github/pal-prep' # Path to the pal-prep github directory
-dir_prs       <- '~/github/pal-prep/prep/pressures/slr/v2020'
-# dir_anx       <- file.path(dir_M, 'git-annex/foursite/palmyra/dataprep') # Path to the NCEAS server where the bigger files are kept/saved
-dir_prs_slr   <- sprintf("%s/git-annex/foursite/palmyra/dataprep/prs_slr", dir_M)
-
-p4s_wgs84     <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0" # proj4string
 cols          <- rev(colorRampPalette(brewer.pal(9, "Spectral"))(255)) # Rainbow color scheme for maps
-mollCRS       <- CRS("+proj=moll") # mollweide projection
-
-## Read in ocean raster with cells at 1km -- template for resampling (held on an NCEAS server)
-ocean         <- raster(file.path(dir_M, "git-annex/globalprep/spatial/v2017/ocean.tif"))
 
 ```
 
@@ -144,7 +135,7 @@ foreach(file = nc_files) %dopar% {
   r <- raster::crop(r, wgs_ext)
   
   ## Write raster to int folder in prs_slr
-  fp <- sprintf("%s/int/msla_monthly/msla_monthly_%s.tif", dir_prs_slr, m_yr)
+  fp <- sprintf("%s/dataprep/prs_slr/int/msla_monthly/msla_monthly_%s.tif", dir_anx, m_yr)
   writeRaster(r, filename = fp, overwrite = TRUE)
 }
 
@@ -156,7 +147,7 @@ Annual mean sea level anomaly rasters are calculated from the monthly data.
 
 ```{r calc_annual_mean, results='hide'}
 
-msla_files <- list.files(sprintf("%s/int/msla_monthly", dir_prs_slr), 
+msla_files <- list.files(sprintf("%s/dataprep/prs_slr/int/msla_monthly", dir_anx), 
                          full.names = TRUE)
 maxyr <- substr(msla_files, 83, 86) %>% as.numeric() %>% max()
 
@@ -168,7 +159,7 @@ foreach(yr = c(1993:maxyr)) %dopar% {
   
   rast_annual_mean <- stack(files) %>%
     calc(mean, na.rm = TRUE) %>%
-    writeRaster(filename = sprintf("%s/int/msla_annual_mean/msla_annual_%s.tif", dir_prs_slr, yr), 
+    writeRaster(filename = sprintf("%s/dataprep/prs_slr/int/msla_annual_mean/msla_annual_%s.tif", dir_anx, yr), 
                 overwrite = TRUE)
 }
 
@@ -187,7 +178,7 @@ three_nm <- raster::crop(three_nm, usalb_ext3) # Crop to Palmyra extent
 plot(three_nm)
 
 ## Reproject means to us albers
-annual_means <- list.files(file.path(dir_prs_slr, "int/msla_annual_mean"), full = TRUE)
+annual_means <- list.files(file.path(dir_anx, "dataprep/prs_slr/int/msla_annual_mean"), full = TRUE)
 foreach(file = annual_means) %dopar% {  
   
  # file = annual_means[26]
@@ -196,11 +187,11 @@ foreach(file = annual_means) %dopar% {
   rast_data <- raster(file) %>%
     projectRaster(crs = us_alb, over = FALSE, progress="text") %>%
     raster::resample(three_nm, method = "ngb", 
-             filename = sprintf("%s/int/msla_annual_us_albers/mlsa_annual_us_albers_%s.tif", 
-                                dir_prs_slr, yr), overwrite = TRUE) %>% 
-    mask(three_nm, filename = sprintf("%s/int/msla_annual_us_albers_coastal/msla_annual_us_albers_coastal_%s.tif", dir_prs_slr, yr), overwrite = TRUE)
+             filename = sprintf("%s/dataprep/prs_slr/int/msla_annual_us_albers/mlsa_annual_us_albers_%s.tif", 
+                                dir_anx, yr), overwrite = TRUE) %>% 
+    mask(three_nm, filename = sprintf("%s/dataprep/prs_slr/int/msla_annual_us_albers_coastal/msla_annual_us_albers_coastal_%s.tif", dir_anx, yr), overwrite = TRUE)
 }
-plot(raster(file.path(dir_prs_slr, "int/msla_annual_us_albers_coastal/msla_annual_us_albers_coastal_2010.tif")))
+plot(raster(file.path(dir_anx, "dataprep/prs_slr/int/msla_annual_us_albers_coastal/msla_annual_us_albers_coastal_2010.tif")))
 
 ```
 
@@ -211,7 +202,7 @@ We are using a reference point 1.1 times larger than the maximum value in Palmyr
 
 ```{r reference_point}
 
-coastal_rasts <- list.files(file.path(dir_prs_slr, "int/msla_annual_us_albers_coastal"), pattern = "tif", full.names = TRUE)
+coastal_rasts <- list.files(file.path(dir_anx, "dataprep/prs_slr/int/msla_annual_us_albers_coastal"), pattern = "tif", full.names = TRUE)
 
 # Get data across all years
 registerDoParallel(8)
@@ -245,7 +236,7 @@ foreach(file = coastal_rasts) %dopar% { # file = coastal_rasts[10]
     raster::raster(file) %>%
     calc(fun = function(x){ifelse(x < 0, 0, x)}) %>% # Set all negative values to 0
     calc(fun = function(x){ifelse(x > ref, 1, x/ref)}, # Set equal to 1 if greater than ref, otherwise scale
-         filename = sprintf("%s/output/msla_rescaled/slr_%s.tif", dir_prs_slr, yr), overwrite = TRUE)
+         filename = sprintf("%s/dataprep/prs_slr/output/msla_rescaled/slr_%s.tif", dir_anx, yr), overwrite = TRUE)
 }
 
 ```
@@ -256,7 +247,7 @@ foreach(file = coastal_rasts) %dopar% { # file = coastal_rasts[10]
 
 ```{r gif_results}
 
-coastal_rasts <- list.files(file.path(dir_prs_slr, 'output/msla_rescaled'), full.names = T) %>%
+coastal_rasts <- list.files(file.path(dir_anx, 'dataprep/prs_slr/output/msla_rescaled'), full.names = T) %>%
                            stack()
                          
 names(coastal_rasts) <- paste0("Year_", substr(names(coastal_rasts),5,8))
@@ -282,7 +273,7 @@ Extract data for each region
 ```{r extract_regional_data, results = 'hide'}
 
 ## Read in raster files
-pressure_stack <- lapply(list.files(file.path(dir_prs_slr, 'output/msla_rescaled'), full.names=T), raster) %>%
+pressure_stack <- lapply(list.files(file.path(dir_anx, 'dataprep/prs_slr/output/msla_rescaled'), full.names=T), raster) %>%
   brick()
 
 ## Extract data for each region:
@@ -302,7 +293,7 @@ Extract data for the region as a whole
 ```{r extract_region_data}
 
 ## Read in raster files
-pressure_stack <- lapply(list.files(file.path(dir_prs_slr, 'output/msla_rescaled'), full.names=T), raster) %>%
+pressure_stack <- lapply(list.files(file.path(dir_anx, 'dataprep/prs_slr/output/msla_rescaled'), full.names=T), raster) %>%
   brick()
 pal_regionstats <- cellStats(pressure_stack, mean)%>% 
   as.data.frame() %>% 
