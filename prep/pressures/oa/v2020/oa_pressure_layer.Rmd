@@ -73,10 +73,7 @@ library(animation)
 # Source and set file paths
 source(here('src/R/common.R'))
 
-# Define paths for the raw data and OA folder held on git-annex on our NCEAS server, Mazu
-raw_dir   <- file.path(dir_M, 'git-annex/globalprep/_raw_data')
-dir_anx   <- file.path(dir_M, 'git-annex/foursite/palmyra') # Path to the NCEAS server where the bigger files are kept/saved
-
+raw_dir   <- file.path(dir_M, 'git-annex/globalprep/_raw_data') # Path to raw data held on NCEAS server, Mazu
 cols      <- rev(colorRampPalette(brewer.pal(9, 'Spectral'))(255)) # Rainbow color scheme
 
 ```
