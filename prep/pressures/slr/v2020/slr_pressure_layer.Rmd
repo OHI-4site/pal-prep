@@ -68,7 +68,6 @@ library(animation)
 source(here('src/R/common.R'))
 
 dir_git       <- '~/github/pal-prep' # Path to the pal-prep github directory
-cols          <- rev(colorRampPalette(brewer.pal(9, "Spectral"))(255)) # Rainbow color scheme for maps
 
 ```
 
@@ -108,6 +107,7 @@ plot(raster(slr_nc_files[3]), col = cols, axes = F,
 
 ```
 
+
 ## Convert .tif files into usable rasters
 
 The following code is used to:
@@ -122,7 +122,7 @@ The following code is used to:
 registerDoParallel(10)
 
 ## Parallel forloop function that rotates each monthly file, sets the long/lat projection, and keeps only coastal cells - saved to GitHub
-foreach(file = nc_files) %dopar% {
+foreach(file = slr_nc_files) %dopar% {
   
   m_yr <- substr(file, nchar(file)-10, nchar(file)-3) 
   
@@ -130,9 +130,9 @@ foreach(file = nc_files) %dopar% {
   r <- raster(file) %>% 
     rotate()
   
-  ## Define projection of the raster before reprojecting; double check projection (USA Contiguous albers equal area)
+  ## Define projection of the raster before reprojecting; double check projection
   
-  r <- raster::crop(r, wgs_ext)
+  r <- raster::crop(r, wgs84) # Current projection is wgs84
   
   ## Write raster to int folder in prs_slr
   fp <- sprintf("%s/dataprep/prs_slr/int/msla_monthly/msla_monthly_%s.tif", dir_anx, m_yr)
@@ -140,6 +140,7 @@ foreach(file = nc_files) %dopar% {
 }
 
 ```
+
 
 ## Calculate annual mean sea level anomalies
 
@@ -168,7 +169,7 @@ foreach(yr = c(1993:maxyr)) %dopar% {
 
 ## Change the projection and mask
 
-Since we are only interested in the increase in sea level near the coasts, we apply a mask to the raster layers that removes all cells farther than 3nm offshore. This mask was created previously for another part of this assessment.
+Since we are only interested in the increase in sea level near the coasts, we apply a mask to the raster layers that removes all cells farther than 3nm offshore. This mask was created previously for another part of this assessment. We also reproject to US Albers.
 
 ```{r projection_masking, results = 'hide'}
 
@@ -223,6 +224,7 @@ ref <- 1.1*max(vals)
 
 The reference point is `r ref` meters.
 
+
 ## Rescale
 
 We use the reference point to rescale all values from 0 to 1. If a value is greater than the reference point, it is automatically given a value of 1.
@@ -255,7 +257,7 @@ names(coastal_rasts) <- paste0("Year_", substr(names(coastal_rasts),5,8))
 # Make a gif animation
 animation::saveGIF({
   for(i in 1:nlayers(coastal_rasts)){
-     plot(coastal_rasts[[i]],col='cornsilk2',  main=names(coastal_rasts[[i]]),axes=F,legend=F)
+     plot(coastal_rasts[[i]], col='cornsilk2', main=names(coastal_rasts[[i]]), axes=F, legend=F)
       # don't forget to fix the zlimits
     plot(coastal_rasts[[i]], zlim=c(0,1), axes=F, col=cols, add=T)
       
@@ -265,6 +267,7 @@ animation::saveGIF({
 ```
 
 <img src="slr_annual_rescaled.gif"/>
+
 
 ## Region scores
 
@@ -302,10 +305,10 @@ pal_regionstats <- cellStats(pressure_stack, mean)%>%
   mutate(year = substr(file_name, 5, 8)) %>% 
   select(-file_name) %>% 
   mutate(rgn_id = 12, # Change to Palmyra region - what rgn_id is it?
-         rgn_name = "Northeast",
+         rgn_name = "Northeast", # Change this
          state_abv = NA,
          state_name = NA,
-         state = "Northeast",
+         state = "Northeast", # Change this
          year = as.numeric(year))
 
 ```
@@ -321,11 +324,12 @@ write.csv(slr_data, file.path("~/github/pal-scores/region/layers/cc_slr.csv"), r
 
 ```
 
+
 ## 2019 scores
 
 ```{r map_scores}
 
-last_year <- slr_data%>%
+last_year <- slr_data %>%
   filter(year==2019,
          rgn_id != 12) # Change to Palmyra region ID
 
@@ -333,6 +337,7 @@ last_year <- slr_data%>%
 map_scores(last_year, score_var = last_year$pressure_score, scale_label = "Pressure Score", map_title = "Sea Level Rise")
 
 ```
+
 
 ## Visualize through time
 
@@ -348,6 +353,7 @@ slr_overtime
 ggsave(file.path(dir_git, "prep/pressures/slr/v2020/figs/scores_2005-2019.png"), width=7, height=5, dpi=300)
 
 ```
+
 
 ## Save To Toolbox
 
