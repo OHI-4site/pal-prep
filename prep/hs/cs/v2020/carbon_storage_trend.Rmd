@@ -1,0 +1,37 @@
+---
+title: 'OHI+ Palmyra 2020: Habitat Services Subgoal Carbon Storage Trend'
+author: "*Compiled on `r date()` by `r Sys.info()['user']`*"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 3 
+    toc_float: yes
+    number_sections: false
+    theme: cerulean
+    highlight: haddock
+    includes: 
+     in_header: '../../../src/templates/ohi_hdr.html' 
+  pdf_document:
+    toc: true
+---
+
+# Summary 
+
+This script calculates the trend in carbon storage based on the trend in the condition of rainforest habitats.        
+
+# Data 
+
+*Rainforest Condition Trend*   
+
+The carbon storage trend will use the same data as the rainforest condition trend calculated for the Biodiversity Habitats subgoal. 
+
+There is a lack of historic data categorizing forests as native or non-native to the level of detail used in the carbon storage status calculation. Therefore, the best estimate for trend is based on the trend in the condition and extent of rainforest habitats. If rainforests are healthy and growing in extent, there will be better opportunities for carbon storage.   
+
+# Methods 
+
+## Carbon Storage Trend 
+
+Rainforests are the only habitat included in the carbon storage goal. Therefore, the carbon storage trend is just the rainforest condition trend, which was calculated for the Biodiversity Habitats subgoal in `rainforest_trend.Rmd` and saved to the pal-scores toolbox as `hab_rainforest_trend.csv`.    
+
+
+
