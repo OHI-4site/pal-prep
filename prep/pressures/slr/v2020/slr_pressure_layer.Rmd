@@ -130,7 +130,7 @@ foreach(file = slr_nc_files) %dopar% {
   r <- raster(file) %>% 
     rotate()
   
-  ## Define projection of the raster before reprojecting; double check projection (USA Contiguous albers equal area)
+  ## Define projection of the raster before reprojecting; double check projection
   
   r <- raster::crop(r, wgs84) # Current projection is wgs84
   
@@ -305,10 +305,10 @@ pal_regionstats <- cellStats(pressure_stack, mean)%>%
   mutate(year = substr(file_name, 5, 8)) %>% 
   select(-file_name) %>% 
   mutate(rgn_id = 12, # Change to Palmyra region - what rgn_id is it?
-         rgn_name = "Northeast",
+         rgn_name = "Northeast", # Change this
          state_abv = NA,
          state_name = NA,
-         state = "Northeast",
+         state = "Northeast", # Change this
          year = as.numeric(year))
 
 ```
@@ -329,7 +329,7 @@ write.csv(slr_data, file.path("~/github/pal-scores/region/layers/cc_slr.csv"), r
 
 ```{r map_scores}
 
-last_year <- slr_data%>%
+last_year <- slr_data %>%
   filter(year==2019,
          rgn_id != 12) # Change to Palmyra region ID
 
