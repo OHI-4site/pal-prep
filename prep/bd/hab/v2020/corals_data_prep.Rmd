@@ -62,14 +62,15 @@ The following zones are grouped together to form the four major reef zone of int
  - Fore Reef: Bank/Shelf and Bank/Shelf Escarpment      
  - Lagoon: Lagoon and Channel   
 
-The fore reef is reassigned to part of the reef crest to better reflect the position of those data points on the reef. The Bank/Shelf and Bank/Shelf Escarpment are then grouped together and renamed as the fore reef. 
+The fore reef is reassigned to part of the reef crest to better reflect the position of those data points on the reef. The Bank/Shelf and Bank/Shelf Escarpment are then grouped together and renamed as the fore reef with an additional designation to differentiate the western fore reef and the eastern fore reef. 
 
 Using these groupings, the total number of observations in each zone are:   
 
- - Back Reef:  126  
- - Reef Crest: 12
- - Fore Reef:  157     
- - Lagoon:     146   
+ - Back Reef:   126  
+ - Reef Crest:  12
+ - Fore Reef W: 65
+ - Fore Reef E: 92
+ - Lagoon:      146   
  
 ```{r coral-maps, eval=F}
 
@@ -104,13 +105,48 @@ zones <- coral_map %>%
 # Plot layer
 ggplot() +
   geom_sf(data = zones, aes(fill = zone))
+```
+
+## Fore Reef Zones 
+
+The fore reef is further broken down to western and eastern. The fore reef experiences different conditions on the western and eastern side and the percent live coral cover differs largely between the two.  
+
+Based on a map of Palmyra, the longitude line 162.075 will be used to divide the fore reef into western and eastern.  
+
+```{r fore-reef-zones, eval=F}
+fore <- zones %>% 
+  filter(zone == "Fore Reef")
+
+# Get center of each polygon, break into lat/long
+sf_cent <- st_centroid(fore) %>% 
+  mutate(lat = unlist(map(sf_cent$geometry,1)),
+         long = unlist(map(sf_cent$geometry,2)))
+
+# Plot and make sure these centroids make sense
+ggplot() + 
+  geom_sf(data = fore, fill = "grey") + 
+  geom_sf(data = sf_cent, color = "red") # Not perfect but it will work for our purposes
+
+# Assign west and east zones based on 162.075 lat line 
+fore_zones <- fore %>% 
+  mutate(zone = ifelse(sf_cent$lat < -162.075, "Fore Reef West", "Fore Reef East"))
+
+# Check zones are correct
+ggplot() + 
+  geom_sf(data = fore_zones, aes(fill = zone)) # The long N/S are split evenly so that should be fine
+
+## Combine back into the coral zones data frame 
+zones_final <- zones %>% 
+  filter(zone != "Fore Reef") %>% # Filter out fore reef
+  rbind(fore_zones)
 
 # Save layer to int folder as shp
-st_write(zones, file.path(dir_goal, "int/coral_zones.shp"), driver = 'ESRI Shapefile', append=FALSE)
+st_write(zones_final, file.path(dir_goal, "int/coral_zones.shp"), driver = 'ESRI Shapefile', append=FALSE)
 
 # Also save layer as csv
-write_csv(zones, file.path(dir_goal, "int/coral_zones.csv"))
+write_csv(zones_final, file.path(dir_goal, "int/coral_zones.csv"))
 ```
+
 
 ## Calculate Coral Status
 
@@ -125,7 +161,9 @@ Coral reef status is calculated as number of data points falling within or above
 
 $status~=~ref_{n}~/~total_{n}$   
 
-Where $ref_{n}$ is the number of data points in each zone falling within or above the reference point category and $total_{n}$ is the total number of data points in each zone.   
+Where $ref_{n}$ is the number of data points in each zone falling within or above the reference point category and $total_{n}$ is the total number of data points in each zone. 
+
+The overall status score is calculated as the area weighted mean of the status score for each zone.  
 
 ```{r calculate-status, eval=F}
 
@@ -140,11 +178,17 @@ ref_lag   <- 2
 # Find the number of data points for each cover category and add reference categories
 zone_n <- zones %>%
   group_by(zone, cover_cat, p_coral_cv) %>%
-  summarise(n_cover = n()) %>% 
+  summarize(n_cover = n()) %>% 
   mutate(ref = case_when(zone == "Back Reef" ~ ref_back,
                          zone == "Reef Crest" ~ ref_crest,
-                         zone == "Fore Reef" ~ ref_fore,
+                         zone == "Fore Reef West" ~ ref_fore,
+                         zone == "Fore Reef East" ~ ref_fore,
                          zone == "Lagoon" ~ ref_lag))
+
+# Area by zone
+zone_areas <- zones %>% 
+  group_by(zone) %>% 
+  summarize(area_km = sum(area) * 0.000001)
 
 # Find the status scores using the number of points that are at the reference category or better
 coral_status <- zone_n %>% 
@@ -153,13 +197,15 @@ coral_status <- zone_n %>%
   summarize(n_ref = sum(n_cover)) %>% 
   mutate(n_total = case_when(zone == "Back Reef" ~ 126,
                              zone == "Reef Crest" ~ 12,
-                             zone == "Fore Reef" ~ 157,
+                             zone == "Fore Reef West" ~ 65,
+                             zone == "Fore Reef East" ~ 92,
                              zone == "Lagoon" ~ 146),
          status = n_ref / n_total,
          region_id = 1, 
          year = 2020,
-         habitat = "coral") %>%
-  dplyr::select(region_id, habitat, zone, year, status)
+         habitat = "coral") %>% 
+  left_join(zone_areas, by = "zone") %>% 
+  dplyr::select(region_id, habitat, year, zone, area_km, status)
 
 # Save to output for use in coastal protection data prep
 write_csv(coral_status, file.path(dir_goal, "output/coral_status.csv"))
