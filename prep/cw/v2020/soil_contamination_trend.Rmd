@@ -68,9 +68,30 @@ ggplot() +
   geom_sf(data = usgs, color = "dodgerblue4")
 ```
 
+## Reference Sites 
+
+21 marine sediment samples and 7 soil samples were taken at sites believed to represent uncontaminated, natural concentrations of elements. These samples have a site_type of "reference". Save these locations as a separate data frame to compare against soil samples.   
+
+```{r reference-sites, eval=F}
+
+ref_sites <- usgs %>% 
+  filter(site_type == "Reference") %>% 
+  mutate(soil_type = case_when(sample_matr == "Soil" ~ "soil",
+                               site_sample == "Paradise 04" ~ "soil",
+                               site_sample == "Strawn 02" ~ "soil", 
+                               TRUE ~ "sediment")) %>% 
+  pivot_longer(., cols = pb:p,
+              names_to = "contaminant", values_to = "concentration") %>% 
+  filter(contaminant != "fe" & contaminant != "ti" & contaminant != "p" & contaminant != "s") %>% 
+  dplyr::select(site = site_sample, soil_type, year, contam = contaminant, conc = concentration, geometry)
+
+# Save to int folder 
+st_write(ref_sites, file.path(dir_goal, "int/reference_sites.shp"), driver = 'ESRI Shapefile')
+```
+
 ## Contaminants by Site
 
-Assign a soil_type (marine or land) to the sample sites based on the reported soil or sediment classification. Most sites were sampled on a wet-weight basis, filter the 7 sites that were sampled on a dry-weight basis. Check if any of the sites have been sampled in both 2008 and 2010 and add a samp_repeated column to identify any sites with repeated sampling.   
+Assign a soil_type (marine or land) to the sample sites based on the reported soil or sediment classification. Most sites were sampled on a wet-weight basis, filter the 7 sites that were sampled on a dry-weight basis. Check if any of the sites have been sampled in both 2008 and 2010 and add a samp_repeated column to identify any sites with repeated sampling. Filter out the reference sites.     
 
 ```{r contamination-by-site, eval=F}
 
@@ -79,17 +100,18 @@ ggplot() +
   geom_sf(data = pal_wgs84, fill = "grey") + 
   geom_sf(data = usgs, aes(color = site_type))
 
-# Categorize offshore and inland 
+# Wrangle data
 sites <- usgs %>%
-  mutate(dry = case_when(sample_matr == "Sludge-dry" ~ "Yes",
-                         sample_matr == "Sediment-dry" ~ "Yes",
-                         sample_matr == "Soil-dry" ~ "Yes",
+  mutate(dry = case_when(sample_matr == "Sludge-Dry" ~ "Yes",
+                         sample_matr == "Sediment-Dry" ~ "Yes",
+                         sample_matr == "Soil-Dry" ~ "Yes",
                          TRUE ~ "No")) %>% 
   filter(dry != "Yes") %>%  # Filter out the repeated sites with wet/dry samples
+  filter(site_type != "Reference") %>%
   mutate(soil_type = case_when(sample_matr == "Soil" ~ "soil",
-                               sample_matr == "Soil-wet" ~ "soil",
+                               sample_matr == "Soil-Wet" ~ "soil",
                                sample_matr == "Sludge" ~ "soil",
-                               sample_matr == "Sludge-wet" ~ "soil",
+                               sample_matr == "Sludge-Wet" ~ "soil",
                                sample_matr == "Solid" ~ "soil",
                                TRUE ~ "sediment")) # Everything else is sediment
 
@@ -114,14 +136,10 @@ usgs_sites <- sites %>%
                                    TRUE ~ "No")) %>% 
   dplyr::select(site = site_sample, soil_type, year, samp_repeated, 15:27)
 
-# Tidy format where contaminant observation is a single row
+# Tidy format 
 usgs_tidy <- pivot_longer(usgs_sites,
                           cols = pb:p,
                           names_to = "contaminant", values_to = "concentration") %>% 
-  group_by(site, year, contaminant) %>% 
-  mutate(concentration = mean(concentration)) %>% # Avg concentrations if study was repeated twice in same year
-  ungroup() %>% 
-  unique() %>% 
   dplyr::select(site, soil_type, year, contam = contaminant, conc = concentration, repeated = samp_repeated, geometry)
 
 # Check for the right number of observations - 13 contaminants total 
@@ -183,14 +201,14 @@ contam_refs <- contaminant %>%
 
 ## Calculate Status
 
-The current status for soil contamination will be found by dividing the observed concentration by the reference point for each contaminant at each site. 
+The current status for soil contamination will be found by dividing the observed concentration by the reference point for each contaminant at each site. The EPA states that any contamination level under twice the TEL or Eco-SSL doesn't warrant further study under the Comprehensive Environmental Response, Compensation, and Liability Act (https://semspub.epa.gov/work/HQ/175229.pdf). We will designate the status for any contaminant below twice the TEL or Eco-SSL as 0.
 
 ```{r calc-status, eval=F}
 
 # Find status score for each contaminant at each site 
 site_status <- contam_refs %>% 
   mutate(s_status = conc / ref_level) %>% 
-  dplyr::select(site, year, soil_type, contam, s_status, geometry) %>% 
-  arrange(-s_status) # up to 900x greater than the ref level.... 
+  dplyr::select(site, year, soil_type, contam, s_status, geometry)
+
 ```
 
