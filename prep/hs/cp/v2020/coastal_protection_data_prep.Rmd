@@ -21,30 +21,15 @@ This script calculates the status of coastal protection from coral reef habitats
 
 # Data 
 
-There are three data inputs for calculating the coastal protection status: coral reef condition, coral reef extent, and a protectiveness rank.  
+Coastal protection status is found using coral reef extent and condition.    
 
 *Coral Reef Extent and Condition*   
+
 Coral reef extent and condition data are the same data used in the coral habitat status layer. Coral cover maps were downloaded from the National Centers for Coastal Ocean Science (NCCOS) benthic habitat mapping project for Palmyra Atoll, found [here](https://products.coastalscience.noaa.gov/collections/benthic/e58palmyra/#horizontalTab3)   
 
 Habitat maps were completed in December 2011 and data were downloaded on June 30, 2020.  
 
 Citation: U.S. Department of Commerce, National Oceanic and Atmospheric Administration, National Center for Coastal Ocean Sciences. (2011). Palmyra Habitat Maps [Data file]. Retrieved from https://products.coastalscience.noaa.gov/collections/benthic/e58palmyra/     
-
-*Protectiveness Ranks*   
-
-Protectiveness ranks are taken from Tallis *et al* 2011 and are replicated in the talbe below:    
-
-Coastal protectiveness ranks Scores range from 1-4, with 4 being the most protective.
-
-| Habitat         |	Protectiveness rank (w) |
-|-----------------|-------------------------|
-| Mangroves	      | 4                       |
-| Salt marshes	  | 4                       |
-| Coastal sea ice |	4                       |
-| Coral reefs     |	3                       |
-| Seagrasses	    | 1                       |
-
-Citation: Tallis, H.T., Ricketts, T., Guerry, A., Wood, S., Sharp, R., Nelson, E., Ennaanay, D., Wolny, S., Olwero, N., Vigerstol, K. & others. (2011). InVEST 2.2.1 user’s guide. The Natural Capital Project, Stanford University.   
 
 # Setup 
 
@@ -111,13 +96,14 @@ coral_extent <- data.frame(region_id = 1,
 # Save to int folder
 write_csv(coral_extent, file.path(dir_goal, "int/coral_extent.csv"))
 ```
+
 ## Calculate Status
 
 The coastal protection status is calculated as the relative health of the habitats that provide coastal protection weighted by their area and protectiveness rank. Coral reefs are the only habitat included in the coastal protection goal for Palmyra, and the status is found by the following equation:  
 
 $status~=~(C_{condition}~x~A~x~w)~/~(A~x~w)$   
 
-Where $C_{condition}$ is the condition of coral habitats as defined above, $A$ is the area of coral reef habitat, and $w$ is the protectiveness rank for coral reefs.  
+Where $C_{condition}$ is the condition of coral habitats as defined above, $A$ is the area of coral reef habitat, and $w$ is the protectiveness rank for coral reefs. Coral reefs are the only habitat included in the coastal protection goal for Palmyra so there is no protectiveness rank and the area cancels out. Therefore, the current status for coastal protection is equivalent to the coral reef condition calculated in the Biodiversity Habitats sub-goal.   
 
 ```{r calculate-status, eval=F}
 condition <- read_csv(file.path(dir_goal, "int/coral_condition.csv"))
