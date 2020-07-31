@@ -395,6 +395,9 @@ ico_status <- ico_spp_scores %>%
             status = (1 - mean_cat)) %>% 
   ungroup() %>% 
   dplyr::select(-mean_cat)
+
+# Save to output folder
+write_csv(ico_status, file.path(dir_goal, "output/ico_status.csv"))
 ```
 
 # Save to Toolbox
