@@ -90,10 +90,116 @@ area_2001 <- raw_2001 %>%
 write_csv(area_2001, file.path(dir_goal, "int/trend_area_2001.csv"))
 ```
 
+## 2005 Data 
+
+Data for 2005 was obtained from Alex Wegmann at The Nature Conservancy. Shapefiles are included for cocos, pisonia, terminalia, scaevola, pandanus, hibiscus, grassland, and non-vegetated areas. All shapefiles are combined to produce a single data file for the 2005 data. Nonvegetated areas and grasslands will be excluded from the analysis as the focus of this goal is on forest communities.   
+
+### Get 2005 Vegetation Data 
+
+```{r get-2005-data, eval=F}
+
+# All 2005 data
+cocos_2005  <- st_read(file.path(dir_anx, '_raw_data/Wegmann_data/Palmyra_Forest_Project_ArcView_Shapefiles'),
+                   layer = "cocos_forest")
+hib_2005    <- st_read(file.path(dir_anx, '_raw_data/Wegmann_data/Palmyra_Forest_Project_ArcView_Shapefiles'),
+                   layer = "HIBISC~1")
+pand_2005   <- st_read(file.path(dir_anx, '_raw_data/Wegmann_data/Palmyra_Forest_Project_ArcView_Shapefiles'),
+                   layer = "PANDAN~1")
+pis_2005    <- st_read(file.path(dir_anx, '_raw_data/Wegmann_data/Palmyra_Forest_Project_ArcView_Shapefiles'),
+                   layer = "pisonia_forest")
+scaev_2005  <- st_read(file.path(dir_anx, '_raw_data/Wegmann_data/Palmyra_Forest_Project_ArcView_Shapefiles'),
+                   layer = "SCAEVO~1")
+term_2005   <- st_read(file.path(dir_anx, '_raw_data/Wegmann_data/Palmyra_Forest_Project_ArcView_Shapefiles'),
+                   layer = "terminalia_forest")
+grass_2005  <- st_read(file.path(dir_anx, '_raw_data/Wegmann_data/Palmyra_Forest_Project_ArcView_Shapefiles'),
+                   layer = "GRASSL~1")
+nonveg_2005 <- st_read(file.path(dir_anx, '_raw_data/Wegmann_data/Palmyra_Forest_Project_ArcView_Shapefiles'),
+                   layer = "PHYMAT~1")
+
+# Bind all the files together 
+veg_2005 <- cocos_2005 %>% 
+  rbind(hib_2005) %>% 
+  rbind(pand_2005) %>% 
+  rbind(pis_2005) %>% 
+  rbind(scaev_2005) %>% 
+  rbind(term_2005) %>% 
+  rbind(grass_2005) %>% 
+  rbind(nonveg_2005) %>% 
+  dplyr::select(vegetation = VEGETATION, area = AREA)
+
+# Save combined data to raw data folder
+st_write(veg_2005, file.path(dir_goal, "raw/veg_communities_2005.shp"), driver = 'ESRI Shapefile', append=FALSE)
+```
+
+### Find Area 
+
+```{r find-2005-area, eval=F}
+
+veg_2005 <- st_read(file.path(dir_goal, "raw"), layer = "veg_communities_2005")
+
+area_2005 <- veg_2005 %>% 
+  filter(vegetation != "Grassland or Bare Ground" & vegetation != "Phymatosorus or Bare Ground") %>% 
+  mutate(community = ifelse(vegetation == "Cocos", "cocos", "forest")) %>% 
+  group_by(community) %>% 
+  summarize(area = sum(area)) %>% 
+  mutate(area_km = area * 0.000001,
+         region_id = 1,
+         year = 2005) %>% 
+  filter(community == "forest") %>% 
+  dplyr::select(region_id, year, area_forest = area_km)
+
+# Convert to data frame and remove geometry
+area_2005 <- as.data.frame(area_2005) %>% 
+  dplyr::select(-geometry)
+
+# Save to int folder 
+write_csv(area_2005, file.path(dir_goal, "int/trend_area_2005.csv"))
+```
+
+### Grassland Area
+
+Grasslands will be excluded from the analysis but we need to find grassland area to use as an estimate of grassland area in 2010.  
+
+```{r grassland-area-2005, eval=F}
+veg_2005 <- st_read(file.path(dir_goal, "raw"), layer = "veg_communities_2005")
+
+# Find grassland area
+grass_area_2005 <- veg_2005 %>% 
+  filter(vegetation == "Grassland or Bare Ground") %>% 
+  group_by(vegetation) %>% 
+  summarize(area = sum(area))
+
+# Find total area of 2005 study 
+total_area_2005 <- sum(veg_2005$area)
+
+# Find percent grassland 
+pct_grass_2005 <- grass_area_2005$area / total_area_2005 # 8.77% 
+```
+
+### Bare Ground Area
+
+Bare ground will be excluded from the analysis but we need to find the bare ground area to use as an estimate of bare ground in 2010.  
+
+```{r bareground-area-2005, eval=F}
+veg_2005 <- st_read(file.path(dir_goal, "raw"), layer = "veg_communities_2005")
+
+# Find bare ground area
+bare_2005 <- veg_2005 %>% 
+  filter(vegetation == "Phymatosorus or Bare Ground") %>% 
+  group_by(vegetation) %>% 
+  summarize(area = sum(area))
+
+# Find total area of 2005 study 
+total_area_2005 <- sum(veg_2005$area)
+
+# Find percent grassland 
+pct_bare_2005 <- bare_2005$area / total_area_2005 # 3.66% 
+```
+
 
 ## 2010 Data 
 
-Data for 2010 is recreated from Table 1 in the Lafferty et al paper. The table gives each islet, the islet area (ha), and the percent cocos. Since no specific percent area of non-vegetated land is included in this study, we will use the average percent between the 2001 and 2016 data. The 2001 estimate for non-vegetated land is 8.8% and the 2016 estimate of non-vegetated land is 4.69%. For the 2010 data, we'll assume 6.75% of the land area is non-vegetated and the remainder is considered "forest".    
+Data for 2010 is recreated from Table 1 in the Lafferty et al paper. The table gives each islet, the islet area (ha), and the percent cocos. Since no specific percent area of non-vegetated land is included in this study, we will use the average percent between the 2001, 2005, and 2016 data. The 2001 estimate for non-vegetated land is 8.8%, the 2005 estimate is 3.66% and the 2016 estimate is 4.69%. For the 2010 data, we'll assume 5.72% of the land area is non-vegetated. Grasslands have also been excluded for this analysis and since no specific percent of grasslands is given in the study we will use the average area of grasslands between 2005 and 2016. The 2005 estimate for grasslands is 8.77% and the 2016 estimate is 6.40%. For the 2010 data, we'll assume 7.59% of land area is grasslands.  
 
 ### Create 2010 Data
 
@@ -125,8 +231,9 @@ area_2010 <- raw_2010 %>%
   group_by(region_id) %>% 
   summarize(tot_area_cocos = sum(area_cocos),
             total_area = sum(area_km)) %>% 
-  mutate(area_non_veg = total_area * 0.0675,
-         area_forest = total_area - (area_non_veg + tot_area_cocos),
+  mutate(area_non_veg = total_area * 0.0572,
+         area_grass = total_area * 0.0759,
+         area_forest = total_area - (area_non_veg + area_grass + tot_area_cocos),
          year = 2010) %>% 
   dplyr::select(region_id, year, area_forest)
 
@@ -144,25 +251,24 @@ For habitats we are interested in those dominated by coconut palms and all other
  - Cocos: Monocultural coconut (Cocos nucifera; greater than 90 percent) dominated forest/woodland    
  - Cocos/Heliotropium: Coconut forest/woodland with abundant *Heliotropium foertherianum* in the canopy and subcanopy         
  
-The following communities are grouped together to form the other "forest" area:  
+Based on conversations with Alex Wegmann of The Nature Conservancy, the following communities are grouped together to form the other "forest" area:  
 
- - Heliotropium-Scaevola: Woodland/scrubland dominated by Heliotropium with lesser amounts of Scaevola; both species are native to Palmyra   
- - Hibiscus: Monoculture stands of Hibiscus shrubs (greater than 75 percent), *Hibiscus tiliaceus* is nonnative      
- - Lepturus: Herbaceous community dominated by Pacific Island thintail (*Lepturus repens*); native to Palmyra     
- - Lepturus-Fimbristylis: Mowed areas dominated by Pacific Island thintail (Lepturus repens) and/or Fimbristylis; both species are native to Palmyra   
- - Pandanus: Closed or open forests/woodlands with abundant Pandanus (native), often with Cocos codominant 
- - Pisonia: Forest with abundant *Pisonia grandis* (native), sometimes co-dominant with or subordinate to coconut       
- - Pisonia/Heliotropium: Forest/woodlands with abundant Pisonia, and an understory of Heliotropium; both species are native to Palmyra      
- - Scaevola-Heliotropium: Scrublands dominated by Scaevola with lesser amounts of Heloitropium; both species are native to Palmyra   
- - Terminalia: Woodlands dominated by Terminalia, generally with an open understory; *Terminalia catappa* is generally regarded as nonnative invasive  
+ - Heliotropium-Scaevola: Woodland/scrubland dominated by Heliotropium with lesser amounts of Scaevola   
+ - Hibiscus: Monoculture stands of Hibiscus shrubs (greater than 75 percent)       
+ - Pandanus: Closed or open forests/woodlands with abundant Pandanus 
+ - Pisonia: Forest with abundant *Pisonia grandis*          
+ - Pisonia/Heliotropium: Forest/woodlands with abundant Pisonia, and an understory of Heliotropium     
+ - Scaevola-Heliotropium: Scrublands dominated by Scaevola with lesser amounts of Heloitropium     
+ - Terminalia: Woodlands dominated by Terminalia, generally with an open understory   
 
-These community descriptions were taken from the associated [USGS metadata](https://www.sciencebase.gov/catalog/file/get/5c66fc5be4b0fe48cb3aca49?f=__disk__9f%2F2a%2F87%2F9f2a870f06866871d04667b3f6c906896e7ccead&transform=1&allowOpen=true#Entity%20and%20Attribute%20Information) and species were compared against a list of native vascular plant species for Palmyra, found [here](http://www.hawaii.edu/gk-12/palmyra/specieslist/nativeplants.htm). *Heliotropium foertherianum* is also known as *Tournefortia argentea*, which is native to Palmyra.      
+These community descriptions were taken from the associated [USGS metadata](https://www.sciencebase.gov/catalog/file/get/5c66fc5be4b0fe48cb3aca49?f=__disk__9f%2F2a%2F87%2F9f2a870f06866871d04667b3f6c906896e7ccead&transform=1&allowOpen=true#Entity%20and%20Attribute%20Information).
 
-Three communities are filtered out because they are not dominated by trees or vegetation of any kind:  
-
- - Bare ground   
- - Runway (airplane runway)    
- - Water (standing water on the islands)   
+The following communities are excluded from the analysis:    
+ - Lepturus: grassland community not a forest community     
+ - Lepturus-Fimbristylis: grassland community not a forest community 
+ - Bare ground: Not associated with a vegetation community    
+ - Runway (airplane runway): Not associated with a vegetation community     
+ - Water (standing water on the islands): Not associated with a vegetation community      
 
 ```{r get-2016-vegetation-maps, eval=F}
 
@@ -190,7 +296,8 @@ percent_non_veg <- area_non_veg / sum(community_areas$comm_area_ha) # 4.69%
 # Interested in the amount dominated by palm vs the amount dominated by other tree species 
 # Find area in square kilometers
 area_2016 <- community_areas_2016 %>% 
-  dplyr::filter(Community != "Bare ground" & Community != "Water" & Community != "Runway") %>% 
+  dplyr::filter(Community != "Bare ground" & Community != "Water" & Community != "Runway" &
+                Community != "Lepturus" & Community != "Lepturus-Fimbristylis") %>% 
   mutate(veg_comm = ifelse(Community == "Cocos" | Community == "Cocos/Heliotropium", "cocos", "forest")) %>% 
   group_by(veg_comm) %>% 
   summarize(area_ha = sum(comm_area_ha)) %>% 
@@ -208,6 +315,29 @@ area_2016 <- as.data.frame(area_2016) %>%
 # Save to int folder
 write_csv(area_2016, file.path(dir_goal, "int/trend_area_2016.csv"))
 ```
+
+### Grassland Area 
+
+Find the estimated percent of area occupied by grasslands (Lepturus and Lepturus-Fimbristylis communities). This area will be averaged with the grassland area in 2005 to provide an estimated percent area of grasslands for 2010.  
+
+```{r grassland-area-2016, eval=F}
+veg_map_2016 <- st_read(file.path(dir_anx, '_raw_data/USGS_data/Vegetation_Commmunities_Palmyra_Atoll_2016'),
+                   layer = "Vegetation_Commmunities_Palmyra_Atoll_2016")
+
+# Find grassland area
+grass_area_2016 <- veg_map_2016 %>% 
+  filter(Community == "Lepturus" | Community == "Lepturus-Fimbristylis") %>% 
+  mutate(comm = "grassland") %>% 
+  group_by(comm) %>% 
+  summarize(area = sum(Area_ha))
+
+# Find total area
+total_area_2016 <- sum(veg_map_2016$Area_ha)
+
+# Percent grassland area
+pct_grass_2016 <- grass_area_2016$area / total_area_2016 # 6.40%
+```
+
 
 ## 2019 Data
 
@@ -234,12 +364,14 @@ write_csv(area_2019, file.path(dir_goal, "int/trend_area_2019.csv"))
 ```{r combine-data, eval=F}
 
 # Read in yearly files
+area_2005 <- read_csv(file.path(dir_goal, "int/trend_area_2005.csv"))
 area_2010 <- read_csv(file.path(dir_goal, "int/trend_area_2010.csv"))
 area_2016 <- read_csv(file.path(dir_goal, "int/trend_area_2016.csv"))
 area_2019 <- read_csv(file.path(dir_goal, "int/trend_area_2019.csv")) 
 
 # Combine data
-trend_area <- area_2010 %>% 
+trend_area <- area_2005 %>% 
+  rbind(area_2010) %>% 
   rbind(area_2016) %>% 
   rbind(area_2019)
 
