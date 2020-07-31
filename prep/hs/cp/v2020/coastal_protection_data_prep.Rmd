@@ -66,7 +66,7 @@ hab_status <- read_csv(file.path(dir_hab, "output/coral_status.csv"))
 # Find a single estimate of condition by averaging the status of each zone 
 coral_condition <- hab_status %>% 
   group_by(region_id) %>% 
-  summarize(value = mean(status)) %>% 
+  summarize(value = weighted.mean(status, area_km)) %>% 
   mutate(dimension = "condition") %>% 
   dplyr::select(region_id, dimension, value)
 
@@ -128,6 +128,9 @@ cp_status <- data.frame(
   year = 2020, 
   status = c_status
 )
+
+# Save to output
+write_csv(cp_status, file.path(dir_goal, "output/cp_status.csv"))
 ```
 
 ## Save to Toolbox 

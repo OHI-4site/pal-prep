@@ -70,7 +70,9 @@ emp_status <- emp_raw %>%
   mutate(region_id = 1,
          status = positions / ref_point) %>% 
   dplyr::select(region_id, year, status)
-  
+
+# Save to output folder
+write_csv(emp_status, file.path(dir_goal, "output/emp_status.csv"))
 ```
 
 ## Save to Toolbox 

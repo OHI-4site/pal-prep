@@ -130,6 +130,9 @@ sci_status <- pubs_year %>%
   filter(year >= 2014) %>% # Data years only need to be 2019-2020
   mutate(region_id = 1) %>% 
   dplyr::select(region_id, year, status)
+
+# Save to output folder
+write_csv(sci_status, file.path(dir_goal, "output/sci_status.csv"))
 ```
 
 ## Save to Toolbox 

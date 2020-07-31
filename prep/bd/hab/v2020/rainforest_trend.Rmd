@@ -17,7 +17,7 @@ output:
 
 # Summary 
 
-This script calculates the trend in rainforest area from 2001 to 2016 relative to the 2001 potential rainforest area.   
+This script calculates the trend in rainforest area from 2010 to 2019 relative to the 2001 potential rainforest area.   
 
 # Data 
 
