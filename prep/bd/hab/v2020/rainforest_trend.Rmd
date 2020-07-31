@@ -17,7 +17,7 @@ output:
 
 # Summary 
 
-This script calculates the trend in rainforest area from 2010 to 2019 relative to the 2001 potential rainforest area.   
+This script calculates the trend in rainforest area from 2005 to 2019 relative to the 2001 potential rainforest area.   
 
 # Data 
 
@@ -26,6 +26,8 @@ Trend comes from three sources of satellite images and published papers:
 2001 Reference Point: The 2001 reference point comes from a satellite image of the island that is discussed in the 2011 Terrestrial Forest Management Plan.     
  - Hathaway, S.A., McEachern K., & Fisher, R.N. (2011). "Terrestrial Forest Management Plan for Palmyra Atoll". U.S. Geological Survey Open-File Report 2011-1007.  
   [Available here](https://permanent.fdlp.gov/gpo119875/ofr20111007.pdf)  
+  
+2005: The 2005 data was obtained from Alex Wegmann at The Nature Conservancy on July 31, 2020. Shapefiles were compiled as part of Alex Wegmann's PhD dissertation.  
  
 2010: The 2010 data is estimated from a study on invasive rats that quantified the percent of land area on each islet occupied by *Cocos nucifera* (Table 1).    
  - Lafferty, K.D. et al. (2010). "Stomach nematodes (*Mastophorus muris*) in rats (*Rattus rattus*) are associated with coconut (*Cocos nucifera*) habitat at Palmyra Atoll. *Journal of Parasitology* 96(1): 16-20.   
