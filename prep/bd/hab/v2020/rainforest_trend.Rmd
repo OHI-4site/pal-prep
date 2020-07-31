@@ -273,6 +273,9 @@ rainforest_trend <- data.frame(
   year = 2019,
   trend = trend
 )
+
+# Save trend to output folder
+write_csv(rainforest_trend, file.path(dir_goal, "output/rainforest_trend.csv"))
 ```
 
 
