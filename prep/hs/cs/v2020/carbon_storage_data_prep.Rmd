@@ -109,8 +109,8 @@ The following tree species are included in the mapping project and we have desig
  - *Heliotropium foertherianum* also known as *Tournefortia argentea*: Native   
  - *Hernandia nymphaeifolia*: Native (not on the lists but *Hernandia sonora* is native)    
  - *Hibiscus tiliaceus*: Nonnative   
- - *Ipomoea*: Native   
- - *Nephrolepis*: Nonnative   
+ - *Ipomoea*: Native but excluded because it's a ground vine not a tree     
+ - *Nephrolepis*: Nonnative, but excluded because it's a fern not a tree      
  - *Pandanus tectorius* updated from *Pandanus fischerianus*: Native  
  - *Phymatosorus scolopendria*: Native 
  - *Pisonia grandis*: Native   
@@ -133,7 +133,8 @@ natives <- c("Barringtonia asiatica", "Cordia subcordata", "Guettarda speciosa",
 
 # Add status:
 tree_cat <- tree_map %>% 
-  mutate(category = ifelse(species %in% natives, "native", "nonnative"))
+  mutate(category = ifelse(species %in% natives, "native", "nonnative")) %>% 
+  filter(species != "Ipomoea" & species != "Nephrolepis")
 
 # Save to int folder
 write_sf(tree_cat, file.path(dir_goal, 'int/tree_category.shp'), driver = "ESRI Shapefile")
