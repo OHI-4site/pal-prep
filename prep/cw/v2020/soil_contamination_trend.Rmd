@@ -83,7 +83,8 @@ ref_sites <- usgs %>%
   pivot_longer(., cols = pb:p,
               names_to = "contaminant", values_to = "concentration") %>% 
   filter(contaminant != "fe" & contaminant != "ti" & contaminant != "p" & contaminant != "s") %>% 
-  dplyr::select(site = site_sample, soil_type, year, contam = contaminant, conc = concentration, geometry)
+  dplyr::select(site = site_sample, soil_type, year, contam = contaminant, 
+                conc = concentration, geometry)
 
 # Save to int folder 
 st_write(ref_sites, file.path(dir_goal, "int/reference_sites.shp"), driver = 'ESRI Shapefile')
@@ -94,6 +95,11 @@ st_write(ref_sites, file.path(dir_goal, "int/reference_sites.shp"), driver = 'ES
 Assign a soil_type (marine or land) to the sample sites based on the reported soil or sediment classification. Most sites were sampled on a wet-weight basis, filter the 7 sites that were sampled on a dry-weight basis. Check if any of the sites have been sampled in both 2008 and 2010 and add a samp_repeated column to identify any sites with repeated sampling. Filter out the reference sites.     
 
 ```{r contamination-by-site, eval=F}
+
+# Read in raw USGS shapefiles
+usgs <- st_read(file.path(dir_anx, "_raw_data/USGS_data/XRF_samples_Palmyra_Atoll_2008_and_2010"),
+                layer = "XRF_samples_Palmyra_Atoll_2008_and_2010") %>% 
+  clean_names()
 
 # Color by site type to get an idea of what sites are offshore
 ggplot() + 
@@ -133,14 +139,22 @@ usgs_sites <- sites %>%
                                    site_sample == "Cooper 02" ~ "Yes",
                                    site_sample == "Paradise 01" ~ "Yes",
                                    site_sample == "Quail 09" ~ "Yes", 
-                                   TRUE ~ "No")) %>% 
-  dplyr::select(site = site_sample, soil_type, year, samp_repeated, 15:27)
+                                   TRUE ~ "No"),
+         area_km = pot_cont_are * 0.000001) %>% 
+  dplyr::select(site = site_sample, soil_type, year, area_km, samp_repeated, 15:27)
+
+# Site areas
+site_area <- as.data.frame(usgs_sites) %>% 
+  dplyr::select(site, year, area_km) %>% 
+  distinct()
+
 
 # Tidy format 
 usgs_tidy <- pivot_longer(usgs_sites,
                           cols = pb:p,
                           names_to = "contaminant", values_to = "concentration") %>% 
-  dplyr::select(site, soil_type, year, contam = contaminant, conc = concentration, repeated = samp_repeated, geometry)
+  dplyr::select(site, soil_type, year, contam = contaminant, conc = concentration,
+                repeated = samp_repeated, geometry)
 
 # Check for the right number of observations - 13 contaminants total 
 check <- usgs_tidy %>% 
@@ -148,13 +162,18 @@ check <- usgs_tidy %>%
   tally() # Only the four repeated sites should have 26, all others should be 13
 ## This looks good 
 
-# Save to int folder 
+# Save shp and site areas to int folder 
 st_write(usgs_tidy, file.path(dir_goal, "int/contaminants.shp"), driver = 'ESRI Shapefile')
+write_csv(site_area, file.path(dir_goal, "int/site_areas.csv"))
 ```
 
-## Assign Reference Levels
+## Reference Levels 
 
-Reference levels were assigned based on U.S. Environmental Protection Agency threshold effect levels (TEL) for marine sediments and the lowest established ecological soil screening level (Eco-SSL) for any taxonomic group. TEL and Eco-SSL values (mg/km dry weight) for the most frequently detected contaminants on Palmyra are listed in Table 1 of Struckhoff *et al* 2018.  
+Two different reference levels will be used to scale the contamination scores from 0-1. A Threshold Effects Level (TEL) will be used to first scale values from 0 - 0.5. Any observed concentration equal to the TEL will receive a score of 0.5. The TEL are the lower end of values below which harmful impacts are not likely to be observed. The upper end of the scores will be based on the Probable Effect Level (PEL), this represents a value above which harmful impacts are likely to be observed. Any observed concentration above the PEL will be assigned a score of 1.  
+
+### Assign TEL Reference Levels
+
+TEL reference levels were assigned based on U.S. Environmental Protection Agency for marine sediments and the lowest established ecological soil screening level (Eco-SSL) for any taxonomic group. TEL and Eco-SSL values (mg/km dry weight) for the most frequently detected contaminants on Palmyra are listed in Table 1 of Struckhoff *et al* 2018.  
 
 Citation: Struckhoff, M.A., Orazio, C.E., Tillitt, D.E., Shaver, D.K., and Papoulias, D.M. (2018). Mapping elemental contamination on Palmyra Atoll National Wildlife Refuge. *Marine Pollution Bulletin*, 128: 97-105. https://doi.org/10.1016/j.marpolbul.2017.12.065.  
 
@@ -178,7 +197,7 @@ The table reports thresholds in mg/kg of dry weight, however most of the samples
 
 "Soil moisture values between 15 and 25% can reduce measured sample concentrations from 70 to 80% relative to lab-confirmed concentrations (U.S. Environmental Protection Agency, 2015). Given that most measurements were made on moist samples, XRF values reported above TELs or SSLs are conservative estimates of threshold exceedance."  
 
-```{r ref-levels}
+```{r tel-ref-levels}
 
 contaminant <- st_read(file.path(dir_goal, "int"),
                 layer = "contaminants") %>% 
@@ -186,51 +205,136 @@ contaminant <- st_read(file.path(dir_goal, "int"),
 
 # Set reference levels for each contaminant
 # Where TEL is unknown, the lowest eco-ssl is used in its place 
-refs <- data.frame(
+ref_tel <- data.frame(
   contam = rep(c("sb", "as", "cr", "co", "cu", "pb", "mn", "ni", "zn"), each = 2),
   soil_type = rep(c("sediment", "soil"), 9),
-  type = rep(c("tel", "eco-ssl"), 9),
-  ref_level = c(78, 78, 7.24, 18, 52.3, 26, 13, 13, 118.7, 28,
+  lower_type = rep(c("tel", "eco-ssl"), 9),
+  lower_limit = c(78, 78, 7.24, 18, 52.3, 26, 13, 13, 118.7, 28,
                 30.24, 11, 220, 220, 15.9, 38, 124, 46)
 )
 
 # Add reference levels to contaminants data
-contam_refs <- contaminant %>% 
-  left_join(refs, by = c("contam","soil_type")) # Soil uses eco-ssl, marine sediments use tel
+contam_tels <- contaminant %>% 
+  left_join(ref_tel, by = c("contam","soil_type")) # Soil uses eco-ssl, marine sediments use tel
 ```
+
+### Assign PEL Reference Levels 
+
+For soil samples, the Canadian freshwater contamination PELs (mg/kg dry weight) are used, as these are more conservative than the marine contamination levels. Concensus-based freshwater PEL levels were established in 2000. Concentrations were obtained from Table 3 in MacDonald *et al* 2000.   
+
+Citation: MacDonald, D.D., Ingersol, C.G., and Berger, T.A. (2000). Development and Evaluation of Consensus-Based Sediment Quality Guidelines for Freshwater Contamination. *Archives of Environmental Contamination and Toxicology.* 39:20-31. DOI: 10.1007/s002440010075   
+
+| Contaminant | Symbol | PEL   | 
+|-------------|--------|-------|
+| Arsenic     | As     | 17    |
+| Chromium    | Cr     | 90    |
+| Copper      | Cu     | 197   |
+| Lead        | Pb     | 91.3  |
+| Nickel      | Ni     | 36    |
+| Zinc        | Zn     | 315   |
+
+Marine sediment PEL levels (mg/kg of dry weight) are obtained from NOAA guidelines established in 1999. These are called Effect Range Median (ERM) levels, which is the NOAA equivalent of PELs. Concentrations were obtained from Table 1.   
+
+Citation: National Oceanic and Atmospheric Administration. (1999). Sediment Quality Guidelines developed for the National Status and Trend Program. 
+
+| Contaminant | Symbol | PEL   | 
+|-------------|--------|-------|
+| Arsenic     | As     | 70    |
+| Chromium    | Cr     | 370   |
+| Copper      | Cu     | 270   |
+| Lead        | Pb     | 218   |
+| Nickel      | Ni     | 51.6  |
+| Zinc        | Zn     | 410   |
+
+No PELs are available for Antimony, Colbalt, and Manganese. For these we will approximate an upper limit that is one order of magntiude higher than the established TEL or Eco-SSL.  
+
+```{r pel-ref-levels, eval=F}
+
+# Set reference levels for each contaminant
+# Where PEL is not established use one order of magnitude higher than TEL
+ref_pel <- data.frame(
+  contam = rep(c("sb", "as", "cr", "co", "cu", "pb", "mn", "ni", "zn"), each = 2),
+  soil_type = rep(c("soil", "sediment"), 9),
+  upper_type = rep(c("pel", "erm"), 9),
+  upper_limit = c(780, 780, 17, 70, 90, 370, 130, 130, 197, 270,
+                91.3, 218, 2200, 2200, 36, 51.6, 315, 410)
+)
+
+# Add PEL reference levels to TEL ref levels
+contam_ref <- contam_tels %>% 
+  left_join(ref_pel, by = c("contam","soil_type")) # Soil use pel, marine sediments use erm
+
+# Save to int folder
+st_write(contam_ref, file.path(dir_goal, "int/contaminant_refs.shp"), driver = 'ESRI Shapefile')
+```
+
 
 ## Calculate Status
 
-The current status for soil contamination will be found by dividing the observed concentration by the reference point for each contaminant at each site. Values are rescaled 0-1 using two orders of magnitude as the upper limit. Any value exceeding two orders of magnitude, or 100x over the threshold is assigned a value of 1.  
+The current status for soil contamination will be linearly scaled 0-1 using the TEL and PEL reference levels as midpoint (0.5) and end point (1) values. Values above 1 will be capped at 1.  
 
-A status is then found for each contaminant in each year by averaging all the site scores. An overall status score is found for each year by averaging the status score for each of the 9 contaminants. This gives higher scores to higher levels of contamination. This will be used for the soil contamination pressure layer. The CW status score will be the inverse, found by 1 - status.   
+A status is then found for each site using a geometric mean of the status of all contaminants at that site. The overall status score is found for each year as an area weighted mean. This will be used for the soil contamination pressure layer. The CW status score will be the inverse, found by 1 - status.   
 
 ```{r calc-status, eval=F}
 
+contam_refs <- st_read(file.path(dir_goal, "int"),
+                layer = "contaminant_refs")
+
 # Find status score for each contaminant at each site 
-site_status <- contam_refs %>% 
-  mutate(s_status = conc / ref_level) %>% 
-  mutate(s_status_resc = ifelse(s_status > 100, 1, s_status/100)) %>% 
-  dplyr::select(site, year, soil_type, contam, s_status = s_status_resc, geometry)
-
-# Find average status for each contaminant 
-contam_status <- site_status %>% 
-  group_by(contam, year) %>% 
-  summarize(c_status = mean(s_status))
-
-# Find overall status for each year 
-status <- contam_status %>% 
-  group_by(year) %>% 
-  summarize(status = 1 - mean(c_status)) %>% 
-  mutate(region_id = 1) %>% 
-  dplyr::select(region_id, year, status)
+contam_status <- contam_refs %>% 
+  mutate(c_status = ifelse(conc > lwr_lmt, 0.5, (conc / lwr_lmt) / 2), 
+         c_status = ifelse(c_status == 0.5, 0.5 + (conc / uppr_lm), c_status), 
+         c_status = ifelse(c_status > 1, 1, c_status), # Cap values above 1 at 1
+         c_status = ifelse(c_status == 0, 0.001, c_status), # Prevent mean from going to 0
+         region_id = 1) %>% 
+  dplyr::select(region_id, site, year, contam, c_status) 
 
 # Save as dataframe 
-sc_status <- as.data.frame(status) %>% 
-  dplyr::select(-geometry)
+sc_status <- as.data.frame(contam_status) %>% 
+  dplyr::select(-geometry) %>% 
+  distinct()
 
 # Save to output folder
 write_csv(sc_status, file.path(dir_goal, "output/sc_status.csv"))
+```
+
+## Check Score 
+
+This calculation will be done in the toolbox but we will also repeat it here to preview the scores.  
+
+```{r check-scores, eval=F}
+
+# Read in the status by site 
+contam_status <- read_csv(file.path(dir_goal, "output/cs_status.csv"))
+
+# Areas by site 
+site_areas <- read_csv(file.path(dir_goal, "int/site_areas.csv"))
+  
+# Define function for geometric mean 
+geometric.mean <- function (x, na.rm = TRUE) {
+    if (is.null(nrow(x))) {
+      exp(mean(log(x), na.rm = TRUE))
+    }
+    else {
+      exp(apply(log(x), 2, mean, na.rm = na.rm))
+    }
+  }
+  
+# Find geometric mean of contaminant status at each site  
+site_status <- sc_status %>% 
+  group_by(site, year) %>% 
+  summarize(s_status = geometric.mean(c_status))
+
+# Find overall status for each year as the area weighted mean of each site
+status <- site_status %>% 
+  group_by(site, year) %>% 
+  left_join(site_areas, by = c("site", "year")) %>% 
+  ungroup() %>% 
+  group_by(year) %>% 
+  summarize(value = weighted.mean(s_status, area_km)) %>% 
+  mutate(region_id = 1,
+         status = 1 - value) %>% 
+  dplyr::select(region_id, year, status)
 ```
 
 ## Save to Toolbox 
@@ -248,9 +352,33 @@ Soil contamination will also be a pressure layer where higher scores indicate mo
 ```{r debris-pressure-layer, eval=F}
 sc_status <- read_csv(file.path(dir_goal, "output/sc_status.csv"))
 
-pressure <- sc_status %>% 
-  mutate(pressure_score = 1 - status) %>% 
-  dplyr::select(-status)
+# Areas by site 
+site_areas <- read_csv(file.path(dir_goal, "int/site_areas.csv"))
+  
+# Define function for geometric mean 
+geometric.mean <- function (x, na.rm = TRUE) {
+    if (is.null(nrow(x))) {
+      exp(mean(log(x), na.rm = TRUE))
+    }
+    else {
+      exp(apply(log(x), 2, mean, na.rm = na.rm))
+    }
+  }
+  
+# Find geometric mean of contaminant status at each site  
+site_status <- sc_status %>% 
+  group_by(site, year) %>% 
+  summarize(s_status = geometric.mean(c_status))
+
+# Find pressure score - area weighted mean of site status 
+status <- site_status %>% 
+  group_by(site, year) %>% 
+  left_join(site_areas, by = c("site", "year")) %>% 
+  ungroup() %>% 
+  group_by(year) %>% 
+  summarize(pressure_score = weighted.mean(s_status, area_km)) %>% 
+  mutate(region_id = 1) %>% 
+  dplyr::select(region_id, year, pressure_score)
 ```
 
 ### Save Pressure to Toolbox 

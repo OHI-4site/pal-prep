@@ -1,0 +1,169 @@
+site,year,area_km
+Aviation 01,2008,0.026
+Aviation 02,2008,0.026
+Aviation 03,2008,1.9999999999999998e-5
+Aviation 04,2008,9.999999999999999e-6
+Cooper 01,2008,0.001
+Cooper 10,2008,0.009555
+Cooper 11,2008,1.4e-5
+Cooper 12,2008,8.3e-5
+Cooper 13,2008,8.3e-5
+Cooper 14,2008,8.3e-5
+Cooper 15,2008,4.2899999999999997e-4
+Cooper 17,2008,0
+Cooper 02,2008,4.2999999999999995e-5
+Cooper 21,2008,2.5299999999999997e-4
+Cooper 22,2008,4.4e-5
+Cooper 23,2008,4.68e-4
+Cooper 24,2008,4.68e-4
+Cooper 25,2008,0
+Cooper 26,2008,2.4999999999999998e-5
+Cooper 27,2008,1.9999999999999998e-5
+Cooper 28,2008,0.001018
+Cooper 29,2008,8.4e-5
+Cooper 03,2008,6.6e-4
+Cooper 30,2008,2.24e-4
+Cooper 31,2008,3.6e-5
+Cooper 32,2008,2.9e-5
+Cooper 33,2008,0
+Cooper 34,2008,1.7e-5
+Cooper 35,2008,4e-6
+Cooper 36,2008,2.4e-5
+Cooper 37,2008,8.659999999999999e-4
+Cooper 38,2008,8.659999999999999e-4
+Cooper 39,2008,8.74e-4
+Cooper 04,2008,1.3e-4
+Cooper 40,2008,4e-6
+Cooper 05,2008,6.6e-4
+Cooper 06,2008,6.6e-4
+Cooper 07,2008,6.6e-4
+Cooper 08,2008,3.7e-5
+Cooper 09,2008,0.005
+Engineer 01,2008,1.9999999999999998e-5
+Engineer 02,2008,2.9999999999999997e-5
+Engineer 03,2008,2.9999999999999997e-5
+Engineer 04,2008,9.999999999999999e-5
+Kaula 01,2008,0.027
+Kaula 02,2008,0.027
+Kaula 03,2008,0.027
+Longliner 01,2008,0.612
+Longliner 01c,2008,0.612
+Longliner 01a,2008,0.612
+Longliner 01b,2008,0.612
+Longliner 02,2008,0.612
+Longliner 06,2008,0.612
+Longliner 03,2008,0.612
+Longliner 04,2008,0.612
+Longliner 05,2008,0.612
+Corallimorph 01,2008,0.612
+Corallimorph 10,2008,0.612
+Corallimorph 11,2008,0.612
+Corallimorph 12,2008,0.612
+Corallimorph 02,2008,0.612
+Corallimorph 03,2008,0.612
+Corallimorph 04,2008,0.612
+Corallimorph 05,2008,0.612
+Corallimorph 06,2008,0.612
+Corallimorph 07,2008,0.612
+Corallimorph 08,2008,0.612
+Corallimorph 09,2008,0.612
+Strawn 13,2008,1.6e-5
+Menge 10,2008,4.9e-5
+Menge 11,2008,2.4999999999999998e-5
+Menge 12,2008,3.4e-5
+Menge 13,2008,3.7999999999999995e-5
+Menge 14,2008,4.79e-4
+Menge 15,2008,4.9e-5
+Menge 16,2008,4e-6
+Menge 17,2008,3.8899999999999997e-4
+Strawn 14,2008,5.9999999999999995e-5
+Menge 23,2008,5.6e-5
+Menge 24,2008,1.5999999999999999e-4
+Menge 25,2008,6.92e-4
+Menge 26,2008,1.9999999999999998e-4
+Menge 27,2008,1.02e-4
+Menge 28,2008,2.57e-4
+Menge 29,2008,0.001568
+Menge 03,2008,1.66e-4
+Menge 30,2008,0.0012569999999999999
+Menge 31,2008,1.1e-5
+Menge 32,2008,1.4999999999999999e-5
+Menge 33,2008,3.1e-5
+Menge 34,2008,1.8999999999999998e-5
+Menge 35,2008,0.0010509999999999999
+Menge 36,2008,9.4e-5
+Menge 37,2008,1.18e-4
+Menge 38,2008,1.25e-4
+Menge 39,2008,7.8e-5
+Menge 04,2008,1.8e-5
+Menge 40,2008,4e-6
+Menge 05,2008,1.2e-5
+Menge 06,2008,1e-6
+Menge 09,2008,9.999999999999999e-6
+Paradise 01,2008,4e-6
+Quail 01,2008,0.0183
+Quail 02,2008,0.0183
+Quail 03,2008,0.0183
+Quail 04,2008,0.0183
+Quail 05,2008,0.0183
+Quail 06,2008,0.0183
+Quail 07,2008,0.0183
+Quail 08,2008,0.0183
+Quail 09,2008,0.0183
+Sand 04,2008,0
+Strawn 10,2008,9.999999999999999e-5
+Strawn 11,2008,4e-6
+Strawn 12,2008,1.9999999999999998e-5
+Strawn 03,2008,0.0104
+Strawn 04,2008,0.0104
+Strawn 05,2008,0.0104
+Strawn 07,2008,9.999999999999999e-5
+Strawn 08,2008,9.999999999999999e-5
+Strawn 09,2008,0
+Whippoorwill 01,2008,1.2e-5
+Whippoorwill 02,2008,1.2e-5
+Whippoorwill 03,2008,1.5e-4
+Whippoorwill 04,2008,4e-6
+North Barren Batteries,2010,1.16e-4
+Quail 09,2010,0.0183
+Banjos 01,2010,0
+Big Eddies 01,2010,0
+Big Eddies 02,2010,0
+Big Eddies 03,2010,0
+Big Eddies 04,2010,0
+Big Eddies 05,2010,0
+Channel Marker Buoy 01,2010,0
+Cookies 01,2010,0
+Cookies 02,2010,0
+Cooper 01,2010,0
+Cooper 02,2010,0
+Dock 01,2010,0
+Down East 01,2010,0
+Down East 02,2010,0
+East 01,2010,0
+Lost Lagoon 01,2010,0
+Fighter Strip 01,2010,0
+Galley 01,2010,0
+Kayak Dock 01,2010,0
+Menge 1 4 01,2010,0
+Nursery  01,2010,0
+Nursery  02,2010,0
+Nusery  03,2010,0
+Off Runway 01,2010,0
+Paradise 01,2010,0
+Paradise Fish 01,2010,0
+Penguin Spit  01,2010,0
+Penguin Spit 02,2010,0
+Black Lagoon 01,2010,0
+Sixes 01,2010,0
+Sixes 02,2010,0
+Sixes 03,2010,0
+Sixes 04,2010,0
+Smitty 01,2010,0
+Smitty 02,2010,0
+Sunset Lanai 01,2010,0
+Swimming Hole 01,2010,0
+Turtle Hole 01,2010,0
+NE Turtle Hole 01,2010,0
+Dudley NOAA Buoy 01,2010,0
+Western Flats 01,2010,0
