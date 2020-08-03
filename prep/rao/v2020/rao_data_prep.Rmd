@@ -1,0 +1,63 @@
+---
+title: 'OHI+ Palmyra 2020: Resource Access Opportunities'
+author: "*Compiled on `r date()` by `r Sys.info()['user']`*"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 2 
+    toc_float: yes
+    number_sections: false
+    theme: cerulean
+    highlight: haddock
+    includes: 
+     in_header: '../../../src/templates/ohi_hdr.html' 
+  pdf_document:
+    toc: true
+---
+
+# Summary 
+
+This script generates a temporary layer to use in place of a status score for the Resource Access Opportunities goal. 
+
+# Data
+
+Data for this layer is supposed to come from the fishing log on Palmyra Atoll. The log was not digitized at the time of the assessment and therefore couldn't be used. 
+
+# Setup
+
+```{r setup, message = F, warning = F}
+knitr::opts_chunk$set(echo = FALSE)
+
+library(tidyverse)
+library(here)
+
+# Source and set file paths
+source(here('src/R/common.R'))
+
+dir_goal   <- '~/github/pal-prep/prep/rao/v2020'
+```
+
+
+# Methods
+
+The toolbox requires the layer to have a column for region_id, year, and status (a score 0-1). For trend we like to have five years of data, so the years will span 2014-2020, but since the data is not available to complete this layer in time for the assessment, a placeholder with a value of NA will be used.   
+
+## Create Temporary Layer 
+
+```{r create-temp-layer, eval=F}
+# Set years 
+years <- 2014:2020
+
+rao_status <- data.frame(
+  region_id = rep(1, length(years)), 
+  year = years, 
+  status = rep(NA, length(years))
+)
+```
+
+## Save to Toolbox
+
+```{r save-to-toolbox, eval=F}
+write_csv(rao_status, file.path(dir_scores, "layers/rao_status.csv"))
+```
+
