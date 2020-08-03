@@ -45,7 +45,7 @@ dir_goal   <- '~/github/pal-prep/prep/bd/hab/v2020'
 ```{r get-global-trend-data, eval=F}
 
 # Global coral trend data
-global_trend <- read_csv(file.path(dir_global, "hab_coral/v2012/data/habitat_trend_coral.csv"))
+global_trend <- read_csv(file.path(dir_global, "hab_coral/v2012/data/habitat_trend_coral_updated.csv"))
 
 # Find region ids 
 region_data() # Loads data frames needed to reference global region ids
