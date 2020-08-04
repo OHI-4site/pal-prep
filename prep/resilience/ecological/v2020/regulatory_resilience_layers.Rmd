@@ -1,0 +1,137 @@
+---
+title: 'OHI+ Palmyra 2020: Regulatory Resiliences'
+author: "*Compiled on `r date()` by `r Sys.info()['user']`*"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 3 
+    toc_float: yes
+    number_sections: false
+    theme: cerulean
+    highlight: haddock
+    includes: 
+     in_header: '../../../src/templates/ohi_hdr.html' 
+  pdf_document:
+    toc: true
+---
+
+# Summary 
+
+Regulatory resilience is meant to describes the institutional measures (e.g., rules, regulations, and laws) designed to address ecological pressures. The regulatory resilience datasets are grouped into five categories that address the 5 pressure categories: fishing pressure, habitat destruction, climate change (including ocean acidification), water pollution, and species introductions (invasive species and genetic escapes).  
+
+# Data 
+
+Data to inform the preparation of these layers was obtained through verbal communications with Alex Wegmann of The Nature Conservancy on July 31, 2020.  
+
+# Setup 
+
+```{r setup, message = F, warning = F}
+knitr::opts_chunk$set(echo = FALSE)
+
+library(tidyverse)
+library(here)
+
+# Source and set file paths
+source(here('src/R/common.R'))
+
+dir_res   <- '~/github/pal-prep/prep/resilience/ecological/v2020'
+dir_lsp   <- '~/github/pal-prep/prep/sp/lsp/v2020'
+```
+
+
+# Methods 
+
+## Fishing Pressure and Habitat Destruction 
+
+### Protected Areas
+
+One regulatory mechanism to boost resilience to fishing pressures and habitat destruction is designation of protected areas. The percent of protected areas is calculated as part of the Lasting Special Places sub-goal of the Sense of Place goal. The resilience layer for protected areas will use the same score as LSP since that goal score calculation included both marine offshore areas and the entire terrestrial island area.  
+
+```{r protected-areas, eval=F}
+# Get offshore and inland LSP status scores 
+offshore <- read_csv(file.path(dir_lsp, "output/offshore_status.csv")) %>% 
+  mutate(dimension = "offshore")
+
+inland   <- read_csv(file.path(dir_lsp, "output/inland_status.csv")) %>% 
+  mutate(dimension = "inland")
+
+# Use the offshore score for fishing pressure (only need years 2014-2020)
+fp_mpa_coast <- offshore %>% 
+  filter(year >= 2014) %>% 
+  dplyr::select(region_id, year, score = status)
+
+# Use the average of the inland/offshore score for habitat destruction 
+hd_pa <- offshore %>% 
+  rbind(inland) %>% 
+  group_by(year) %>% 
+  summarize(status = mean(status)) %>% 
+  filter(year >= 2014) %>% 
+  mutate(region_id = 1) %>% 
+  dplyr::select(region_id, year, score = status)
+
+# Save files to output folder
+write_csv(fp_mpa_coast, file.path(dir_res, "output/fp_mpa_coast.csv"))
+write_csv(hd_pa, file.path(dir_res, "output/hd_pa.csv"))
+```
+
+### Management 
+
+A second regulatory mechanism to boost resilience to fishing pressure and habitat destruction is management of offshore and inland areas. A resilience layer is created for management based on three criteria:  
+
+ - Is there a management plan in place?  
+ - Is there monitoring and assessment?   
+ - Is the management plan effective?  
+ 
+We will evaluate the terrestrial and marine areas separately. The marine score will be used as a resilience for fishing pressure and the average of the marine and terrestrial scores will be used as a resilience for habitat destruction.  
+
+A yes will be assigned a value of 1, in-development will be assigned a value of 0.5, a no will be assigned a value of 0. The final score will be the sum over 3. The status is assigned based on information from Alex Wegmann at The Nature Conservancy.  
+
+Inland areas are managed by The Nature Conservancy. The Terrestrial Management Plan established in 2011 governs the management of the island and outlines the protocols for montioring and assessment. Management actions are updated based on results of the monitoring and assessment, this type of adaptive management tends to lead to more effective management.   
+
+| Category         | Response         | Score | 
+|------------------|------------------|-------|
+| Management Plan? | Yes              | 1     |
+| Monitoring?      | Yes              | 1     |
+| Effective?       | Yes              | 1     |
+
+Offshore areas are managed by the U.S. Fish and Wildlife Service. A management plan is currently in development for the Palmyra Atoll National Wildlife Refuge. Currently, there isn't monitoring of the management plan as there is no management plan. However, NOAA does monitor coral reefs, oceanography parameters, and other key elements within the wildlife refuges on periodic scientific voyages. While this may not be the most robust form of management, the status of the area as fully protected and the remoteness have allowed for this to be fairly effective despite the absence of a formal management plan. For this assessment we will assign the effective category a score of 0.5.    
+
+| Category         | Response         | Score | 
+|------------------|------------------|-------|
+| Management Plan? | In Development   | 0.5   |
+| Monitoring?      | Yes              | 1     |
+| Effective?       | Yes              | 0.5   | 
+
+
+```{r management, eval=F}
+years <- 2014:2020
+
+# Inland Management score
+inland_mgmt <- data.frame(
+  region_id = rep(1, length(years)), 
+  year = years,
+  dimension = rep("inland", length(years)),
+  score = rep(3 / 3, length(years))
+)
+
+# Offshore Management score
+offshore_mgmt <- data.frame(
+  region_id = rep(1, length(years)),
+  year = years,
+  dimension = rep("offshore", length(years)),
+  score = rep(2 / 3, length(years))
+)
+
+# Average of management scores (for habitats)
+hd_mgmt <- inland_mgmt %>% 
+  rbind(offshore_mgmt) %>% 
+  group_by(year) %>% 
+  summarize(score = mean(score)) %>% 
+  mutate(region_id = 1) %>% 
+  dplyr::select(region_id, year, score)
+
+# Save output layers
+write_csv(offshore_mgmt, file.path(dir_res, "output/fp_mgmt.csv"))
+write_csv(hd_mgmt, file.path(dir_res, "output/hd_mgmt.csv"))
+```
+
