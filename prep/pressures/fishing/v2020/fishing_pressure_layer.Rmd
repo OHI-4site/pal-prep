@@ -1,0 +1,69 @@
+---
+title: 'OHI+ Palmyra 2020: Fishing Pressure'
+author: "*Compiled on `r date()` by `r Sys.info()['user']`*"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 2 
+    toc_float: yes
+    number_sections: false
+    theme: cerulean
+    highlight: haddock
+    includes: 
+     in_header: '../../../src/templates/ohi_hdr.html' 
+  pdf_document:
+    toc: true
+---
+
+# Summary 
+
+This script calculates the pressure from fishing activity on Palmyra Atoll. Fishing pressures include bycatch from artisinal and commercial fishing and target harvest, typically of cetaceans and marine turtles. There is no commercial fishing permitted in the waters around Palmyra Atoll. Recreational fishing for bone fish is catch and release and only about 20 days of fishing occur in any given year. Limited amounts of sustenence fishing is permitted on Palmyra Atoll, which amounts to approximately 10 days of fishing per year. The risk of bycatch from these activities is very low.       
+
+# Data 
+
+Data to inform this layer was obtained from verbal communications with Alex Wegmann at The Nature Conservancy on July 31, 2020.  
+
+# Setup 
+
+```{r setup, message = F, warning = F}
+knitr::opts_chunk$set(echo = FALSE)
+
+library(tidyverse)
+library(here)
+
+# Source and set file paths
+source(here('src/R/common.R'))
+
+dir_prs   <- '~/github/pal-prep/prep/pressures/fishing/v2020'
+```
+
+
+# Methods 
+
+## Pressure Score 
+
+We will calculate the pressure score as the number of fishing days in the year over the total number of days per year for recreational fishing and for sustenence fishing. The overall pressure score is the average of these two scores. While there is very low risk of bycatch from fishing activities on Palmyra, any time there is fishing there is a potential for bycatch.    
+
+```{r pressure-score, eval=F}
+# Scores for recreational and sustence fishing pressures
+rec_score <- 20/365
+sust_score <- 10/365
+
+fishing_pressure <- data.frame(
+  region_id = 1,
+  year = 2020,
+  pressure_score = (rec_score + sust_score) / 2
+)
+
+# Save to output file 
+write_csv(fishing_pressure, file.path(dir_prs, "output/fishing_pressure.csv"))
+```
+
+## Save to Toolbox 
+
+```{r save-to-toolbox, eval=F}
+fishing_pressure <- read_csv(file.path(dir_prs, "output/fishing_pressure.csv"))
+
+write_csv(fishing_pressure, file.path(dir_scores, "layers/fishing_pressure.csv"))
+```
+
