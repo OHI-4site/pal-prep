@@ -37,7 +37,7 @@ library(here)
 source(here('src/R/common.R'))
 source(ohicore)
 
-dir_goal   <- '~/github/pal-prep/sp/lsp/v2020'
+dir_goal   <- '~/github/pal-prep/prep/sp/lsp/v2020'
 ```
 
 # Methods
@@ -61,7 +61,7 @@ area_3nm <- as.numeric(buff_3nm$area_km2)
 rgn_area_offshore3nm <- data.frame(rgn_id = 1, area = area_3nm)
 
 # Save to output folder:
-write_csv(rgn_area_offshore3nm, file.path(dir_goal, 'output/rgn_area_offshore3nm'))
+write_csv(rgn_area_offshore3nm, file.path(dir_goal, "int/rgn_area_offshore3nm.csv"))
 ```
 
 ## Inland Region Area
@@ -84,7 +84,7 @@ area_1km <- as.numeric(land$area_km2)
 rgn_area_inland1km <- data.frame(rgn_id = 1, area = area_1km)
 
 # Save to output folder:
-write_csv(rgn_area_inland1km, file.path(dir_goal, 'output/rgn_area_inland1km'))
+write_csv(rgn_area_inland1km, file.path(dir_goal, 'int/rgn_area_inland1km.csv'))
 ```
 
 ## Offshore Protected Areas 
@@ -101,7 +101,7 @@ lsp_prot_area_offshore3nm <- data.frame(rgn_id = rep(1, length(years)),
                                         a_prot_3nm = rep(area_3nm, length(years)))
 
 # Save to output folder
-write_csv(lsp_prot_area_offshore3nm, file.path(dir_github, 'prep/sp/lsp/v2020/output/lsp_prot_area_offshore3nm'))
+write_csv(lsp_prot_area_offshore3nm, file.path(dir_goal, 'int/lsp_prot_area_offshore3nm.csv'))
 ```
 
 ## Inland Protected Areas 
@@ -118,7 +118,7 @@ lsp_prot_area_inland1km <- data.frame(rgn_id = rep(1, length(years)),
                                         a_prot_1km = rep(area_1km, length(years)))
 
 # Save to output folder
-write_csv(lsp_prot_area_inland1km, file.path(dir_github, 'prep/sp/lsp/v2020/output/lsp_prot_area_inland1km'))
+write_csv(lsp_prot_area_inland1km, file.path(dir_goal, 'int/lsp_prot_area_inland1km.csv'))
 ```
 
 ## Calculate Status 
@@ -139,15 +139,15 @@ $status~=~(status_{offshore}~+status_{inland})~/~2$
 
 ```{r calc_status, eval=F}
 # Read in the output data files:  
-rgn_area_inland1km <- read_csv(file.path(dir_github, 'prep/sp/lsp/v2020/output/rgn_area_inland1km')) %>% 
+rgn_area_inland1km <- read_csv(file.path(dir_goal, 'int/rgn_area_inland1km.csv')) %>% 
   mutate(layer = "rgn_area_inland1km")
 
-rgn_area_offshore3nm <- read_csv(file.path(dir_github, 'prep/sp/lsp/v2020/output/rgn_area_offshore3nm')) %>% 
+rgn_area_offshore3nm <- read_csv(file.path(dir_goal, 'int/rgn_area_offshore3nm.csv')) %>% 
   mutate(layer = "rgn_area_offshore3nm")
 
-lsp_prot_area_inland1km <- read_csv(file.path(dir_github, 'prep/sp/lsp/v2020/output/lsp_prot_area_inland1km'))
+lsp_prot_area_inland1km <- read_csv(file.path(dir_goal, 'int/lsp_prot_area_inland1km.csv'))
 
-lsp_prot_area_offshore3nm <- read_csv(file.path(dir_github, 'prep/sp/lsp/v2020/output/lsp_prot_area_offshore3nm'))
+lsp_prot_area_offshore3nm <- read_csv(file.path(dir_goal, 'int/lsp_prot_area_offshore3nm.csv'))
 
 # Set scenario year 
 scenario_year = 2020
@@ -156,7 +156,7 @@ scenario_year = 2020
 ref_pct_mpa <- 99 # marine protected area
 ref_pct_cpa <- 99 # coastal protected area
 
-# calculate the percent of offshore protected areas and the status
+# Calculate the percent of offshore protected areas and the status
 offshore <- lsp_prot_area_offshore3nm %>% 
   mutate(area_offshore3nm = rgn_area_offshore3nm$area,
          scenario_year = 2020) %>% 
@@ -167,7 +167,7 @@ offshore <- lsp_prot_area_offshore3nm %>%
                 year,
                 status)
 
-# calculate the percent of inland protected areas and the status
+# Calculate the percent of inland protected areas and the status
 inland <- lsp_prot_area_inland1km %>% 
   mutate(area_inland1km = rgn_area_inland1km$area,
          scenario_year = 2020) %>% 
@@ -177,6 +177,10 @@ inland <- lsp_prot_area_inland1km %>%
   dplyr::select(region_id = rgn_id,
                 year,
                 status)
+
+# Save to output folder
+write_csv(offshore, file.path(dir_goal, "output/offshore_status.csv"))
+write_csv(inland, file.path(dir_goal, "output/inland_status.csv"))
 ```
 
 ## Save To Toolbox 
