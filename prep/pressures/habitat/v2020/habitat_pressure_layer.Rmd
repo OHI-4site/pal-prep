@@ -1,0 +1,65 @@
+---
+title: 'OHI+ Palmyra 2020: Habitat Destruction Pressure'
+author: "*Compiled on `r date()` by `r Sys.info()['user']`*"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 2 
+    toc_float: yes
+    number_sections: false
+    theme: cerulean
+    highlight: haddock
+    includes: 
+     in_header: '../../../src/templates/ohi_hdr.html' 
+  pdf_document:
+    toc: true
+---
+
+# Summary 
+
+This script calculates the pressures from habitat destruction on Palmyra Atoll. Habitat destruction typically includes activities like deforestation, dredging, bottom trawling etc. None of these activities take place on Palmyra as the island and offshore waters are fully protected. Therefore, the pressure from habitat destruction is low.     
+
+# Data 
+
+Data to inform this layer was obtained from verbal communications with Alex Wegmann at The Nature Conservancy on July 31, 2020.  
+
+# Setup 
+
+```{r setup, message = F, warning = F}
+knitr::opts_chunk$set(echo = FALSE)
+
+library(tidyverse)
+library(here)
+
+# Source and set file paths
+source(here('src/R/common.R'))
+
+dir_prs   <- '~/github/pal-prep/prep/pressures/habitat/v2020'
+```
+
+# Methods 
+
+## Pressure Score 
+
+Given that there are no activities contributing to habitat destruction permitted on the island or in the offshore area, this pressure score is zero. However, we still want to include this layer as part of the overall calculation. We will create a layer with region_id, year, pressure_score (0) to save in the toolbox.   
+
+```{r pressure-score, eval=F}
+
+hd_pressure <- data.frame(
+  region_id = 1,
+  year = 2020,
+  pressure_score = 0
+)
+
+# Save to output file 
+write_csv(hd_pressure, file.path(dir_prs, "output/hd_pressure.csv"))
+```
+
+## Save to Toolbox 
+
+```{r save-to-toolbox, eval=F}
+hd_pressure <- read_csv(file.path(dir_prs, "output/hd_pressure.csv"))
+
+write_csv(hd_pressure, file.path(dir_scores, "layers/hd_pressure.csv"))
+```
+
