@@ -62,7 +62,7 @@ inv_spp <- inv_spp_raw %>%
   summarize(total_spp = sum(presence)) 
 
 inv_score <- inv_spp %>% 
-  mutate(pressure_score = total_spp / 18,
+  mutate(pressure_score = total_spp / 17,
          region_id = 1) %>% 
   dplyr::select(region_id, year, pressure_score)
 
