@@ -137,6 +137,6 @@ score2 <- spp_status %>%
 ## Overall score for this method 80.1
 
 # Save to output folder 
-write_csv(score2, file.path(dir_goal, "output/spp_status.csv"))
+write_csv(score2, file.path(dir_goal, "output/spp_status_gl.csv"))
 ```
 
