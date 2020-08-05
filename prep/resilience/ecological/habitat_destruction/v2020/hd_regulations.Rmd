@@ -1,0 +1,70 @@
+---
+title: 'OHI+ Palmyra 2020: Habitat Regulations Resilience Layer'
+author: "*Compiled on `r date()` by `r Sys.info()['user']`*"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 3 
+    toc_float: yes
+    number_sections: false
+    theme: cerulean
+    highlight: haddock
+    includes: 
+     in_header: '../../../src/templates/ohi_hdr.html' 
+  pdf_document:
+    toc: true
+---
+
+# Summary 
+
+Regulatory resilience is meant to describes the institutional measures (e.g., rules, regulations, and laws) designed to address ecological pressures. This script calculates resilience from regulations protecting marine and terrestrial habitats on Palmyra Atoll.   
+
+# Data 
+
+Data to inform the preparation of these layers was obtained through verbal communications with Alex Wegmann of The Nature Conservancy on July 31, 2020.  
+
+# Setup 
+
+```{r setup, message = F, warning = F}
+knitr::opts_chunk$set(echo = FALSE)
+
+library(tidyverse)
+library(here)
+
+# Source and set file paths
+source(here('src/R/common.R'))
+
+dir_res   <- '~/github/pal-prep/prep/resilience/ecological/habitat_destruction/v2020'
+dir_lsp   <- '~/github/pal-prep/prep/sp/lsp/v2020'
+dir_fp    <-  '~/github/pal-prep/prep/resilience/ecological/fishing_pressure/v2020'
+```
+
+
+# Methods 
+
+## Protected Areas
+
+One regulatory mechanism to boost resilience to habitat destruction is designation of protected areas. The percent of protected areas is calculated as part of the Lasting Special Places sub-goal of the Sense of Place goal. For habitat destruction, we will average the scores for terrestrial and marine areas.    
+
+```{r protected-areas, eval=F}
+
+# Get offshore and inland LSP status scores 
+offshore <- read_csv(file.path(dir_lsp, "output/offshore_status.csv")) %>% 
+  mutate(dimension = "offshore")
+
+inland   <- read_csv(file.path(dir_lsp, "output/inland_status.csv")) %>% 
+  mutate(dimension = "inland")
+
+# Use the average of the inland/offshore score for habitat destruction 
+hd_pa <- offshore %>% 
+  rbind(inland) %>% 
+  group_by(year) %>% 
+  summarize(status = mean(status)) %>% 
+  filter(year >= 2014) %>% 
+  mutate(region_id = 1) %>% 
+  dplyr::select(region_id, year, score = status)
+
+# Save files to output folder
+write_csv(hd_pa, file.path(dir_res, "output/hd_reg.csv"))
+```
+

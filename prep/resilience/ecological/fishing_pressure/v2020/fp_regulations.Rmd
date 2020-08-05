@@ -1,0 +1,61 @@
+---
+title: 'OHI+ Palmyra 2020: Fishing Regulations Resilience Layer'
+author: "*Compiled on `r date()` by `r Sys.info()['user']`*"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 3 
+    toc_float: yes
+    number_sections: false
+    theme: cerulean
+    highlight: haddock
+    includes: 
+     in_header: '../../../src/templates/ohi_hdr.html' 
+  pdf_document:
+    toc: true
+---
+
+# Summary 
+
+Regulatory resilience is meant to describes the institutional measures (e.g., rules, regulations, and laws) designed to address ecological pressures. This script calculates resilience from regulations on fishing activities on Palmyra Atoll.   
+
+# Data 
+
+Data to inform the preparation of these layers was obtained through verbal communications with Alex Wegmann of The Nature Conservancy on July 31, 2020.  
+
+# Setup 
+
+```{r setup, message = F, warning = F}
+knitr::opts_chunk$set(echo = FALSE)
+
+library(tidyverse)
+library(here)
+
+# Source and set file paths
+source(here('src/R/common.R'))
+
+dir_res   <- '~/github/pal-prep/prep/resilience/ecological/fishing_pressure/v2020'
+dir_lsp   <- '~/github/pal-prep/prep/sp/lsp/v2020'
+```
+
+
+# Methods 
+
+## Protected Areas
+
+One regulatory mechanism to boost resilience to fishing pressures is designation of protected areas. The percent of protected areas is calculated as part of the Lasting Special Places sub-goal of the Sense of Place goal. For fishing pressure, only marine protected areas are included.  
+
+```{r protected-areas, eval=F}
+# Get offshore and inland LSP status scores 
+offshore <- read_csv(file.path(dir_lsp, "output/offshore_status.csv")) %>% 
+  mutate(dimension = "offshore")
+
+# Use the offshore score for fishing pressure (only need years 2014-2020)
+fp_mpa <- offshore %>% 
+  filter(year >= 2014) %>% 
+  dplyr::select(region_id, year, score = status)
+
+# Save files to output folder
+write_csv(fp_mpa, file.path(dir_res, "output/fp_reg.csv"))
+```
+
