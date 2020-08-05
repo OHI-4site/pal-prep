@@ -1,0 +1,72 @@
+---
+title: 'OHI+ Palmyra 2020: Clean Waters Goal Soil Contamination Trend'
+author: "*Compiled on `r date()` by `r Sys.info()['user']`*"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 2 
+    toc_float: yes
+    number_sections: false
+    theme: cerulean
+    highlight: haddock
+    includes: 
+     in_header: '../../../src/templates/ohi_hdr.html' 
+  pdf_document:
+    toc: true
+---
+
+# Summary
+
+This script calculates a trend for soil contamination as part of the Clean Water goal. Contamination sources are remnants of military action on the island during World War II. Based on the minimal change in current status from 2008 to 2010, we are assuming that there has been no change in contamination levels. Therefore, a trend of 0 will be used until additional information is obtained. A new study is underway to measure soil contamination on Palmyra Atoll. Once this study is completed, this new data can be used to update the current status as well as to inform a trend.  
+
+# Data
+
+Data to inform this layer comes from an elemental soil contamination study completed by U.S. Geological Survey at sites on Palmyra Atoll in 2008 and 2010. Data was published in 2017 and can be accessed [here](https://www.sciencebase.gov/catalog/item/5925b2cae4b0b7ff9fb3ca3d).  
+
+Date Downloaded: July 28, 2020   
+
+Citation: Struckhoff, M.A., Papoulias, D.M., Orazio, C.E., Annis, M.L., Shaver, D.K. and Tillitt, D.E., 2017, Geospatial data of elemental contamination at Palmyra Atoll, 2008 and 2010: U.S. Geological Survey data release, https://doi.org/10.5066/F74F1P00   
+
+# Setup
+
+```{r setup, message = F, warning = F}
+knitr::opts_chunk$set(echo = FALSE)
+
+library(tidyverse)
+library(sf)
+library(janitor)
+library(ggplot2)
+library(RColorBrewer)
+library(here)
+
+# Source and set file paths
+source(here('src/R/common.R'))
+
+dir_goal   <- '~/github/pal-prep/prep/cw/v2020'
+```
+
+
+# Methods
+
+## Create Trend
+
+As discussed above, our best estimate for a trend is currently zero. Here we will create the layer the toolbox needs to run using a trend of zero.  
+
+```{r create-trend, eval=F}
+
+sc_trend <- data.frame(
+  region_id = 1, 
+  year = 2020, 
+  trend = 0
+)
+
+# Save to output folder
+write_csv(sc_trend, file.path(dir_goal, "output/sc_trend.csv"))
+```
+
+## Save to Toolbox
+
+```{r save-to-toolbox, eval=F}
+write_csv(sc_trend, file.path(dir_scores, "layers/sc_trend.csv"))
+```
+
