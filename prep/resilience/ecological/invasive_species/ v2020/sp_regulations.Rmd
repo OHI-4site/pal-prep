@@ -1,0 +1,76 @@
+---
+title: 'OHI+ Palmyra 2020: Invasive Species Regulations Resilience Layer'
+author: "*Compiled on `r date()` by `r Sys.info()['user']`*"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 3 
+    toc_float: yes
+    number_sections: false
+    theme: cerulean
+    highlight: haddock
+    includes: 
+     in_header: '../../../src/templates/ohi_hdr.html' 
+  pdf_document:
+    toc: true
+---
+
+# Summary 
+
+Regulatory resilience is meant to describes the institutional measures (e.g., rules, regulations, and laws) designed to address ecological pressures. This script calculates resilience from regulations in place to protect against invasive species on Palmyra Atoll. Scores are assigned based on regulations established to prevent the spread of invasive species in each major pathway of potential spread.    
+
+# Data 
+
+Data to inform the preparation of this layer comes from the "Existing Non-Native Species Laws, Policies, Protocols" section of the 2010 Palmyra Biosecurity Plan.  
+
+Citation: Hathaway, S.A. and Fisher, R.N. (2010). Biosecurity Plan for Palmyra Atoll: U.S. Geological Survey Open-File Report 2010-1097, 80p.  
+   Available [here](https://pubs.er.usgs.gov/publication/ofr20101097)   
+
+
+# Setup 
+
+```{r setup, message = F, warning = F}
+knitr::opts_chunk$set(echo = FALSE)
+
+library(tidyverse)
+library(here)
+
+# Source and set file paths
+source(here('src/R/common.R'))
+
+dir_res   <- '~/github/pal-prep/prep/resilience/ecological/invasive_species/v2020'
+```
+
+
+# Methods 
+
+## Resilience Score 
+
+Appendix 1 of the Palmyra Biosecurity Plan identifies pathways for non-native species introduction relevant to Palmyra as aircrafts, cargo ships and their contents.  
+
+The Palmyra Atoll Biosecurity Plan establishes a series of rules for aircrafts, vessels, cargo, and passengers arriving at the island to prevent the spread of invasive species. Additionally, although Palmyra is not part of Hawai'i, most planes and vessels arriving at the island originate in Hawai'i. Regulations on ballast water for vessels in Hawai'i will help prevent the spread of invasive species in Palmyra. 
+
+Because of these regulations established in 2010, the resilience score will be 1 from 2014 - 2020.  
+
+```{r reg-resilience-score, eval=F}
+
+years <- 2014:2020 
+
+sp_reg <- data.frame(
+  region_id = rep(1, length(years)),
+  year = years,
+  resilience_score = rep(1, length(years))
+)
+
+# Save to output folder
+write_csv(sp_reg, file.path(dir_res, "output/sp_reg.csv"))
+```
+
+## Save to Toolbox
+
+```{r save-to-toolbox, eval=F}
+write_csv(sp_reg, file.path(dir_scores, "layers/sp_reg.csv"))
+```
+
+
+
