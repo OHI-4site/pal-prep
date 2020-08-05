@@ -64,6 +64,7 @@ inv_spp <- inv_spp_raw %>%
 inv_score <- inv_spp %>% 
   mutate(pressure_score = total_spp / 17,
          region_id = 1) %>% 
+  filter(year >= 2014) %>% 
   dplyr::select(region_id, year, pressure_score)
 
 # Save to output file
@@ -74,7 +75,7 @@ write_csv(inv_score, file.path(dir_prs, "output/inv_spp_pressure.csv"))
 ## Save to Toolbox
 
 ```{r save-to-toolbox, eval=F}
-
+write_csv(inv_score, file.path(dir_scores, "layers/inv_spp_pressure.csv"))
 ```
 
 
