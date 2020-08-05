@@ -1,0 +1,65 @@
+---
+title: 'OHI+ Palmyra 2020: Ecosystem Resilience'
+author: "*Compiled on `r date()` by `r Sys.info()['user']`*"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 3 
+    toc_float: yes
+    number_sections: false
+    theme: cerulean
+    highlight: haddock
+    includes: 
+     in_header: '../../../src/templates/ohi_hdr.html' 
+  pdf_document:
+    toc: true
+---
+
+# Summary 
+
+Ecosystem resilience is meant to address the integrity of ecosystems. Ecosystem integrity, e.g., food web integrity, is estimating the relative condition of assessed species. Ecosystems that are more intact and support higher biodiversity are more likely to be resilient to ecological pressures. This script calculates ecosystem resilience using the Species sub-goal score. 
+
+# Data 
+
+Species biodiversity is calculated using the 50 nm Pacific Marine National Monument boundary. Methods and data used to obtain the species sub-goal score can be found in data prep scripts in `pal-prep/prep/bd/spp` or in the Methods document.    
+
+# Setup 
+
+```{r setup, message = F, warning = F}
+knitr::opts_chunk$set(echo = FALSE)
+
+library(tidyverse)
+library(here)
+
+# Source and set file paths
+source(here('src/R/common.R'))
+
+dir_res   <- '~/github/pal-prep/prep/resilience/ecological/ecosystem/v2020'
+dir_spp   <- '~/github/pal-prep/prep/bd/spp/v2020'
+```
+
+
+# Methods 
+
+## Resilience Score 
+
+The resilience score will use the same score as species status, calculated in the `3_spp_status.Rmd` script.  
+
+```{r eco-res-score, eval=F}
+# Use the same status score as the toolbox (for now)
+spp_status <- read_csv(file.path(dir_spp, "output/spp_status.csv")) 
+
+# Create new resilience layer 
+eco_spp <- spp_status %>% 
+  rename(resilience_score = status)
+
+# Save to output folder
+write_csv(eco_spp, file.path(dir_res, "output/eco_spp_diversity.csv"))
+```
+
+## Save to Toolbox 
+
+```{r save-to-toolbox, eval=F}
+write_csv(eco_spp, file.path(dir_scores, "layers/eco_spp_diversity.csv"))
+```
+
