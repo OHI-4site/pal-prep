@@ -17,7 +17,7 @@ output:
 
 # Summary 
 
-Regulatory resilience is meant to describes the institutional measures (e.g., rules, regulations, and laws) designed to address ecological pressures. This script calculates resilience from regulations protecting marine and terrestrial habitats on Palmyra Atoll. Activities which would lead to habitat destruction, such as bottom trawling or deforestation, are prohibited in areas desginated as protected.    
+Regulatory resilience is meant to describes the institutional measures (e.g., rules, regulations, and laws) designed to address ecological pressures. This script calculates resilience from regulations protecting marine and terrestrial habitats on Palmyra Atoll. Activities which would lead to habitat destruction, such as bottom trawling or deforestation, are prohibited in areas designated as protected.    
 
 # Data 
 
