@@ -17,7 +17,7 @@ output:
 
 # Summary 
 
-Regulatory resilience is meant to describes the institutional measures (e.g., rules, regulations, and laws) designed to address ecological pressures. This script calculates resilience from regulations on fishing activities on Palmyra Atoll.   
+Regulatory resilience is meant to describes the institutional measures (e.g., rules, regulations, and laws) designed to address ecological pressures. This script calculates resilience from regulations on fishing activities on Palmyra Atoll. Primary regulations on fishing actvities come from the designation of marine areas as protected, which prohibits fishing within these areas.     
 
 # Data 
 
