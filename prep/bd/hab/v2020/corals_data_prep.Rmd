@@ -62,7 +62,7 @@ The following zones are grouped together to form the four major reef zone of int
  - Fore Reef: Bank/Shelf and Bank/Shelf Escarpment      
  - Lagoon: Lagoon and Channel   
 
-The fore reef is reassigned to part of the reef crest to better reflect the position of those data points on the reef. The Bank/Shelf and Bank/Shelf Escarpment are then grouped together and renamed as the fore reef with an additional designation to differentiate the western fore reef and the eastern fore reef. 
+The fore reef is reassigned to part of the reef crest to better reflect the position of those data points on the reef. The Bank/Shelf and Bank/Shelf Escarpment are then grouped together and renamed as the fore reef with an additional designation to differentiate the western fore reef and the eastern fore reef. These groupings follow the zones delineated by NOAA in the Coral Reef Ecosystems Monitoring Report for the Pacific Remote Islands Marine National Monument, available [here](https://repository.library.noaa.gov/view/noaa/23421).   
 
 Using these groupings, the total number of observations in each zone are:   
 
@@ -83,7 +83,6 @@ coral_map <- hab_map %>%
   dplyr::select(zone, p_coral_cv, area)
 
 plot(coral_map)
-
 
 # Extract the percent coral cover for each zone 
 zones <- coral_map %>% 
@@ -133,7 +132,7 @@ fore_zones <- fore %>%
 
 # Check zones are correct
 ggplot() + 
-  geom_sf(data = fore_zones, aes(fill = zone)) # The long N/S are split evenly so that should be fine
+  geom_sf(data = fore_zones, aes(fill = p_coral_cv)) # The long N/S are split evenly so that should be fine
 
 ## Combine back into the coral zones data frame 
 zones_final <- zones %>% 
@@ -147,10 +146,73 @@ st_write(zones_final, file.path(dir_goal, "int/coral_zones.shp"), driver = 'ESRI
 write_csv(zones_final, file.path(dir_goal, "int/coral_zones.csv"))
 ```
 
-
 ## Calculate Coral Status
 
-Calculate the average cover category by zone. Reference points for coral cover zones are:   
+Reference points for coral cover zones are:   
+
+ - Back Reef:  10-50% (2) 
+ - Reef Crest: 10-50% (2)   
+ - Fore Reef:  50-90% (3)  
+ - Lagoon:     10-50% (2)   
+ 
+Coral reef status is first calculated for each zone. The status is calculated as the area of the reef zone falling within or above the reference point category divided by the total area of the reef zone, as in the following equation:  
+
+$status_{zone}~=~ref_{area}~/~total_{area}$   
+
+Where $ref_{area}$ is the area of the reef zone falling within or above the reference point category and $total_{area}$ is the total area of the reef zone.   
+
+The overall status score is calculated as the area weighted mean of the status score for each zone. 
+ 
+```{r calc-status, eval=F}
+zones <- read_csv(file.path(dir_goal, "int/coral_zones.csv"))
+
+# Define reference point categories
+ref_back  <- 2
+ref_crest <- 2
+ref_fore  <- 3
+ref_lag   <- 2
+
+# Total area for each zone
+tot_areas <- zones %>% 
+  group_by(zone) %>% 
+  summarize(tot_area_km = sum(area) * 0.000001)
+
+# Area in each zone where cover_cat = ref, or cover_cat > ref
+zone_area <- zones %>% 
+  mutate(area_km = area * 0.000001) %>% 
+  group_by(zone) %>%
+  mutate(ref = case_when(zone == "Back Reef" ~ ref_back,
+                         zone == "Reef Crest" ~ ref_crest,
+                         zone == "Fore Reef West" ~ ref_fore,
+                         zone == "Fore Reef East" ~ ref_fore,
+                         zone == "Lagoon" ~ ref_lag)) %>% 
+  filter(ref == cover_cat | cover_cat > ref) %>% 
+  group_by(zone) %>% 
+  summarize(area_km = sum(area_km)) %>% 
+  left_join(tot_areas, by = "zone")
+
+# Find the status
+coral_status <- zone_area %>% 
+  mutate(status = area_km / tot_area_km,
+         region_id = 1, 
+         year = 2020, 
+         habitat = "coral") %>% 
+  dplyr::select(region_id, habitat, year, zone, area_km = tot_area_km, status)
+
+# Save to output
+write_csv(coral_status, file.path(dir_goal, "output/coral_status.csv"))
+```
+
+
+## Save to Toolbox 
+
+```{r save-to-toolbox, eval=F}
+write_csv(coral_status, file.path(dir_scores, 'layers/hab_coral_status.csv'))
+```
+
+## Old Method
+
+Reference points for coral cover zones are:   
 
  - Back Reef:  10-50% (2) 
  - Reef Crest: 10-50% (2)   
@@ -209,10 +271,4 @@ coral_status <- zone_n %>%
 
 # Save to output for use in coastal protection data prep
 write_csv(coral_status, file.path(dir_goal, "output/coral_status.csv"))
-```
-
-## Save to Toolbox 
-
-```{r save-to-toolbox, eval=F}
-write_csv(coral_status, file.path(dir_scores, 'layers/hab_coral_status.csv'))
 ```
