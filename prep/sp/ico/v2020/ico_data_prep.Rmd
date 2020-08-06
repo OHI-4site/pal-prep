@@ -298,16 +298,43 @@ pop_cat <- data.frame(cat       = c("LC", "NT", "VU", "EN", "CR", "EX", "T", "CD
                       stringsAsFactors = FALSE)
 
 # Join the scores to the tidy raw data
-ico_assess <- raw_assess_tidy %>% 
+assess_scores <- raw_assess_tidy %>% 
   left_join(pop_cat, by = "cat") %>% 
-  filter(!is.na(cat_score)) %>%
   distinct() %>%
   arrange(iucn_sid, year)
-
-# Save cleaned assessment data to the int folder
-write_csv(ico_assess, file.path(dir_goal,'int/ico_assess.csv'))
 ```
 
+## Update Category Scores 
+
+Category scores will be updated for the following species based on more localized information:  
+
+*Birgus latro* - Least Concern, coconut crabs are data deficient globally, but in Palmyra populations are protected. Palmyra supports larger populations of coconut crabs than other Pacific islands due to the lack of human populations.    
+
+Citation: Burnett, M. *et al* (2019). Tracking the world's largest land crab: Coconut crabs and habitat associations on Palmyra Atoll. Poster presented at 104th Annual Ecological Society of America Annual Meeting 2019. https://doi.org/10.7490/f1000research.1117375.1. 
+
+*Chelonia mydas* - Least Concern, populations around the Pacific Remote Islands support the greatest densities of the green sea turtle observed in the U.S. Pacific.  
+
+Citation: Brainard, R.E. *et al*. (2019). Chapter 2: Palmyra Atoll. In: Coral Reef Ecosystem Monitoring Report for the Pacific Remote Islands Marine National Monument 2000–2017. NOAA Pacific Islands Fisheries Science Center, PIFSC Special Publication, SP-19-006b, 95 p. doi:10.25923/jqrg-g258   
+
+*Galeocerdo cuvier* - Least Concern, known to occur frequently around Palmyra Atoll. 
+
+Citation: Brainard, R.E. *et al*. (2019). Chapter 9: Pacific Remote Islands Marine National Monument in the Pacific-wide Context. In: Coral Reef Ecosystem Monitoring Report for the Pacific Remote Islands Marine National Monument 2000–2017. Pacific Islands Fisheries Science Center, PIFSC Special Publication, SP-19-006i. 72 p. doi:10.25923/rwd2-2118 
+
+
+```{r update-cat-scores, eval=F}
+# IUCN ids to update status 
+update_cat <- c(2811, 4615, 39378)
+
+# Add to assessment data - update cat, cat_txt, and cat_score
+updated_assess <- assess_scores %>% 
+  mutate(cat = ifelse(iucn_sid %in% update_cat, "LC", cat),
+         cat_txt = ifelse(iucn_sid %in% update_cat, "Least Concern", cat_txt),
+         cat_score = ifelse(iucn_sid %in% update_cat, 0, cat_score)) %>% 
+  filter(!is.na(cat_score))
+  
+# Save cleaned assessment data to the int folder
+write_csv(updated_assess, file.path(dir_goal,'int/ico_assess.csv'))
+```
 
 ## Gapfill Timeseries
 

@@ -1,17 +1,23 @@
 iucn_sid,year,cat,cat_txt,cat_score
+2811,1983,LC,Least Concern,0
+2811,1986,LC,Least Concern,0
+2811,1988,LC,Least Concern,0
+2811,1990,LC,Least Concern,0
+2811,1994,LC,Least Concern,0
+2811,1996,LC,Least Concern,0
 4292,1996,VU,Vulnerable,0.4
 4292,2000,VU,Vulnerable,0.4
 4292,2009,VU,Vulnerable,0.4
 4292,2019,EN,Endangered,0.6
 4592,1996,VU,Vulnerable,0.4
 4592,2004,EN,Endangered,0.6
-4615,1982,EN,Endangered,0.6
-4615,1986,EN,Endangered,0.6
-4615,1988,EN,Endangered,0.6
-4615,1990,EN,Endangered,0.6
-4615,1994,EN,Endangered,0.6
-4615,1996,EN,Endangered,0.6
-4615,2004,EN,Endangered,0.6
+4615,1982,LC,Least Concern,0
+4615,1986,LC,Least Concern,0
+4615,1988,LC,Least Concern,0
+4615,1990,LC,Least Concern,0
+4615,1994,LC,Least Concern,0
+4615,1996,LC,Least Concern,0
+4615,2004,LC,Least Concern,0
 13006,1965,T,"""Less rare but believed to be threatened-requires watching""",0.6
 13006,1986,EN,Endangered,0.6
 13006,1988,EN,Endangered,0.6
@@ -34,9 +40,9 @@ iucn_sid,year,cat,cat_txt,cat_score
 39341,2000,NT,Lower Risk/near threatened,0.2
 39341,2009,VU,Vulnerable,0.4
 39341,2019,EN,Endangered,0.6
-39378,2000,NT,Lower Risk/near threatened,0.2
-39378,2009,NT,Near Threatened,0.2
-39378,2019,NT,Near Threatened,0.2
+39378,2000,LC,Least Concern,0
+39378,2009,LC,Least Concern,0
+39378,2019,LC,Least Concern,0
 39381,2000,NT,Lower Risk/near threatened,0.2
 39381,2009,NT,Near Threatened,0.2
 39381,2019,NT,Near Threatened,0.2
