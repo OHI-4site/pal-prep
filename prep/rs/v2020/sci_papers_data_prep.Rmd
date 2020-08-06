@@ -21,7 +21,9 @@ This script calculates the status of scientific research conducted on Palmyra At
 
 # Data 
 
-Data for this layer was shared by Alex Wegmann at The Nature Conservancy on June 17, 2020. The scientific library data sheet is a list of scientific publications concerning natural resources on Palmyra Atoll.        
+Data for this layer was shared by Alex Wegmann at The Nature Conservancy on June 17, 2020. The scientific library data sheet is a list of scientific publications concerning natural resources on Palmyra Atoll.    
+
+As the scientific library is not comprehensive, an additional search was done on Google Scholar for papers in 2016, 2018, and 2019. Any number of papers published over 10 would receive the same score, so publications were only recorded to bring the total number up to 10 in each year.  
 
 # Setup
 
@@ -91,11 +93,32 @@ write_csv(sci_lib_years, file.path(dir_goal, "int/sci_lib.csv"))
 
 sci_lib <- read_csv(file.path(dir_goal, "int/sci_lib.csv"))
 
-pubs_year <- sci_lib %>% 
+initial_pubs_year <- sci_lib %>% 
   group_by(year_published) %>% 
   tally() %>% 
   rename(publications = n,
          year = year_published)
+
+```
+
+## Add Additional Publications 
+
+```{r additional-publications, eval=F}
+# Get the additional publications data
+add_pubs <- read_csv(file.path(dir_anx, "_raw_data/manually_created/added_publications.csv"))
+
+# Find additional publications by year 
+add_pubs_yr <- add_pubs %>% 
+  group_by(year_published) %>% 
+  tally() %>% 
+  rename(year = year_published,
+         publications = n)
+
+# Combine with original publication data 
+pubs_year <- initial_pubs_year %>% 
+  rbind(add_pubs_yr) %>% 
+  group_by(year) %>% 
+  summarize(publications = sum(publications))
 
 # Save to int folder
 write_csv(pubs_year, file.path(dir_goal, "int/pubs_year.csv"))
@@ -120,7 +143,7 @@ ref_point <- 10
 
 # Need to repeat year 2019 for 2020
 pubs_2020 <- data.frame(year = 2020,
-                        publications = 1)
+                        publications = 11)
 
 # Calculate status 
 sci_status <- pubs_year %>% 
