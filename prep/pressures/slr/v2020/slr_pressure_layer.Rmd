@@ -63,11 +63,12 @@ library(doParallel)
 library(fasterize)
 library(rasterVis)
 library(animation)
+library(here)
 
 # Source and set file paths
 source(here('src/R/common.R'))
 
-dir_git       <- '~/github/pal-prep' # Path to the pal-prep github directory
+dir_prs <- '~/github/pal-prep/prep/pressures/slr/v2020'
 
 ```
 
@@ -79,7 +80,7 @@ dir_git       <- '~/github/pal-prep' # Path to the pal-prep github directory
 
 We don't need to download the data from the AVISO website because it's already been downloaded for the most recent year of global. So we can just grab the NetCDF files from the global folder.
 
-```{r read_files}
+```{r read-files, eval=F}
 
 ## d2016/msla_monthly_mean has data for 1993-2015
 ## Then include list.files for d2017 through the data folder for current scenario year
@@ -100,9 +101,9 @@ slr_nc_files <- slr_nc_files[-1:-2] # Double check this, but since the first two
 
 A peek into what the monthly data looks like
 
-```{r explore_monthly}
+```{r explore-monthly, eval=F}
 
-plot(raster(slr_nc_files[3]), col = cols, axes = F, 
+plot(raster(slr_nc_files[1]), col = cols, axes = F, 
      main = paste("Year", substr(slr_nc_files[3], 90, 93), "Month", substr(slr_nc_files[3], 96, 97)))
 
 ```
@@ -115,7 +116,7 @@ The following code is used to:
 1. Rasterize each monthly NetCDF file
 2. Rotate each raster so that the Atlantic Ocean is centered in the raster, and changes the extent from 0 to 360 to -180 to 180, which is needed when using wgs or us_albers projections/extents
 
-```{r rasterize_monthly, results = 'hide'}
+```{r rasterize-monthly, results = 'hide'}
 
 ## Created 'msla_annual_mean', 'msla_annual_us_albers', 'msla_annual_us_albers_coastal', and 'msla_monthly' folders in 'int'
 
@@ -123,19 +124,19 @@ registerDoParallel(10)
 
 ## Parallel forloop function that rotates each monthly file, sets the long/lat projection, and keeps only coastal cells - saved to GitHub
 foreach(file = slr_nc_files) %dopar% {
+  #file = slr_nc_files[5]
   
   m_yr <- substr(file, nchar(file)-10, nchar(file)-3) 
   
   ## Read in month raster
-  r <- raster(file) %>% 
+  r <- raster::raster(file) %>% 
     rotate()
   
   ## Define projection of the raster before reprojecting; double check projection
-  
-  r <- raster::crop(r, wgs84) # Current projection is wgs84
+  r <- raster::crop(r, wgs_ext3) # Current projection is wgs84
   
   ## Write raster to int folder in prs_slr
-  fp <- sprintf("%s/dataprep/prs_slr/int/msla_monthly/msla_monthly_%s.tif", dir_anx, m_yr)
+  fp <- sprintf("%s/int/msla_monthly/msla_monthly_%s.tif", file.path(dir_anx, "dataprep/prs_slr"), m_yr)
   writeRaster(r, filename = fp, overwrite = TRUE)
 }
 
@@ -146,7 +147,7 @@ foreach(file = slr_nc_files) %dopar% {
 
 Annual mean sea level anomaly rasters are calculated from the monthly data.
 
-```{r calc_annual_mean, results='hide'}
+```{r calc-annual-mean, results='hide'}
 
 msla_files <- list.files(sprintf("%s/dataprep/prs_slr/int/msla_monthly", dir_anx), 
                          full.names = TRUE)
@@ -171,7 +172,7 @@ foreach(yr = c(1993:maxyr)) %dopar% {
 
 Since we are only interested in the increase in sea level near the coasts, we apply a mask to the raster layers that removes all cells farther than 3nm offshore. This mask was created previously for another part of this assessment. We also reproject to US Albers.
 
-```{r projection_masking, results = 'hide'}
+```{r projection-masking, results = 'hide'}
 
 ## 3nm offshore raster to select only nearshore cells
 three_nm <- raster(file.path(dir_git, "spatial/rasters/ocean_ras3nm_100m.tif"))
@@ -201,7 +202,7 @@ plot(raster(file.path(dir_anx, "dataprep/prs_slr/int/msla_annual_us_albers_coast
 
 We are using a reference point 1.1 times larger than the maximum value in Palmyra from 1993-2019. The current maximum value is unlikely to be the future max, and setting this reference point allows for an increase in sea level rise pressure into the future.
 
-```{r reference_point}
+```{r reference-point}
 
 coastal_rasts <- list.files(file.path(dir_anx, "dataprep/prs_slr/int/msla_annual_us_albers_coastal"), pattern = "tif", full.names = TRUE)
 
@@ -247,7 +248,7 @@ foreach(file = coastal_rasts) %dopar% { # file = coastal_rasts[10]
 
 # Results
 
-```{r gif_results}
+```{r gif-results}
 
 coastal_rasts <- list.files(file.path(dir_anx, 'dataprep/prs_slr/output/msla_rescaled'), full.names = T) %>%
                            stack()
@@ -273,7 +274,7 @@ animation::saveGIF({
 
 Extract data for each region
 
-```{r extract_regional_data, results = 'hide'}
+```{r extract-regional-data, results = 'hide'}
 
 ## Read in raster files
 pressure_stack <- lapply(list.files(file.path(dir_anx, 'dataprep/prs_slr/output/msla_rescaled'), full.names=T), raster) %>%
@@ -293,7 +294,7 @@ slr_data_int <- data %>%
 
 Extract data for the region as a whole
 
-```{r extract_region_data}
+```{r extract-region-data}
 
 ## Read in raster files
 pressure_stack <- lapply(list.files(file.path(dir_anx, 'dataprep/prs_slr/output/msla_rescaled'), full.names=T), raster) %>%
@@ -327,7 +328,7 @@ write.csv(slr_data, file.path("~/github/pal-scores/region/layers/cc_slr.csv"), r
 
 ## 2019 scores
 
-```{r map_scores}
+```{r map-scores}
 
 last_year <- slr_data %>%
   filter(year==2019,
@@ -341,7 +342,7 @@ map_scores(last_year, score_var = last_year$pressure_score, scale_label = "Press
 
 ## Visualize through time
 
-```{r graph_scores_overtime}
+```{r graph-scores-overtime}
 
 slr_overtime <-ggplot(slr_data)+
   geom_line(aes(x=year, y = pressure_score, color=rgn_name))+
