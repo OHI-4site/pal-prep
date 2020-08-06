@@ -1,0 +1,87 @@
+---
+title: 'OHI+ Palmyra 2020: Climate Change Management Resilience Layer'
+author: "*Compiled on `r date()` by `r Sys.info()['user']`*"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 3 
+    toc_float: yes
+    number_sections: false
+    theme: cerulean
+    highlight: haddock
+    includes: 
+     in_header: '../../../src/templates/ohi_hdr.html' 
+  pdf_document:
+    toc: true
+---
+
+# Summary 
+
+Regulatory resilience is meant to describe the institutional measures (e.g., rules, regulations, and laws) designed to address ecological pressures. This script calculates resilience from management strategies to combat climate change impacts on Palmyra Atoll.     
+
+# Data 
+
+Data to inform the preparation of these layers come from The Nature Conservancy's "Climate Adaptation and Resilience Laboratory at Palmyra Atoll". The draft document was provided to us by Alex Wegmann of The Nature Conservancy on July 31, 2020.  
+
+Citation: The Nature Conservancy. (2019). Climate Adaptation + Resilience Laboratory at Palmyra Atoll Version 3. 
+
+# Setup 
+
+```{r setup, message = F, warning = F}
+knitr::opts_chunk$set(echo = FALSE)
+
+library(tidyverse)
+library(here)
+
+# Source and set file paths
+source(here('src/R/common.R'))
+
+dir_res   <- '~/github/pal-prep/prep/resilience/ecological/climate_change/v2020'
+```
+
+
+# Methods 
+
+## Management 
+
+A resilience layer is created for management of offshore and inland areas based on three criteria:  
+
+ - Is there a management plan in place?  
+ - Is there monitoring and assessment?   
+ - Is the management plan effective?  
+ 
+A yes will be assigned a value of 1, in-development will be assigned a value of 0.5, a no will be assigned a value of 0. The final score will be the sum over 3. The status is assigned based on information contained in the Climate Adaptation and Resilience Laboratory report and additional information from Alex Wegmann at The Nature Conservancy.     
+
+The 2019 report outlines threats to terrestrial and marine systems from climate change. The report includes a four year science strategy to strengthen the resilience of Palmyra's ecosystems to global and anthropogenic stressors including methods for monitoring long-term change. Further, the report includes milestones which will serve as points to evaluate effectiveness. However, since the program is in its first year of implementation we will assign the effective category a score of 0.5. 
+
+| Category         | Response         | Score | 
+|------------------|------------------|-------|
+| Management Plan? | Yes              | 1     |
+| Monitoring?      | Yes              | 1     |
+| Effective?       | Yes              | 0.5   |   
+
+The plan was established in 2019 so for years before 2019, an in-development score of 0.5 will be assigned to the management plan category. Since monitoring of the marine environment for climate variables like ocean acidification and sea surface temperature, has been ongoing since 2000, the monitoring category score will remain 1.         
+
+```{r management, eval=F}
+# Pre 2019 scores 
+mgmt_14 <- data.frame(
+  region_id = rep(1, 5),
+  year = c(2014:2018),
+  resilience_score = rep(2/3, 5)
+)
+
+# 2019 and 2020 scores 
+mgmt_19 <- data.frame(
+  region_id = rep(1,2), 
+  year = c(2019, 2020),
+  resilience_score = rep(2.5/3,2)
+)
+
+# Combine for overall mgmt layer 
+cc_mgmt <- mgmt_14 %>% 
+  rbind(mgmt_19)
+
+# Save output layers
+write_csv(cc_mgmt, file.path(dir_res, "output/cc_mgmt.csv"))
+```
+ 
