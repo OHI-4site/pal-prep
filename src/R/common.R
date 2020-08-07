@@ -49,6 +49,10 @@ pal_buffer_3nm <- sf::st_read(dsn = here("spatial/shapefiles"), layer = "pal_buf
 pal_shoreline <- sf::st_read(dsn = here("spatial/shapefiles"), layer = "pal_shoreline",
                               quiet=T)
 
+pal_shore_alb <- sf::st_read(dsn = here("spatial/shapefiles"), layer = "pal_shoreline",
+                             quiet=T) %>% 
+  st_transform(crs = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +datum=NAD83 +units=m +no_defs")
+
 pal_monument <- sf::st_read(dsn = here("spatial/shapefiles"), layer = "marine_monument_boundary",
                               quiet=T)
 ## Palmyra rasters
