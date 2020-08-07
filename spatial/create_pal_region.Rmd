@@ -161,17 +161,34 @@ pal %>%
 # Using mapview
 mapview(pal, zcol="id")
 ```
+# Simple Region
+
+Shapefile with just the 3 nm boundary and Palmyra shoreline      
+
+```{r rgn-simple, eval=F}
+shoreline_smpl <- st_cast(shoreline, "POLYGON")
+
+rgn_smpl <- pal_buff %>% 
+  rbind(shoreline_smpl) %>% 
+  mutate(region_id = ifelse(id=="buffer_3nm", 1, 0))
+
+plot(rgn_smpl)
+
+```
+
 
 # Check validity
 
 ```{r check-validity}
 st_is_valid(pal) # all true 
+st_is_valid(rgn_smpl) # all true
 ```
 
 # Save
 
 ```{r save}
 st_write(pal, file.path(dir_git, 'spatial/shapefiles/pal_ohi_rgn.shp'), driver = "ESRI Shapefile")
+st_write(rgn_smpl, file.path(dir_git, 'spatial/shapefiles/pal_rgn_smpl.shp'), driver = "ESRI Shapefile")
 ```
 
 
