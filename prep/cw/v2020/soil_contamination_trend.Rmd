@@ -67,6 +67,7 @@ write_csv(sc_trend, file.path(dir_goal, "output/sc_trend.csv"))
 ## Save to Toolbox
 
 ```{r save-to-toolbox, eval=F}
+sc_trend <- read_csv(file.path(dir_goal, "output/sc_trend.csv"))
 write_csv(sc_trend, file.path(dir_scores, "layers/sc_trend.csv"))
 ```
 
