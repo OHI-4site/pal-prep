@@ -1,4 +1,4 @@
-region_id,site,year,contam,c_status
+region_id,site,year,contam,status
 1,Aviation 01,2008,pb,0.001
 1,Aviation 01,2008,as,0.001
 1,Aviation 01,2008,co,0.001

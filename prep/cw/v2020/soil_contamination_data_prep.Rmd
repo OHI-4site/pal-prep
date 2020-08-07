@@ -289,7 +289,7 @@ contam_status <- contam_refs %>%
          c_status = ifelse(c_status > 1, 1, c_status), # Cap values above 1 at 1
          c_status = ifelse(c_status == 0, 0.001, c_status), # Prevent mean from going to 0
          region_id = 1) %>% 
-  dplyr::select(region_id, site, year, contam, c_status) 
+  dplyr::select(region_id, site, year, contam, status = c_status) 
 
 # Save as dataframe 
 sc_status <- as.data.frame(contam_status) %>% 
