@@ -117,7 +117,8 @@ fore <- zones %>%
   filter(zone == "Fore Reef")
 
 # Get center of each polygon, break into lat/long
-sf_cent <- st_centroid(fore) %>% 
+sf_cent <- st_centroid(fore)
+sf_cent <- sf_cent %>% 
   mutate(lat = unlist(map(sf_cent$geometry,1)),
          long = unlist(map(sf_cent$geometry,2)))
 
@@ -139,10 +140,12 @@ zones_final <- zones %>%
   filter(zone != "Fore Reef") %>% # Filter out fore reef
   rbind(fore_zones)
 
-# Save layer to int folder as shp
-st_write(zones_final, file.path(dir_goal, "int/coral_zones.shp"), driver = 'ESRI Shapefile', append=FALSE)
+# Final zones map 
+ggplot() + 
+  geom_sf(data = zones_final, aes(fill = zone))
 
-# Also save layer as csv
+# Save layer to int folder as shp and csv
+st_write(zones_final, file.path(dir_goal, "int/coral_zones.shp"), driver = 'ESRI Shapefile', append=FALSE)
 write_csv(zones_final, file.path(dir_goal, "int/coral_zones.csv"))
 ```
 
