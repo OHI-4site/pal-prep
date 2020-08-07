@@ -17,13 +17,7 @@ output:
 
 # Summary 
 
-This ocean acidification (OA) pressure layer preparation script does the following for newly available OA data:
-
-- Calculates the annual mean for all years from 1958 - 2020 
-- Rescales each annual raster layer from 0 to 1 based on a biological threshold (&#937; <= 1) and the proportional change compared to a historical mean
-- Interpolates the data to gapfill for cells where there is no data
-- Resamples the rescaled raster layer to 1km^2^ cell resolution
-- Masks the resampled data to select only those cells within the ocean
+This ocean acidification (OA) pressure layer preparation script uses the global ocean acidification data and finds an average ocean acidification pressure for Palmyra Atoll for each year from 1958 - 2020. 
 
 ***
 
@@ -71,7 +65,8 @@ library(animation)
 # Source and set file paths
 source(here('src/R/common.R'))
 
-raw_dir  <- file.path(dir_M, 'git-annex/globalprep/_raw_data') # Path to raw data held on NCEAS server, Mazu
+raw_dir <- file.path(dir_M, 'git-annex/globalprep/_raw_data') # Path to raw data held on NCEAS server, Mazu
+dir_prs <- '~/github/pal-prep/prep/pressures/oa/v2020'
 
 ```
 
@@ -79,11 +74,85 @@ raw_dir  <- file.path(dir_M, 'git-annex/globalprep/_raw_data') # Path to raw dat
 
 # Methods
 
-## Load raw data  
+## Load Processed Data
+
+Data for ocean acidification has been processed for the global assessment to give a value 0-1 for each year from 1958 - 2020. Information on how this data is processed to obtain 0-1 scores can be found [here](). 
+
+```{r load-processed-data, eval=F}
+oa_rasts <- c(list.files(file.path(dir_M, "git-annex/globalprep/prs_oa/v2017/output"),full.names=T))
+
+# Plot the 2020 data to check rasters:
+plot(raster(oa_rasts[64]), col=cols,box=F,axes=F, main = 'Rescaled Ωaragonite layer for 2020')
+```
+
+## Reproject Global Data 
+
+Reproject the global data to US Albers and crop to Palmyra's extent  
+
+```{r reproject-data, eval=F}
+
+# Only need oa rasters 2-64, these are the annual oa rasters
+oa_rast_annual <- oa_rasts[2:64]
+
+# Register 10 cores for parallel processing
+registerDoParallel(10)
+
+foreach(file = oa_rast_annual) %dopar% {
+  #file = oa_rast_annual[1]
+  
+  yr = substr(file,72,75)
+  
+  r <- raster(file)
+ 
+  rast_reproj <- projectRaster(r, ocean_rast3_100, method = 'ngb') %>% 
+          crop(usalb_ext3) %>%
+          writeRaster(., filename = paste0(file.path(dir_anx), '/dataprep/prs_oa/output/oa_rasts_us_albers/oa_', yr, '.tif'), overwrite=T)
+ 
+}
+
+# Plot 2020 raster to check:
+plot(raster(file.path(dir_anx, "dataprep/prs_oa/output/oa_rasts_us_albers/oa_2020.tif")))
+```
+
+## Extract Values 
+
+Extract values for Palmyra 
+
+```{r extract-values, eval=F}
+## Read in raster files
+pressure_stack <- lapply(list.files(file.path(dir_anx, 'dataprep/prs_oa/output/oa_rasts_us_albers'), full.names=T), raster) %>%
+  brick()
+
+# Extract data for Palmyra:
+pal_regionstats <- cellStats(pressure_stack, mean)%>% 
+  as.data.frame() %>% 
+  rename(pressure_score = ".") %>% 
+  tibble::rownames_to_column("file_name") %>% 
+  mutate(year = substr(file_name, 4, 7)) %>% 
+  select(-file_name) %>% 
+  mutate(region_id = 1, 
+         year = as.numeric(year))
+
+# Finalized data frame for pressure score:
+oa_data <- pal_regionstats %>% 
+  filter(year >= 2005) %>% 
+  dplyr::select(region_id, year, pressure_score)
+
+# Save to output folder
+write_csv(oa_data, file.path(dir_prs, "output/oa_pressure.csv"))
+```
+
+## Save to Toolbox 
+```{r save-to-toolbox, eval=F}
+write_csv(oa_data, file.path(dir_scores, "layers/cc_oa.csv"))
+```
+
+
+############### OLD GLOBAL CODE #######################
 
 NCEAS received new data from Ivan Lima at WHOI from 1958 - 2016. This is provided in a single NetCDF file and on a regular 1x1 degree grid.
 
-```{r load_data}
+```{r load-global-data, eval=F}
 
 # Read in 1958-2016 data
 raw <- stack(file.path(raw_dir, 'WHOI/cesm_co2sys_1958-2016.1x1d.nc'), varname="OARG") # Grab aragonite variable using varname
@@ -94,11 +163,11 @@ maps::map('world', col='gray95', fill=T, border='gray80', add=T)
 
 ```
 
-## Historical mean
+## Historical Mean
 
-The historical mean &#937; aragonite saturation state from 1880 - 1889 was calculated for OHI global 2015. The same raster was used for OHI global 2016 and is again used here for comparison.
+The historical mean aragonite saturation state from 1880 - 1889 was calculated for OHI global 2015. The same raster was used for OHI global 2016 and is again used here for comparison.
 
-```{r hist_mean}
+```{r hist-mean, eval=F}
 
 hist <- raster(file.path(dir_M, 'git-annex/globalprep/prs_oa/v2015/working/global_oa_1880_1889_arag_mean_moll.tif'))
 
@@ -106,34 +175,58 @@ plot(hist, main='Mean Ωaragonite 1880-1889', col=rev(cols), box=F, axes=F)
 
 ```
 
-## Create annual means
+## Create Annual Means
 
 Since this data is now on a regular grid, but the historical data from 1880-1889 was transformed previously from an irregular grid, there will be issues matching up the resolution and extent so we will need to use this historical mean raster that we created for OHI global 2015 and on, to use as a template for resampling.
 
-```{r annual_means,eval=F}
+```{r create-annual-means,eval=F}
 
 # Register 10 cores for parallel processing
 registerDoParallel(10)
 
 foreach (i = seq(1,708, by=12)) %dopar% {
-
+  i = 1
   j = i+11
   
   yr = substr(names(raw[[i]]),2,5)
   
+  # Reproject historical raster to us albers 
+  hist_alb <- projectRaster(from=hist, crs=us_alb)
+  
+  # Yearly means:
   yr_mean = raw[[i:j]] %>%
             calc(fun=function(x){mean(x, na.rm=T)}) %>%
-            rotate() %>%
-            projectRaster(ocean_rast3_100) %>% # Reproject to us_alb ocean raster
-            crop(usalb_ext3) %>% # Crop to Palmyra extent
-            resample(hist, method = 'ngb') %>%
-          writeRaster(., filename = paste0(file.path(dir_anx), 'dataprep/prs_oa/int/annual_avg_us_albers/pal_arag_avg_us_albers_', yr, '.tif'), overwrite=T)
+            rotate() %>% 
+            projectRaster(ocean_rast3_100, method = 'ngb') %>% 
+            crop(usalb_ext3) %>%
+          writeRaster(., filename = paste0(file.path(dir_anx), '/dataprep/prs_oa/int/annual_avg_us_albers/pal_arag_avg_us_albers_', yr, '.tif'), overwrite=T)
  
 }
 
+
+plot(yr_mean) 
+plot(ocean_rast3_100, add=T, col="#4566FE80")
+plot(pal_shore_alb, add=T)
+
+zonal(yr_mean, ocean_rast3_100, fun = "mean", na.rm=TRUE)
 ```
 
-```{r plot_mean_2016}
+
+OlD CODE JUST IN CASE:
+
+```{r}
+  yr_mean = raw[[i:j]] %>%
+            calc(fun=function(x){mean(x, na.rm=T)}) %>%
+            rotate() %>%
+            resample(hist, method = 'bilinear') %>%
+            projectRaster(ocean_rast3_100) %>% # Reproject to Palmyra ocean raster
+            crop(usalb_ext3) %>% #returning a blank raster
+          writeRaster(., filename = paste0(file.path(dir_anx), '/prs_oa/int/annual_avg_azimuthal/tet_arag_avg_azimuthal_', yr, '.tif'), overwrite=T)
+```
+  
+
+Check the rasters by plotting mean OA in 2016
+```{r plot-mean-2016, eval=F}
 
 # Here is the output for 2016
 r_2016 <- raster(file.path(dir_anx,'dataprep/prs_oa/int/annual_avg_us_albers/pal_arag_avg_us_albers_2016.tif'))
