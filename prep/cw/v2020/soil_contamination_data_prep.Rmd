@@ -146,8 +146,9 @@ usgs_sites <- sites %>%
 
 # Site areas
 site_area <- as.data.frame(usgs_sites) %>% 
-  dplyr::select(site, year, area_km) %>% 
-  distinct()
+  mutate(region_id = 1) %>% 
+  dplyr::select(region_id, site, year, area_km) %>% 
+  distinct() 
 
 
 # Tidy format 
@@ -342,7 +343,10 @@ status <- site_status %>%
 
 ```{r save-to-toolbox}
 sc_status <- read_csv(file.path(dir_goal, "output/sc_status.csv"))
+areas     <- read_csv(file.path(dir_goal, "int/site_areas.csv"))
+
 write_csv(sc_status, file.path(dir_scores, "layers/cw_contamination_status.csv"))
+write_csv(areas, file.path(dir_scores, "layers/cw_contamination_extent.csv"))
 ```
 
 ## Pressure Layer
