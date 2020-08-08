@@ -282,6 +282,8 @@ A status is then found for each site using a geometric mean of the status of all
 contam_refs <- st_read(file.path(dir_goal, "int"),
                 layer = "contaminant_refs")
 
+site_areas <- read_csv(file.path(dir_goal, "int/site_areas.csv"))
+
 # Find status score for each contaminant at each site 
 contam_status <- contam_refs %>% 
   mutate(c_status = ifelse(conc > lwr_lmt, 0.5, (conc / lwr_lmt) / 2), 
@@ -289,29 +291,8 @@ contam_status <- contam_refs %>%
          c_status = ifelse(c_status > 1, 1, c_status), # Cap values above 1 at 1
          c_status = ifelse(c_status == 0, 0.001, c_status), # Prevent mean from going to 0
          region_id = 1) %>% 
-  dplyr::select(region_id, site, year, contam, status = c_status) 
+  dplyr::select(region_id, site, year, contam, c_status) 
 
-# Save as dataframe 
-sc_status <- as.data.frame(contam_status) %>% 
-  dplyr::select(-geometry) %>% 
-  distinct()
-
-# Save to output folder
-write_csv(sc_status, file.path(dir_goal, "output/sc_status.csv"))
-```
-
-## Check Score 
-
-This calculation will be done in the toolbox but we will also repeat it here to preview the scores.  
-
-```{r check-scores, eval=F}
-
-# Read in the status by site 
-contam_status <- read_csv(file.path(dir_goal, "output/cs_status.csv"))
-
-# Areas by site 
-site_areas <- read_csv(file.path(dir_goal, "int/site_areas.csv"))
-  
 # Define function for geometric mean 
 geometric.mean <- function (x, na.rm = TRUE) {
     if (is.null(nrow(x))) {
@@ -320,10 +301,10 @@ geometric.mean <- function (x, na.rm = TRUE) {
     else {
       exp(apply(log(x), 2, mean, na.rm = na.rm))
     }
-  }
-  
+}
+
 # Find geometric mean of contaminant status at each site  
-site_status <- sc_status %>% 
+site_status <- contam_status %>% 
   group_by(site, year) %>% 
   summarize(s_status = geometric.mean(c_status))
 
@@ -337,16 +318,28 @@ status <- site_status %>%
   mutate(region_id = 1,
          status = 1 - value) %>% 
   dplyr::select(region_id, year, status)
+
+# The 2008 and 2010 statuses are similar, we will use 2010 as an estimate for every year 2014-2020
+# Define years and status 
+years  <- 2014:2020
+score <- status$status[2]
+
+sc_status <- data.frame(
+  region_id = rep(1, length(years)),
+  year = years, 
+  status = rep(score, length(years))
+)
+
+# Save to output folder
+write_csv(sc_status, file.path(dir_goal, "output/sc_status.csv"))
 ```
+
 
 ## Save to Toolbox 
 
 ```{r save-to-toolbox}
 sc_status <- read_csv(file.path(dir_goal, "output/sc_status.csv"))
-areas     <- read_csv(file.path(dir_goal, "int/site_areas.csv"))
-
 write_csv(sc_status, file.path(dir_scores, "layers/cw_contamination_status.csv"))
-write_csv(areas, file.path(dir_scores, "layers/cw_contamination_extent.csv"))
 ```
 
 ## Pressure Layer
@@ -358,39 +351,20 @@ Soil contamination will also be a pressure layer where higher scores indicate mo
 ```{r debris-pressure-layer, eval=F}
 sc_status <- read_csv(file.path(dir_goal, "output/sc_status.csv"))
 
-# Areas by site 
-site_areas <- read_csv(file.path(dir_goal, "int/site_areas.csv"))
-  
-# Define function for geometric mean 
-geometric.mean <- function (x, na.rm = TRUE) {
-    if (is.null(nrow(x))) {
-      exp(mean(log(x), na.rm = TRUE))
-    }
-    else {
-      exp(apply(log(x), 2, mean, na.rm = na.rm))
-    }
-  }
-  
-# Find geometric mean of contaminant status at each site  
-site_status <- sc_status %>% 
-  group_by(site, year) %>% 
-  summarize(s_status = geometric.mean(c_status))
-
-# Find pressure score - area weighted mean of site status 
-status <- site_status %>% 
-  group_by(site, year) %>% 
-  left_join(site_areas, by = c("site", "year")) %>% 
-  ungroup() %>% 
-  group_by(year) %>% 
-  summarize(pressure_score = weighted.mean(s_status, area_km)) %>% 
-  mutate(region_id = 1) %>% 
+# Find pressure score - inverse of status score 
+prs <- sc_status %>% 
+  mutate(pressure_score = 1 - status) %>% 
   dplyr::select(region_id, year, pressure_score)
+
+# Save to output
+write_csv(prs, file.path(dir_goal, "output/po_soil.csv"))
 ```
 
 ### Save Pressure to Toolbox 
 
 ```{r save-prs-toolbox, eval=F}
-
+po_soil <- read_csv(file.path(dir_goal, "output/po_soil.csv"))
+write_csv(po_soil, file.path(dir_scores, "layers/po_soil_cont.csv"))
 ```
 
 
