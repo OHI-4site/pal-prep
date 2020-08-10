@@ -35,7 +35,7 @@ library(here)
 source(here('src/R/common.R'))
 
 dir_prs   <- '~/github/pal-prep/prep/pressures/management/v2020'
-dir_mgmt  <- '~/github/pal-prep/prep/resilience/ecological/v2020'
+dir_mgmt  <- '~/github/pal-prep/prep/resilience/ecological/habitat_destruction/v2020'
 ```
 
 # Methods 
@@ -50,7 +50,8 @@ mgmt_res <- read_csv(file.path(dir_mgmt, "output/hd_mgmt.csv"))
 
 # Find the pressure score 
 mgmt_pressure <- mgmt_res %>% 
-  mutate(pressure_score = 1 - score)
+  mutate(pressure_score = 1 - score) %>% 
+  dplyr::select(-score)
 
 # Save to output folder
 write_csv(mgmt_pressure, file.path(dir_prs, "output/mgmt_pressure.csv"))
@@ -60,7 +61,6 @@ write_csv(mgmt_pressure, file.path(dir_prs, "output/mgmt_pressure.csv"))
 
 ```{r save-to-toolbox, eval=F}
 mgmt_pressure <- read_csv(file.path(dir_prs, "output/mgmt_pressure.csv"))
-
-write_csv(mgmt_pressure, file.path(dir_scores, "layers/mgmt_pressure.csv"))
+write_csv(mgmt_pressure, file.path(dir_scores, "layers/prs_mgmt.csv"))
 ```
 
