@@ -364,7 +364,7 @@ write_csv(prs, file.path(dir_goal, "output/po_soil.csv"))
 
 ```{r save-prs-toolbox, eval=F}
 po_soil <- read_csv(file.path(dir_goal, "output/po_soil.csv"))
-write_csv(po_soil, file.path(dir_scores, "layers/po_soil_cont.csv"))
+write_csv(po_soil, file.path(dir_scores, "layers/prs_po_contamination.csv"))
 ```
 
 

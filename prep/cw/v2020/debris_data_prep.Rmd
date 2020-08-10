@@ -148,6 +148,6 @@ write_csv(pressure, file.path(dir_goal, "output/po_debris.csv"))
 
 ```{r save-prs-toolbox, eval=F}
 po_debris <- read_csv(file.path(dir_goal, "output/po_debris.csv"))
-write_csv(po_debris, file.path(dir_scores, "layers/po_debris.csv"))
+write_csv(po_debris, file.path(dir_scores, "layers/prs_po_debris.csv"))
 ```
 
