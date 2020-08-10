@@ -142,7 +142,7 @@ plot(pal_interp, col=cols, box=F, axes=F, main='Interpolated cells') # Blank - m
 
 ## Check shapefile over the raster
 plot(raster(file.path(dir_anx, "dataprep/prs_oa/output/oa_rasts_us_albers/oa_2020.tif")))
-plot(pal_shore_alb, add = T)
+plot(pal_shore_alb, add = T, col = "grey")
 ```
 
 Must just be lower resolution than the shapefiles, looks like its supposed to be the land area of Palmyra, it just doesn't have the same level of detail. 
