@@ -75,7 +75,8 @@ write_csv(inv_score, file.path(dir_prs, "output/inv_spp_pressure.csv"))
 ## Save to Toolbox
 
 ```{r save-to-toolbox, eval=F}
-write_csv(inv_score, file.path(dir_scores, "layers/inv_spp_pressure.csv"))
+inv_score <- read_csv(file.path(dir_prs, "output/inv_spp_pressure.csv"))
+write_csv(inv_score, file.path(dir_scores, "layers/prs_sp_alien.csv"))
 ```
 
 
