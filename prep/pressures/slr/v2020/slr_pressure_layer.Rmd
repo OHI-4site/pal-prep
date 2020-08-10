@@ -69,6 +69,7 @@ source(here('src/R/common.R'))
 
 dir_prs    <- '~/github/pal-prep/prep/pressures/slr/v2020'
 dir_slr_gl <- file.path(dir_M, "git-annex/globalprep/prs_slr/v2020")
+
 ```
 
 ***
@@ -80,6 +81,7 @@ dir_slr_gl <- file.path(dir_M, "git-annex/globalprep/prs_slr/v2020")
 We don't need to download the data from the AVISO website because it's already been downloaded for the most recent year of global. The global assessment has also already calculated annual monthly means, which we will use as the starting point for this script.   
 
 ```{r get-annual-means, eval=F}
+
 # Annual means from 1993-2018
 slr_msla_annual_files <- list.files(file.path(dir_slr_gl, "int/msla_annual_mean"),
                        full.names = TRUE, pattern = ".tif")
@@ -87,6 +89,7 @@ slr_msla_annual_files <- list.files(file.path(dir_slr_gl, "int/msla_annual_mean"
 # Plot to check:
 plot(raster(slr_msla_annual_files[1]), col = cols, axes = F, 
      main = paste("Year", substr(slr_msla_annual_files[1], 86, 89)))
+
 ```
 
 ## Project and Mask 
@@ -119,6 +122,7 @@ foreach(file = slr_msla_annual_files) %dopar% {
 
 # Plot 2018 raster to check:
 plot(raster(file.path(dir_anx, "dataprep/prs_slr/int/msla_annual_us_albers_coastal/msla_annual_us_albers_coastal_2018.tif")))
+
 ```
 
 
@@ -238,6 +242,7 @@ slr_data <- pal_regionstats %>%
 
 # Save to output folder
 write.csv(slr_data, file.path(dir_prs, "output/slr_pressure.csv"))
+
 ```
 
 ## 2018 scores
@@ -245,6 +250,7 @@ write.csv(slr_data, file.path(dir_prs, "output/slr_pressure.csv"))
 Check the scores for 2018, the last full year of available data
 
 ```{r map-scores, eval=F}
+
 # Source the plot scores function 
 source(here('src/R/plot_scores.R'))
 
@@ -256,6 +262,7 @@ last_year <- slr_data %>%
 
 ## map_scores is a function to plot a tmap map of the scores
 map_scores(score_obj = last_year, score_var = last_year$pressure_score, scale_label = "Pressure Score", map_title = "Sea Level Rise")
+
 ```
 
 
@@ -263,7 +270,7 @@ map_scores(score_obj = last_year, score_var = last_year$pressure_score, scale_la
 
 ```{r graph-scores-overtime}
 
-slr_overtime <-ggplot(slr_data)+
+slr_overtime <- ggplot(slr_data) +
   geom_line(aes(x=year, y = pressure_score), color="dodgerblue4")+
   ggtitle("Sea Level Rise Pressure Score") +
   ylab("Score") +
@@ -280,102 +287,7 @@ ggsave(file.path(dir_prs, "figs/scores_2005-2020.png"), width=7, height=5, dpi=3
 ## Save To Toolbox
 
 ```{r save-to-toolbox, eval=F}
+
 write.csv(slr_data, file.path(dir_scores, "layers/cc_slr.csv", row.names=FALSE)
+          
 ```
-
-
-############ OLD GLOBAL CODE ############
-Delete once we confirm the above code does everything we need
-
-```{r read-files, eval=F}
-
-## d2016/msla_monthly_mean has data for 1993-2015
-## Then include list.files for d2017 through the data folder for current scenario year
-slr_nc_files <- c(list.files(file.path(dir_M, "git-annex/globalprep/_raw_data/AVISO_slr/d2020"),
-                       full.names = TRUE, pattern = ".nc"),
-              list.files(file.path(dir_M, "git-annex/globalprep/_raw_data/AVISO_slr/d2019"),
-                       full.names = TRUE, pattern = ".nc"),
-              list.files(file.path(dir_M, "git-annex/globalprep/_raw_data/AVISO_slr/d2018"),
-                       full.names = TRUE, pattern = ".nc"),
-              list.files(file.path(dir_M, "git-annex/globalprep/_raw_data/AVISO_slr/d2017"),
-                       full.names = TRUE, pattern = ".nc"),
-              list.files(file.path(dir_M, "git-annex/globalprep/_raw_data/AVISO_slr/d2016/msla_monthly_mean"),
-                      full.names = TRUE, pattern = ".nc"))
-
-slr_nc_files <- slr_nc_files[-1:-2] # Double check this, but since the first two files are zip files I am confident in removing them. However, I did grab it directly from the most recent version of global so I so still want to make sure it's correct
-
-```
-
-A peek into what the monthly data looks like
-
-```{r explore-monthly, eval=F}
-
-plot(raster(slr_nc_files[1]), col = cols, axes = F, 
-     main = paste("Year", substr(slr_nc_files[3], 90, 93), "Month", substr(slr_nc_files[3], 96, 97)))
-
-```
-
-
-## Convert .tif files into usable rasters
-
-The following code is used to:
-
-1. Rasterize each monthly NetCDF file
-2. Rotate each raster so that the Atlantic Ocean is centered in the raster, and changes the extent from 0 to 360 to -180 to 180, which is needed when using wgs or us_albers projections/extents
-
-```{r rasterize-monthly, results = 'hide'}
-
-## Created 'msla_annual_mean', 'msla_annual_us_albers', 'msla_annual_us_albers_coastal', and 'msla_monthly' folders in 'int'
-
-registerDoParallel(10)
-
-## Parallel forloop function that rotates each monthly file, sets the long/lat projection, and keeps only coastal cells - saved to GitHub
-foreach(file = slr_nc_files) %dopar% {
-  file = slr_nc_files[1]
-  
-  m_yr <- substr(file, nchar(file)-10, nchar(file)-3) 
-  
-  ## Read in month raster
-  r <- raster::raster(file) %>% 
-    rotate()
-  
-  ## Crop raster to Palmyra 3nm extent
-  r <- raster::crop(r, wgs_ext3) # Current projection is wgs84
-  
-  ## Write raster to int folder in prs_slr
-  fp <- sprintf("%s/int/msla_monthly/msla_monthly_%s.tif", file.path(dir_anx, "dataprep/prs_slr"), m_yr)
-  writeRaster(r, filename = fp, overwrite = TRUE)
-}
-
-# Plot the Jan 2018 raster to check 
-plot(raster(file.path(dir_anx, "dataprep/prs_slr/int/msla_monthly/msla_monthly_2018_m01.tif")))
-```
-
-
-## Calculate annual mean sea level anomalies
-
-Annual mean sea level anomaly rasters are calculated from the monthly data.
-
-```{r calc-annual-mean, results='hide'}
-
-msla_files <- list.files(sprintf("%s/int/msla_monthly", file.path(dir_anx, "dataprep/prs_slr")), 
-                         full.names = TRUE)
-
-maxyr <- substr(msla_files, 92, 95) %>% as.numeric() %>% max()
-
-## Stack all rasters for this year, and calculate annual mean, then write as raster
-registerDoParallel(6)
-foreach(yr = c(1993:maxyr)) %dopar% {
-  
-  files <- msla_files[str_detect(msla_files, as.character(yr))]
-  
-  rast_annual_mean <- stack(files) %>%
-    calc(mean, na.rm = TRUE) %>%
-    writeRaster(filename = sprintf("%s/int/msla_annual_mean/msla_annual_%s.tif", file.path(dir_anx, "dataprep/prs_slr"), yr), 
-                overwrite = TRUE)
-}
-
-# Plot the 2018 raster
-plot(raster(file.path(dir_anx, "dataprep/prs_slr/int/msla_annual_mean/msla_annual_2018.tif"))) 
-```
-
