@@ -42,17 +42,20 @@ dir_prs   <- '~/github/pal-prep/prep/pressures/fishing/v2020'
 
 ## Pressure Score 
 
-We will calculate the pressure score as the number of fishing days in the year over the total number of days per year for recreational fishing and for sustenence fishing. The overall pressure score is the average of these two scores. While there is very low risk of bycatch from fishing activities on Palmyra, any time there is fishing there is a potential for bycatch.    
+We will calculate the pressure score as the number of fishing days in the year over the total number of days per year for recreational fishing and for sustenence fishing. The overall pressure score is the average of these two scores. While there is very low risk of bycatch from fishing activities on Palmyra, any time there is fishing there is a potential for bycatch. Since the amount of fishing over the years is relatively consistent, we will assume the same amount of fishing pressure from 2014 - 2020.       
 
 ```{r pressure-score, eval=F}
-# Scores for recreational and sustence fishing pressures
+# Scores for recreational and sustenance fishing pressures
 rec_score <- 20/365
 sust_score <- 10/365
 
+# Years
+years <- 2014:2020
+
 fishing_pressure <- data.frame(
-  region_id = 1,
-  year = 2020,
-  pressure_score = (rec_score + sust_score) / 2
+  region_id = rep(1, length(years)),
+  year = years,
+  pressure_score = rep((rec_score + sust_score) / 2, length(years))
 )
 
 # Save to output file 
@@ -63,7 +66,6 @@ write_csv(fishing_pressure, file.path(dir_prs, "output/fishing_pressure.csv"))
 
 ```{r save-to-toolbox, eval=F}
 fishing_pressure <- read_csv(file.path(dir_prs, "output/fishing_pressure.csv"))
-
-write_csv(fishing_pressure, file.path(dir_scores, "layers/fishing_pressure.csv"))
+write_csv(fishing_pressure, file.path(dir_scores, "layers/prs_fp.csv"))
 ```
 

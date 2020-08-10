@@ -44,11 +44,14 @@ dir_prs   <- '~/github/pal-prep/prep/pressures/habitat/v2020'
 Given that there are no activities contributing to habitat destruction permitted on the island or in the offshore area, this pressure score is zero. However, we still want to include this layer as part of the overall calculation. We will create a layer with region_id, year, pressure_score (0) to save in the toolbox.   
 
 ```{r pressure-score, eval=F}
+# Years
+years <- 2014:2020
 
+# Pressure score 
 hd_pressure <- data.frame(
-  region_id = 1,
-  year = 2020,
-  pressure_score = 0
+  region_id = rep(1, length(years)),
+  year = years,
+  pressure_score = rep(0, length(years))
 )
 
 # Save to output file 
@@ -59,7 +62,6 @@ write_csv(hd_pressure, file.path(dir_prs, "output/hd_pressure.csv"))
 
 ```{r save-to-toolbox, eval=F}
 hd_pressure <- read_csv(file.path(dir_prs, "output/hd_pressure.csv"))
-
-write_csv(hd_pressure, file.path(dir_scores, "layers/hd_pressure.csv"))
+write_csv(hd_pressure, file.path(dir_scores, "layers/prs_hd.csv"))
 ```
 
