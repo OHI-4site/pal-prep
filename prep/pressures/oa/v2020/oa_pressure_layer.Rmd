@@ -17,7 +17,10 @@ output:
 
 # Summary 
 
-This ocean acidification (OA) pressure layer preparation script uses the global ocean acidification data and finds an average ocean acidification pressure for Palmyra Atoll for each year from 1958 - 2020. 
+This ocean acidification (OA) pressure layer for Palmyra Atoll is derived from a monthly raster of aragonite saturation states. The global assessment processes this data to rescale values 0-1 based on a biological threshold and the proportional change compared to a historical mean. This script starts with the rescaled raster and does the following:   
+  
+- Clips rescaled rasters to the coast using a 3 nautical mile offshore buffer   
+- Resamples raster to ~ 1km^2^ and reprojects to US Albers projection   
 
 ***
 
@@ -35,7 +38,7 @@ This ocean acidification (OA) pressure layer preparation script uses the global 
 
 **Format**: NetCDF
 
-**Citation information**: Woods Hole Oceanographic Institution. 2014 update to data originally published in: Feely, R.A., S.C. Doney, andvS.R. Cooley. 2009. Ocean acidification: Present conditions and future changes in a high-CO2 world. Oceanography 22(4):36–47
+**Citation information**: Woods Hole Oceanographic Institution. 2014 update to data originally published in: Feely, R.A., S.C. Doney, and S.R. Cooley. 2009. Ocean acidification: Present conditions and future changes in a high-CO2 world. Oceanography 22(4):36–47
 
 **Notes about the data**: This data was shared with NCEAS by Ivan Lima from Woods Hole Institute for Oceanography in July 2017. Originally, data were provided from 1958 - 2016; additional years of data up until 2020 were received from Ivan Lima. The data came as NetCDFs with a resolution of about 1 degree. The data values are monthly average surface &#937; aragonite saturation state.
 
@@ -76,7 +79,7 @@ dir_prs <- '~/github/pal-prep/prep/pressures/oa/v2020'
 
 ## Load Processed Data
 
-Data for ocean acidification has been processed for the global assessment to give a value 0-1 for each year from 1958 - 2020. Information on how this data is processed to obtain 0-1 scores can be found [here](). 
+Data for ocean acidification has been processed for the global assessment to give a value 0-1 for each year from 1958 - 2020 using both a historical reference period and a biological reference point. All cells with values less than 1, indicating an undersaturated state, are set equal to the highest stressor level, 1. For all other cells, rescaling the aragonite saturation state value to between 0 and 1 relies upon the change in saturation relative to the reference period. Additional information on how this data is processed to obtain 0-1 scores can be found [here](). 
 
 ```{r load-processed-data, eval=F}
 oa_rasts <- c(list.files(file.path(dir_M, "git-annex/globalprep/prs_oa/v2017/output"),full.names=T))
@@ -94,6 +97,11 @@ Reproject the global data to US Albers and crop to Palmyra's extent
 # Only need oa rasters 2-64, these are the annual oa rasters
 oa_rast_annual <- oa_rasts[2:64]
 
+# 3nm Buffer raster for cropping
+three_nm <- ocean_rast3_100
+three_nm <- raster::crop(three_nm, usalb_ext3) # Crop to Palmyra extent
+plot(three_nm)
+
 # Register 10 cores for parallel processing
 registerDoParallel(10)
 
@@ -104,7 +112,7 @@ foreach(file = oa_rast_annual) %dopar% {
   
   r <- raster(file)
  
-  rast_reproj <- projectRaster(r, ocean_rast3_100, method = 'ngb') %>% 
+  rast_reproj <- projectRaster(r, three_nm, method = 'ngb') %>% 
           crop(usalb_ext3) %>%
           writeRaster(., filename = paste0(file.path(dir_anx), '/dataprep/prs_oa/output/oa_rasts_us_albers/oa_', yr, '.tif'), overwrite=T)
  
@@ -113,6 +121,31 @@ foreach(file = oa_rast_annual) %dopar% {
 # Plot 2020 raster to check:
 plot(raster(file.path(dir_anx, "dataprep/prs_oa/output/oa_rasts_us_albers/oa_2020.tif")))
 ```
+## Check for Gapfilled Cells 
+
+Some of the cells in the cropped rasters look like they're missing. Check global raster for interpolated cells.   
+
+```{r check-interp-cells, eval=F}
+# Interpolated global data:
+interp_gl <- raster(file.path(dir_M, 'git-annex/globalprep/prs_oa/v2017/output/oa_interpolated_cells.tif')) # CRS = mollewide equal area
+
+## Get extent in mollewide equal area for Palmyra 
+extent(pal_buffer_3nm)
+moll_ext <- extent(-16200173, -16182605, 719838.4, 733708.5)
+
+# Crop global raster to Palmyra ext
+pal_interp <- interp_gl %>% 
+  crop(moll_ext)
+
+# Plot 
+plot(pal_interp, col=cols, box=F, axes=F, main='Interpolated cells') # Blank - maybe this means no cells were interpolated? 
+
+## Check shapefile over the raster
+plot(raster(file.path(dir_anx, "dataprep/prs_oa/output/oa_rasts_us_albers/oa_2020.tif")))
+plot(pal_shore_alb, add = T)
+```
+
+Must just be lower resolution than the shapefiles, looks like its supposed to be the land area of Palmyra, it just doesn't have the same level of detail. 
 
 ## Extract Values 
 
@@ -366,9 +399,4 @@ interp_cells = mask(r_int, pre_int, inverse=TRUE, filename = file.path(dir_anx, 
 
 ```
 
-```{r plot_interp_cells}
 
-# Plot interpolated (or gapfilled) cells
-plot(raster(file.path(dir_anx, 'dataprep/prs_oa/output/oa_interpolated_cells.tif')), col=cols, box=F, axes=F, main='Interpolated cells')
-
-```
