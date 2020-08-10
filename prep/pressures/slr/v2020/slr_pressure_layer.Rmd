@@ -17,10 +17,9 @@ output:
 
 # Summary 
 
-The sea level rise (SLR) pressure layer for Palmyra is derived from a global raster of monthly data indicating mean sea level anomalies from 1993 to 2019. This preparation script does the following for newly available global SLR data:
+The sea level rise (SLR) pressure layer for Palmyra is derived from a global raster of monthly data indicating mean sea level anomalies from 1993 to 2018. This preparation script does the following for newly available global SLR data:
   
-- Clips all monthly rasters to the coast using a 3 nautical mile offshore buffer
-- Calculates annual mean sea level anomaly rasters from monthly data
+- Clips mean annual sea level anomaly rasters to the coast using a 3 nautical mile offshore buffer   
 - Rescales values from 0 to 1 using the reference point (maximum annual anomaly across the time series)
 - Sets to zero all negative values, indicating decreases in mean sea level
 - Resamples raster to ~ 1km^2^ and reprojects to US Albers projection
@@ -68,112 +67,29 @@ library(here)
 # Source and set file paths
 source(here('src/R/common.R'))
 
-dir_prs <- '~/github/pal-prep/prep/pressures/slr/v2020'
-
+dir_prs    <- '~/github/pal-prep/prep/pressures/slr/v2020'
+dir_slr_gl <- file.path(dir_M, "git-annex/globalprep/prs_slr/v2020")
 ```
 
 ***
 
 # Methods
 
-## Load in SLR data files
+## Load Annual Mean Anomalies 
 
-We don't need to download the data from the AVISO website because it's already been downloaded for the most recent year of global. So we can just grab the NetCDF files from the global folder.
+We don't need to download the data from the AVISO website because it's already been downloaded for the most recent year of global. The global assessment has also already calculated annual monthly means, which we will use as the starting point for this script.   
 
-```{r read-files, eval=F}
+```{r get-annual-means, eval=F}
+# Annual means from 1993-2018
+slr_msla_annual_files <- list.files(file.path(dir_slr_gl, "int/msla_annual_mean"),
+                       full.names = TRUE, pattern = ".tif")
 
-## d2016/msla_monthly_mean has data for 1993-2015
-## Then include list.files for d2017 through the data folder for current scenario year
-slr_nc_files <- c(list.files(file.path(dir_M, "git-annex/globalprep/_raw_data/AVISO_slr/d2020"),
-                       full.names = TRUE, pattern = ".nc"),
-              list.files(file.path(dir_M, "git-annex/globalprep/_raw_data/AVISO_slr/d2019"),
-                       full.names = TRUE, pattern = ".nc"),
-              list.files(file.path(dir_M, "git-annex/globalprep/_raw_data/AVISO_slr/d2018"),
-                       full.names = TRUE, pattern = ".nc"),
-              list.files(file.path(dir_M, "git-annex/globalprep/_raw_data/AVISO_slr/d2017"),
-                       full.names = TRUE, pattern = ".nc"),
-              list.files(file.path(dir_M, "git-annex/globalprep/_raw_data/AVISO_slr/d2016/msla_monthly_mean"),
-                      full.names = TRUE, pattern = ".nc"))
-
-slr_nc_files <- slr_nc_files[-1:-2] # Double check this, but since the first two files are zip files I am confident in removing them. However, I did grab it directly from the most recent version of global so I so still want to make sure it's correct
-
+# Plot to check:
+plot(raster(slr_msla_annual_files[1]), col = cols, axes = F, 
+     main = paste("Year", substr(slr_msla_annual_files[1], 86, 89)))
 ```
 
-A peek into what the monthly data looks like
-
-```{r explore-monthly, eval=F}
-
-plot(raster(slr_nc_files[1]), col = cols, axes = F, 
-     main = paste("Year", substr(slr_nc_files[3], 90, 93), "Month", substr(slr_nc_files[3], 96, 97)))
-
-```
-
-
-## Convert .tif files into usable rasters
-
-The following code is used to:
-
-1. Rasterize each monthly NetCDF file
-2. Rotate each raster so that the Atlantic Ocean is centered in the raster, and changes the extent from 0 to 360 to -180 to 180, which is needed when using wgs or us_albers projections/extents
-
-```{r rasterize-monthly, results = 'hide'}
-
-## Created 'msla_annual_mean', 'msla_annual_us_albers', 'msla_annual_us_albers_coastal', and 'msla_monthly' folders in 'int'
-
-registerDoParallel(10)
-
-## Parallel forloop function that rotates each monthly file, sets the long/lat projection, and keeps only coastal cells - saved to GitHub
-foreach(file = slr_nc_files) %dopar% {
-  file = slr_nc_files[1]
-  
-  m_yr <- substr(file, nchar(file)-10, nchar(file)-3) 
-  
-  ## Read in month raster
-  r <- raster::raster(file) %>% 
-    rotate()
-  
-  ## Crop raster to Palmyra 3nm extent
-  r <- raster::crop(r, wgs_ext3) # Current projection is wgs84
-  
-  ## Write raster to int folder in prs_slr
-  fp <- sprintf("%s/int/msla_monthly/msla_monthly_%s.tif", file.path(dir_anx, "dataprep/prs_slr"), m_yr)
-  writeRaster(r, filename = fp, overwrite = TRUE)
-}
-
-# Plot the Jan 2018 raster to check 
-plot(raster(file.path(dir_anx, "dataprep/prs_slr/int/msla_monthly/msla_monthly_2018_m01.tif")))
-```
-
-
-## Calculate annual mean sea level anomalies
-
-Annual mean sea level anomaly rasters are calculated from the monthly data.
-
-```{r calc-annual-mean, results='hide'}
-
-msla_files <- list.files(sprintf("%s/int/msla_monthly", file.path(dir_anx, "dataprep/prs_slr")), 
-                         full.names = TRUE)
-
-maxyr <- substr(msla_files, 92, 95) %>% as.numeric() %>% max()
-
-## Stack all rasters for this year, and calculate annual mean, then write as raster
-registerDoParallel(6)
-foreach(yr = c(1993:maxyr)) %dopar% {
-  
-  files <- msla_files[str_detect(msla_files, as.character(yr))]
-  
-  rast_annual_mean <- stack(files) %>%
-    calc(mean, na.rm = TRUE) %>%
-    writeRaster(filename = sprintf("%s/int/msla_annual_mean/msla_annual_%s.tif", file.path(dir_anx, "dataprep/prs_slr"), yr), 
-                overwrite = TRUE)
-}
-
-# Plot the 2018 raster
-plot(raster(file.path(dir_anx, "dataprep/prs_slr/int/msla_annual_mean/msla_annual_2018.tif"))) 
-```
-
-
-## Change the projection and mask
+## Project and Mask 
 
 Since we are only interested in the increase in sea level near the coasts, we apply a mask to the raster layers that removes all cells farther than 3nm offshore. This mask was created previously for another part of this assessment. We also re-project to US Albers for consistency with the rest of the assessment.   
 
@@ -185,12 +101,11 @@ three_nm <- raster::crop(three_nm, usalb_ext3) # Crop to Palmyra extent
 plot(three_nm)
 
 ## Re-project means to us albers
-annual_means <- list.files(file.path(dir_anx, "dataprep/prs_slr/int/msla_annual_mean"), full = TRUE)
 
-foreach(file = annual_means) %dopar% {  
+foreach(file = slr_msla_annual_files) %dopar% {  
   
-  #file = annual_means[26]
-  yr <- str_sub(file, -8, -5)
+  #file = slr_msla_annual_files[26]
+  yr <- str_sub(file, 86, 89)
   
   rast_data <- raster(file)
   
@@ -219,7 +134,7 @@ coastal_rasts <- list.files(file.path(dir_anx, "dataprep/prs_slr/int/msla_annual
 registerDoParallel(8)
 
 vals <- foreach(i = 1993:2018, .combine = c) %dopar% { 
-  #i = 2017
+  #i = 2018
   
   coastal_rasts[which(str_sub(coastal_rasts, -8, -5) == i)] %>%
     raster() %>%
@@ -367,3 +282,100 @@ ggsave(file.path(dir_prs, "figs/scores_2005-2020.png"), width=7, height=5, dpi=3
 ```{r save-to-toolbox, eval=F}
 write.csv(slr_data, file.path(dir_scores, "layers/cc_slr.csv", row.names=FALSE)
 ```
+
+
+############ OLD GLOBAL CODE ############
+Delete once we confirm the above code does everything we need
+
+```{r read-files, eval=F}
+
+## d2016/msla_monthly_mean has data for 1993-2015
+## Then include list.files for d2017 through the data folder for current scenario year
+slr_nc_files <- c(list.files(file.path(dir_M, "git-annex/globalprep/_raw_data/AVISO_slr/d2020"),
+                       full.names = TRUE, pattern = ".nc"),
+              list.files(file.path(dir_M, "git-annex/globalprep/_raw_data/AVISO_slr/d2019"),
+                       full.names = TRUE, pattern = ".nc"),
+              list.files(file.path(dir_M, "git-annex/globalprep/_raw_data/AVISO_slr/d2018"),
+                       full.names = TRUE, pattern = ".nc"),
+              list.files(file.path(dir_M, "git-annex/globalprep/_raw_data/AVISO_slr/d2017"),
+                       full.names = TRUE, pattern = ".nc"),
+              list.files(file.path(dir_M, "git-annex/globalprep/_raw_data/AVISO_slr/d2016/msla_monthly_mean"),
+                      full.names = TRUE, pattern = ".nc"))
+
+slr_nc_files <- slr_nc_files[-1:-2] # Double check this, but since the first two files are zip files I am confident in removing them. However, I did grab it directly from the most recent version of global so I so still want to make sure it's correct
+
+```
+
+A peek into what the monthly data looks like
+
+```{r explore-monthly, eval=F}
+
+plot(raster(slr_nc_files[1]), col = cols, axes = F, 
+     main = paste("Year", substr(slr_nc_files[3], 90, 93), "Month", substr(slr_nc_files[3], 96, 97)))
+
+```
+
+
+## Convert .tif files into usable rasters
+
+The following code is used to:
+
+1. Rasterize each monthly NetCDF file
+2. Rotate each raster so that the Atlantic Ocean is centered in the raster, and changes the extent from 0 to 360 to -180 to 180, which is needed when using wgs or us_albers projections/extents
+
+```{r rasterize-monthly, results = 'hide'}
+
+## Created 'msla_annual_mean', 'msla_annual_us_albers', 'msla_annual_us_albers_coastal', and 'msla_monthly' folders in 'int'
+
+registerDoParallel(10)
+
+## Parallel forloop function that rotates each monthly file, sets the long/lat projection, and keeps only coastal cells - saved to GitHub
+foreach(file = slr_nc_files) %dopar% {
+  file = slr_nc_files[1]
+  
+  m_yr <- substr(file, nchar(file)-10, nchar(file)-3) 
+  
+  ## Read in month raster
+  r <- raster::raster(file) %>% 
+    rotate()
+  
+  ## Crop raster to Palmyra 3nm extent
+  r <- raster::crop(r, wgs_ext3) # Current projection is wgs84
+  
+  ## Write raster to int folder in prs_slr
+  fp <- sprintf("%s/int/msla_monthly/msla_monthly_%s.tif", file.path(dir_anx, "dataprep/prs_slr"), m_yr)
+  writeRaster(r, filename = fp, overwrite = TRUE)
+}
+
+# Plot the Jan 2018 raster to check 
+plot(raster(file.path(dir_anx, "dataprep/prs_slr/int/msla_monthly/msla_monthly_2018_m01.tif")))
+```
+
+
+## Calculate annual mean sea level anomalies
+
+Annual mean sea level anomaly rasters are calculated from the monthly data.
+
+```{r calc-annual-mean, results='hide'}
+
+msla_files <- list.files(sprintf("%s/int/msla_monthly", file.path(dir_anx, "dataprep/prs_slr")), 
+                         full.names = TRUE)
+
+maxyr <- substr(msla_files, 92, 95) %>% as.numeric() %>% max()
+
+## Stack all rasters for this year, and calculate annual mean, then write as raster
+registerDoParallel(6)
+foreach(yr = c(1993:maxyr)) %dopar% {
+  
+  files <- msla_files[str_detect(msla_files, as.character(yr))]
+  
+  rast_annual_mean <- stack(files) %>%
+    calc(mean, na.rm = TRUE) %>%
+    writeRaster(filename = sprintf("%s/int/msla_annual_mean/msla_annual_%s.tif", file.path(dir_anx, "dataprep/prs_slr"), yr), 
+                overwrite = TRUE)
+}
+
+# Plot the 2018 raster
+plot(raster(file.path(dir_anx, "dataprep/prs_slr/int/msla_annual_mean/msla_annual_2018.tif"))) 
+```
+
