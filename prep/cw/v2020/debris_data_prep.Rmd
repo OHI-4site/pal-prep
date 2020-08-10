@@ -106,19 +106,24 @@ ref_point <- 6
 fad_status <- annual_fad %>% 
   mutate(value = (number_fads - ref_point) / ref_point,
          value = ifelse(value < 0, 0, value), # Adjust any below 0 values to zero 
-         status = 1 - value, # Status is the inverse of the calculated value
-         status = ifelse(year == 2020, fad_status$status[fad_status$year == 2019], status), # 2020 data is not complete so use 2019 data for 2020
+         status = 1 - value,
+         status = ifelse(status == 0, 0.001, status)) # Change from 0 to prevent geometric mean from going to 0
+
+# Add a 2020 year and finalize data frame:
+fad_status20 <- fad_status %>% 
+  mutate(status = ifelse(year == 2020, fad_status$status[fad_status$year == 2019], status), # 2020 data is not complete so use 2019 data for 2020
          region_id = 1) %>% 
   filter(year >= 2014) %>% # Only use years 2014-2020
   dplyr::select(region_id, year, status)
 
 # Save to output
-write_csv(fad_status, file.path(dir_goal, "output/fad_status.csv"))
+write_csv(fad_status20, file.path(dir_goal, "output/fad_status.csv"))
 ```
 
 ## Save to Toolbox
 
 ```{r save-to-toolbox, eval=F}
+fad_status <- read_csv(file.path(dir_goal, "output/fad_status.csv"))
 write_csv(fad_status, file.path(dir_scores, 'layers/cw_debris_status.csv'))
 ```
 
