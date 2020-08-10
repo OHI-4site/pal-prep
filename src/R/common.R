@@ -58,8 +58,8 @@ pal_monument <- sf::st_read(dsn = here("spatial/shapefiles"), layer = "marine_mo
                               quiet=T)
 ## Palmyra rasters
 ### 100 m resolution
-ocean_rast3_100  <- raster::raster('~/github/pal-prep/spatial/rasters/ocean_ras3nm_100m.tif')
-ocean_rast50_100 <- raster::raster('~/github/pal-prep/spatial/rasters/ocean_ras50nm_100m.tif')
+ocean_rast3_100  <- raster::raster(file.path(here('spatial/rasters/ocean_ras3nm_100m.tif')))
+ocean_rast50_100 <- raster::raster(file.path(here('spatial/rasters/ocean_ras50nm_100m.tif')))
 
 ## Palmyra Filepaths 
 dir_anx    <- file.path(dir_M, 'git-annex/foursite/palmyra')
