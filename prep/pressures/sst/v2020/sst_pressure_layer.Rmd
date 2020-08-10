@@ -221,7 +221,8 @@ write_csv(sst_data, file.path(dir_prs, "output/sst_pressure.csv"))
 ## Save to Toolbox
 
 ```{r save-to-toolbox, eval=F}
-
+sst_pressure <- read_csv(file.path(dir_prs, "output/sst_pressure.csv"))
+write_csv(sst_pressure, file.path(dir_scores, "layers/prs_cc_sst.csv"))
 ```
 
 ## Final Visualization

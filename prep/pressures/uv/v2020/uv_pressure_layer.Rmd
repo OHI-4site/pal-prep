@@ -247,7 +247,8 @@ write_csv(uv_data, file.path(dir_prs, "output/uv_pressure.csv"))
 ## Save To Toolbox
 
 ```{r save-to-toolbox, eval=F}
-
+uv_pressure <- read_csv(file.path(dir_prs, "output/uv_pressure.csv"))
+write_csv(uv_pressure, file.path(dir_scores, "layers/prs_cc_uv.csv"))
 ```
 
 

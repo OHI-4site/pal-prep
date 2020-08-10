@@ -216,33 +216,19 @@ pressure_stack <- lapply(list.files(file.path(dir_anx, 'dataprep/prs_slr/output/
   brick()
 
 # Extract data for Palmyra:
-pal_regionstats <- cellStats(pressure_stack, mean)%>% 
+slr_data <- cellStats(pressure_stack, mean)%>% 
   as.data.frame() %>% 
   rename(pressure_score = ".") %>% 
   tibble::rownames_to_column("file_name") %>% 
   mutate(year = substr(file_name, 5, 8)) %>% 
-  select(-file_name) %>% 
+  dplyr::select(-file_name) %>% 
   mutate(region_id = 1, 
-         year = as.numeric(year))
-
-# Data for 2019 and 2020 are estimated from 2018 since the 2019 data is incomplete
-score_2018 <- pal_regionstats$pressure_score[pal_regionstats$year == 2018]
-
-add_19_20 <- data.frame(
-  region_id = rep(1, 2),
-  year = c(2019, 2020),
-  pressure_score = rep(score_2018, 2)
-)
-
-# Finalized data frame for pressure score:
-slr_data <- pal_regionstats %>% 
-  filter(year >= 2005 & year < 2019) %>% 
-  rbind(add_19_20) %>% 
+         year = as.numeric(year)) %>% 
+  filter(year != 2019) %>%  # incomplete data
   dplyr::select(region_id, year, pressure_score)
 
 # Save to output folder
 write.csv(slr_data, file.path(dir_prs, "output/slr_pressure.csv"))
-
 ```
 
 ## 2018 scores
@@ -287,7 +273,7 @@ ggsave(file.path(dir_prs, "figs/scores_2005-2020.png"), width=7, height=5, dpi=3
 ## Save To Toolbox
 
 ```{r save-to-toolbox, eval=F}
-
-write.csv(slr_data, file.path(dir_scores, "layers/cc_slr.csv", row.names=FALSE)
-          
+slr_pressure <- read_csv(file.path(dir_prs, "output/slr_pressure.csv")) %>% 
+  dplyr::select(-X1)
+write.csv(slr_data, file.path(dir_scores, "layers/prs_cc_slr.csv", row.names=FALSE)
 ```

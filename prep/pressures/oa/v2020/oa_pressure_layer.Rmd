@@ -239,7 +239,7 @@ ggsave(file.path(dir_prs, "figs/scores_2005-2020.png"), width=7, height=5, dpi=3
 
 ```{r save-to-toolbox, eval=F}
 oa_data <- read_csv(file.path(dir_prs, "output/oa_pressure.csv"))
-write_csv(oa_data, file.path(dir_scores, "layers/cc_oa.csv"))
+write_csv(oa_data, file.path(dir_scores, "layers/prs_cc_oa.csv"))
 ```
 
 
