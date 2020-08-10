@@ -275,5 +275,5 @@ ggsave(file.path(dir_prs, "figs/scores_2005-2020.png"), width=7, height=5, dpi=3
 ```{r save-to-toolbox, eval=F}
 slr_pressure <- read_csv(file.path(dir_prs, "output/slr_pressure.csv")) %>% 
   dplyr::select(-X1)
-write.csv(slr_pressure, file.path(dir_scores, "layers/prs_cc_slr.csv", row.names=FALSE)
+write.csv(slr_pressure, file.path(dir_scores, "layers/prs_cc_slr.csv"))
 ```
