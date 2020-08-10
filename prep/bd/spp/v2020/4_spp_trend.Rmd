@@ -287,20 +287,32 @@ spp_trend_scores <- model_trend %>%
          region_id = 1) %>% # need to add a year and region_id for the toolbox to run
   dplyr::select(region_id, sciname, class, trend_score, trend_source, year) 
 
-# Save to output folder 
-write_csv(spp_trend_scores, file.path(dir_goal, 'output/spp_trend_scores.csv'))
+# Save to int folder 
+write_csv(spp_trend_scores, file.path(dir_goal, 'int/spp_trend_scores.csv'))
+```
 
-# Check how many NAs are left
-trend_na <- spp_trend_scores %>% 
-  filter(is.na(trend_score)) # still 238 Nas
+## Finalize Trend Scores 
+
+Use the same method as the current status to find the trend in species status. Trend will be calculated for each class and then the average of the trend for all the classes will be used as the overall trend.  
+
+```{r final-trend-scores, eval=F}
+spp_trend_scores <- read_csv(file.path(dir_goal, "int/spp_trend_scores.csv"))
+
+spp_trend <- spp_trend_scores %>% 
+  group_by(region_id, class) %>% # first find average score by class
+  summarize(trend = mean(trend_score, na.rm=T)) %>%
+  group_by(region_id) %>%
+  summarize(trend = mean(trend, na.rm=T)) %>% # find average of the 10 classes
+  mutate( year = 2020) %>% 
+  dplyr::select(region_id, year, trend_score = trend)
+
+# Save to output folder
+write_csv(spp_trend, file.path(dir_goal, "output/spp_trend.csv"))
 ```
 
 ## Save to Toolbox
 
 ```{r save-to-toolbox, eval=F}
-
-trend_scores <- read_csv(file.path(dir_goal, 'output/spp_trend_scores.csv')) %>% 
-  dplyr::select(-trend_source) # don't need the trend source in the toolbox 
-
+trend_scores <- read_csv(file.path(dir_goal, 'output/spp_trend.csv'))
 write_csv(trend_scores, file.path(dir_scores, 'layers/spp_trend.csv'))
 ```
