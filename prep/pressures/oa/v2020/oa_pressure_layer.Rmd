@@ -147,6 +147,29 @@ plot(pal_shore_alb, add = T, col = "grey")
 
 Must just be lower resolution than the shapefiles, looks like its supposed to be the land area of Palmyra, it just doesn't have the same level of detail. 
 
+# Results
+
+```{r gif-results, eval=F}
+
+oa_coastal_rasts <- list.files(file.path(dir_anx, 'dataprep/prs_oa/output/oa_rasts_us_albers'), full.names = T) %>% 
+                           stack()
+
+names(oa_coastal_rasts) <- paste0("Year_", substr(names(oa_coastal_rasts),4,7))
+
+# Make a gif animation
+animation::saveGIF({
+  for(i in 1:nlayers(oa_coastal_rasts)){
+     plot(oa_coastal_rasts[[i]], col='cornsilk2', main=names(oa_coastal_rasts[[i]]), axes=F, legend=F)
+      # don't forget to fix the zlimits
+    plot(oa_coastal_rasts[[i]], zlim=c(0,1), axes=F, col=cols, add=T)
+      
+  }
+}, movie.name = 'oa_annual_rescaled.gif')
+
+```
+
+<img src="oa_annual_rescaled.gif"/>
+
 ## Extract Values 
 
 Extract values for Palmyra 
@@ -175,8 +198,47 @@ oa_data <- pal_regionstats %>%
 write_csv(oa_data, file.path(dir_prs, "output/oa_pressure.csv"))
 ```
 
+## 2020 scores
+
+Check the scores for 2020.  
+
+```{r map-scores}
+# Source the plot scores function 
+source(here('src/R/plot_scores.R'))
+
+# Use oa output data
+oa_data <- read_csv(file.path(dir_prs, "output/oa_pressure.csv"))
+
+last_year <- oa_data %>%
+  filter(year==2020)
+
+## map_scores is a function to plot a tmap map of the scores
+map_scores(score_obj = last_year, score_var = last_year$pressure_score, scale_label = "Pressure Score", map_title = "Ocean Acidification")
+```
+
+## Visualize Through Time
+
+Basic visualization of pressure scores over time.  
+
+```{r graph-scores-overtime}
+# Graph pressure scores over time 
+oa_overtime <-ggplot(oa_data)+
+  geom_line(aes(x=year, y = pressure_score), color="dodgerblue4")+
+  ggtitle("Ocean Acidification Pressure Score") +
+  ylab("Score") +
+  xlab("Year") +
+  theme_classic() 
+oa_overtime
+
+# Save output
+ggsave(file.path(dir_prs, "figs/scores_2005-2020.png"), width=7, height=5, dpi=300)
+
+```
+
 ## Save to Toolbox 
+
 ```{r save-to-toolbox, eval=F}
+oa_data <- read_csv(file.path(dir_prs, "output/oa_pressure.csv"))
 write_csv(oa_data, file.path(dir_scores, "layers/cc_oa.csv"))
 ```
 
