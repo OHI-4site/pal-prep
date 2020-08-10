@@ -5,6 +5,7 @@
 library(sp)
 library(rgdal)
 library(sf)
+library(here)
 library(raster)
 
 cat("This file makes it easier to process data for the OHI global assessment\n",
