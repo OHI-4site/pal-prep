@@ -50,8 +50,8 @@ mgmt_res <- read_csv(file.path(dir_mgmt, "output/hd_mgmt.csv"))
 
 # Find the pressure score 
 mgmt_pressure <- mgmt_res %>% 
-  mutate(pressure_score = 1 - score) %>% 
-  dplyr::select(-score)
+  mutate(pressure_score = 1 - resilience_score) %>% 
+  dplyr::select(-resilience_score)
 
 # Save to output folder
 write_csv(mgmt_pressure, file.path(dir_prs, "output/mgmt_pressure.csv"))
