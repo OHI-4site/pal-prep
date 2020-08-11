@@ -82,10 +82,12 @@ dir_prs <- '~/github/pal-prep/prep/pressures/oa/v2020'
 Data for ocean acidification has been processed for the global assessment to give a value 0-1 for each year from 1958 - 2020 using both a historical reference period and a biological reference point. All cells with values less than 1, indicating an undersaturated state, are set equal to the highest stressor level, 1. For all other cells, rescaling the aragonite saturation state value to between 0 and 1 relies upon the change in saturation relative to the reference period. Additional information on how this data is processed to obtain 0-1 scores can be found [here](). 
 
 ```{r load-processed-data, eval=F}
+
 oa_rasts <- c(list.files(file.path(dir_M, "git-annex/globalprep/prs_oa/v2017/output"),full.names=T))
 
 # Plot the 2020 data to check rasters:
 plot(raster(oa_rasts[64]), col=cols,box=F,axes=F, main = 'Rescaled Ωaragonite layer for 2020')
+
 ```
 
 ## Reproject Global Data 
@@ -112,21 +114,35 @@ foreach(file = oa_rast_annual) %dopar% {
   
   r <- raster(file)
  
-  # rast_reproj <- projectRaster(r, three_nm, method = 'ngb') %>% 
-  #         crop(usalb_ext3) %>%
-  #         writeRaster(., filename = paste0(file.path(dir_anx), '/dataprep/prs_oa/output/oa_rasts_us_albers/oa_', yr, '.tif'), overwrite=T)
-  
   rast_reproj <- projectRaster(from=r, to=three_nm, crs=us_alb, method="ngb", over=FALSE) %>% 
     raster::resample(three_nm, method="ngb", filename = sprintf("%s/dataprep/prs_oa/output/oa_rasts_us_albers/oa_%s.tif", dir_anx, yr), overwrite = TRUE) %>% 
     mask(three_nm, filename = sprintf("%s/dataprep/prs_oa/output/oa_rasts_us_albers_coastal/oa_coastal_%s.tif", dir_anx, yr), overwrite = TRUE) %>% 
     raster::crop(usalb_ext3) %>%
     writeRaster(., filename = paste0(file.path(dir_anx), '/dataprep/prs_oa/output/oa_rasts_us_albers_coastal/oa_', yr, '.tif'), overwrite=T)
- 
+    
+    # crop(three_nm, filename = sprintf("%s/dataprep/prs_oa/output/oa_rasts_us_albers_coastal/oa_%s.tif", dir_anx, yr), overwrite = TRUE)
+  
+  # rast_mask <- rast_reproj %>% 
+  #   mask(three_nm, filename = sprintf("%s/dataprep/prs_oa/output/oa_rasts_us_albers_coastal/oa_coastal_%s.tif", dir_anx, yr), overwrite = TRUE) 
+  #   
+  # rast_crop <- crop(x = rast_mask, y = extent(three_nm), filename = sprintf("%s/dataprep/prs_oa/output/oa_rasts_us_albers_coastal/oa_%s.tif", dir_anx, yr), overwrite = TRUE)
+  # 
+    # crop(usalb_ext3) %>%
+    #       writeRaster(., filename = paste0(file.path(dir_anx), '/dataprep/prs_oa/output/oa_rasts_us_albers/oa_', yr, '.tif'), overwrite=T)
+    # 
+  #   mask(three_nm, filename = sprintf("%s/dataprep/prs_oa/output/oa_rasts_us_albers/oa_li_", dir_anx, yr, '.tif'), overwrite = TRUE)
+  # 
+  # rast_reproj <- projectRaster(r, three_nm, method = 'ngb') %>% 
+  #         crop(usalb_ext3) %>%
+  #         writeRaster(., filename = paste0(file.path(dir_anx), '/dataprep/prs_oa/output/oa_rasts_us_albers/oa_', yr, '.tif'), overwrite=T)
 }
 
 # Plot 2020 raster to check:
-plot(raster(file.path(dir_anx, "dataprep/prs_oa/output/oa_rasts_us_albers/coastal/oa_2020.tif")))
+plot(raster(file.path(dir_anx, "dataprep/prs_oa/output/oa_rasts_us_albers_coastal/oa_coastal_2020.tif")))
 
+plot(raster(file.path(dir_anx, "dataprep/prs_oa/output/oa_rasts_us_albers/oa_2020.tif")))
+
+plot(raster(file.path(dir_anx, "dataprep/prs_oa/output/oa_rasts_us_albers_coastal/oa_2020.tif")))
 ```
 ## Check for Gapfilled Cells 
 
@@ -148,7 +164,7 @@ pal_interp <- interp_gl %>%
 plot(pal_interp, col=cols, box=F, axes=F, main='Interpolated cells') # Blank - maybe this means no cells were interpolated? 
 
 ## Check shapefile over the raster
-plot(raster(file.path(dir_anx, "dataprep/prs_oa/output/oa_rasts_us_albers_coastal/oa_2020.tif")))
+plot(raster(file.path(dir_anx, "dataprep/prs_oa/output/oa_rasts_us_albers/oa_2020.tif")))
 plot(pal_shore_alb, add = T, col = "grey")
 ```
 
@@ -158,7 +174,7 @@ Must just be lower resolution than the shapefiles, looks like its supposed to be
 
 ```{r gif-results, eval=F}
 
-oa_coastal_rasts <- list.files(file.path(dir_anx, 'dataprep/prs_oa/output/oa_rasts_us_albers_coastal'), full.names = T) %>% 
+oa_coastal_rasts <- list.files(file.path(dir_anx, 'dataprep/prs_oa/output/oa_rasts_us_albers'), full.names = T) %>% 
                            stack()
 
 names(oa_coastal_rasts) <- paste0("Year_", substr(names(oa_coastal_rasts),4,7))
@@ -183,7 +199,7 @@ Extract values for Palmyra
 
 ```{r extract-values, eval=F}
 ## Read in raster files
-pressure_stack <- lapply(list.files(file.path(dir_anx, 'dataprep/prs_oa/output/oa_rasts_us_albers_coastal'), full.names=T), raster) %>%
+pressure_stack <- lapply(list.files(file.path(dir_anx, 'dataprep/prs_oa/output/oa_rasts_us_albers'), full.names=T), raster) %>%
   brick()
 
 # Extract data for Palmyra:
