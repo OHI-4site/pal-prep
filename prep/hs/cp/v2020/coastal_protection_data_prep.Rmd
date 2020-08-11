@@ -125,7 +125,8 @@ c_status <- status(C=C, A=A, w=w)
 # Create status data frame 
 cp_status <- data.frame(
   region_id = 1,
-  year = 2020, 
+  habitat = 'coral',
+  year = 2011, 
   status = c_status
 )
 
