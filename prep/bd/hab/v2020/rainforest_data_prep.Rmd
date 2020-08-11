@@ -194,10 +194,38 @@ rainforest_status <- data.frame(region_id = 1,
 write_csv(rainforest_status, file.path(dir_goal, "output/rainforest_status.csv"))
 ```
 
+## Rainforest Habitat Extent
+
+Find the extent (km^2^) of native rainforest habitat. This extent is used in creating weights for pressures and resiliences.  
+
+```{r rainforest-hab-extent, eval=F}
+# Use 2019 vegetation area data:
+veg_area <- read_csv(file.path(dir_goal, "int/veg_area.csv"))
+
+# Create extent data frame 
+rainforest_extent <- data.frame(
+  region_id = 1, 
+  habitat = "rainforest",
+  year = 2019,
+  km2 = veg_area$cover_area[veg_area$category=="forest"]
+)
+
+# Save to output folder
+write_csv(rainforest_extent, file.path(dir_goal, "output/rainforest_extent.csv"))
+```
+
 
 ## Save to Toolbox 
 
+Save both the extent and status layers to toolbox.   
+
 ```{r save-to-toolbox, eval=F}
+# Read in files
+rainforest_extent <- read_csv(file.path(dir_goal, "output/rainforest_extent.csv"))
+rainforest_status <- read_csv(file.path(dir_goal, "output/rainforest_status.csv"))
+
+# Write to toolbox
+write_csv(rainforest_extent, file.path(dir_scores, "layers/hab_rainforest_extent.csv"))
 write_csv(rainforest_status, file.path(dir_scores, 'layers/hab_rainforest_status.csv'))
 ```
 
