@@ -84,4 +84,12 @@ cc_mgmt <- mgmt_14 %>%
 # Save output layers
 write_csv(cc_mgmt, file.path(dir_res, "output/cc_mgmt.csv"))
 ```
- 
+
+
+## Save to Toolbox
+
+```{r ave-to-toolbox, eval=F}
+cc_mgmt <- read_csv(file.path(dir_res, "output/cc_mgmt.csv"))
+write_csv(cc_mgmt, file.path(dir_scores, "layers/res_cc_mgmt.csv"))
+```
+
