@@ -1,4 +1,4 @@
-region_id,year,dimension,score
+region_id,year,dimension,resilience_score
 1,2014,offshore,0.6666666666666666
 1,2015,offshore,0.6666666666666666
 1,2016,offshore,0.6666666666666666

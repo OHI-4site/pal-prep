@@ -70,10 +70,19 @@ offshore_mgmt <- data.frame(
   region_id = rep(1, length(years)),
   year = years,
   dimension = rep("offshore", length(years)),
-  score = rep(2 / 3, length(years))
+  resilience_score = rep(2 / 3, length(years))
 )
 
 # Save output layers
 write_csv(offshore_mgmt, file.path(dir_res, "output/fp_mgmt.csv"))
+```
+
+## Save to Toolbox
+
+```{r save-to-toolbox, eval=F}
+fp_mgmt <- read_csv(file.path(dir_res, "output/fp_mgmt.csv")) %>% 
+  dplyr::select(-dimension)
+
+write_csv(fp_mgmt, file.path(dir_scores, "layers/res_fp_mgmt.csv"))
 ```
 
