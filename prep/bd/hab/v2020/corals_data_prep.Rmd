@@ -206,10 +206,41 @@ coral_status <- zone_area %>%
 write_csv(coral_status, file.path(dir_goal, "output/coral_status.csv"))
 ```
 
+## Coral Habitat Extent
+
+Find the extent (km^2^) of entire coral reef habitat. This extent is used in creating weights for pressures and resiliences.  
+
+```{r coral-hab-extent, eval=F}
+zones <- read_csv(file.path(dir_goal, "int/coral_zones.csv"))
+
+# Find total area for the four zones of interest:
+zone_areas <- zones %>% 
+  group_by(zone) %>% 
+  summarize(tot_area_km = sum(area) * 0.000001)
+
+# Create a dataframe with total extent: 
+coral_extent <- data.frame(
+  region_id = 1,
+  habitat = "coral",
+  year = 2011,
+  km2 = sum(zone_areas$tot_area_km)
+)
+
+# Save to output folder:
+write_csv(coral_extent, file.path(dir_goal, "output/coral_extent.csv"))
+```
 
 ## Save to Toolbox 
 
+Save both the extent and status layers to toolbox. 
+
 ```{r save-to-toolbox, eval=F}
+# Read in files
+coral_extent <- read_csv(file.path(dir_goal, "output/coral_extent.csv"))
+coral_status <- read_csv(file.path(dir_goal, "output/coral_status.csv"))
+
+# Write to toolbox
+write_csv(coral_extent, file.path(dir_scores, "layers/hab_coral_extent.csv"))
 write_csv(coral_status, file.path(dir_scores, 'layers/hab_coral_status.csv'))
 ```
 
