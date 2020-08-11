@@ -192,8 +192,9 @@ cs_status <- percent_area %>%
   filter(category == "native") %>% 
   mutate(status = percent_area / ref_point,
          region_id = 1,
-         year = 2020) %>% 
-  dplyr::select(region_id, year, status)
+         year = 2016,
+         habitat = 'rainforest') %>% 
+  dplyr::select(region_id, habitat, year, status)
 
 # Don't need to save the geometries in the output
 cs_status <- as.data.frame(cs_status) %>% 
