@@ -69,7 +69,8 @@ write_csv(sp_reg, file.path(dir_res, "output/sp_reg.csv"))
 ## Save to Toolbox
 
 ```{r save-to-toolbox, eval=F}
-write_csv(sp_reg, file.path(dir_scores, "layers/sp_reg.csv"))
+sp_reg <- read_csv(file.path(dir_res, "output/sp_reg.csv"))
+write_csv(sp_reg, file.path(dir_scores, "layers/res_sp_reg.csv"))
 ```
 
 
