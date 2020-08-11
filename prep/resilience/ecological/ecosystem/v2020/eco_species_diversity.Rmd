@@ -61,6 +61,6 @@ write_csv(eco_spp, file.path(dir_res, "output/eco_spp_diversity.csv"))
 
 ```{r save-to-toolbox, eval=F}
 eco_spp <- read_csv(file.path(dir_res, "output/eco_spp_diversity.csv"))
-write_csv(eco_spp, file.path(dir_scores, "layers/eco_spp_diversity.csv"))
+write_csv(eco_spp, file.path(dir_scores, "layers/res_eco_spp_diversity.csv"))
 ```
 
