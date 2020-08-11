@@ -198,7 +198,7 @@ zone_area <- zones %>%
 coral_status <- zone_area %>% 
   mutate(status = area_km / tot_area_km,
          region_id = 1, 
-         year = 2020, 
+         year = 2011, 
          habitat = "coral") %>% 
   dplyr::select(region_id, habitat, year, zone, area_km = tot_area_km, status)
 

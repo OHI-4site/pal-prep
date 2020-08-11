@@ -130,7 +130,7 @@ The smallest geo-region is probably the most preferred. The US Minor Outlying Is
 coral_trend <- micronesia %>% 
   mutate(region_id = 1,
          habitat = "coral",
-         year = 2020) %>% 
+         year = 2012) %>% 
   dplyr::select(region_id, habitat, year, trend)
 
 # Save to output for use in cp trend
