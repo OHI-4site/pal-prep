@@ -199,16 +199,17 @@ write_csv(rainforest_status, file.path(dir_goal, "output/rainforest_status.csv")
 Find the extent (km^2^) of native rainforest habitat. This extent is used in creating weights for pressures and resiliences.  
 
 ```{r rainforest-hab-extent, eval=F}
-# Use 2019 vegetation area data:
-veg_area <- read_csv(file.path(dir_goal, "int/veg_area.csv"))
+# Use 2005, 2016, and 2019 vegetation area data:
+area_05 <- read_csv(file.path(dir_goal, "int/trend_area_2005.csv"))
+area_16 <- read_csv(file.path(dir_goal, "int/trend_area_2016.csv"))
+area_19 <- read_csv(file.path(dir_goal, "int/trend_area_2019.csv"))
 
 # Create extent data frame 
-rainforest_extent <- data.frame(
-  region_id = 1, 
-  habitat = "rainforest",
-  year = 2019,
-  km2 = veg_area$cover_area[veg_area$category=="forest"]
-)
+rainforest_extent <- area_05 %>% 
+  rbind(area_16) %>% 
+  rbind(area_19) %>% 
+  mutate(habitat = "rainforest") %>% 
+  dplyr::select(region_id, habitat, year, km2 = area_forest)
 
 # Save to output folder
 write_csv(rainforest_extent, file.path(dir_goal, "output/rainforest_extent.csv"))
