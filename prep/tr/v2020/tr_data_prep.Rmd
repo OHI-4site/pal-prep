@@ -53,11 +53,15 @@ tr_status <- data.frame(
   year = years, 
   status = rep(NA, length(years))
 )
+
+# Save placeholder to output
+write_csv(tr_status, file.path(dir_goal, "output/tr_status_placeholder.csv"))
 ```
 
 ## Save to Toolbox
 
 ```{r save-to-toolbox, eval=F}
-write_csv(tr_status, file.path(dir_scores, "layers/tr_status.csv"))
+tr_status <- read_csv(file.path(dir_goal, "output/tr_status_placeholder.csv"))
+write_csv(tr_status, file.path(dir_scores, "layers/tr_status_placeholder.csv"))
 ```
 
