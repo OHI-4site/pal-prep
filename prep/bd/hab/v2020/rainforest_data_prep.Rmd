@@ -187,7 +187,7 @@ forest_status <- current_forest_area / potential_forest_area
 # Create a final status data frame for export
 rainforest_status <- data.frame(region_id = 1,
                                 habitat = "rainforest",
-                                year = 2020,
+                                year = 2019,
                                 status = forest_status)
 
 # Save the output to use in the trend 
