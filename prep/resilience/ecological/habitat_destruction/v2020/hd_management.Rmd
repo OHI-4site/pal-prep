@@ -80,7 +80,7 @@ inland_mgmt <- data.frame(
   region_id = rep(1, length(years)), 
   year = years,
   dimension = rep("inland", length(years)),
-  score = rep(3 / 3, length(years))
+  resilience_score = rep(3 / 3, length(years))
 )
 
 # Offshore Management score - read in from fishing pressure resilience 
@@ -90,10 +90,18 @@ offshore_mgmt <- read_csv(file.path(dir_fp, "output/fp_mgmt.csv"))
 hd_mgmt <- inland_mgmt %>% 
   rbind(offshore_mgmt) %>% 
   group_by(year) %>% 
-  summarize(score = mean(score)) %>% 
+  summarize(resilience_score = mean(resilience_score)) %>% 
   mutate(region_id = 1) %>% 
-  dplyr::select(region_id, year, score)
+  dplyr::select(region_id, year, resilience_score)
 
 # Save output layers
 write_csv(hd_mgmt, file.path(dir_res, "output/hd_mgmt.csv"))
 ```
+
+## Save to Toolbox
+
+```{r save-to-toolbox, eval=F}
+hd_mgmt <- read_csv(file.path(dir_res, "output/hd_mgmt.csv"))
+write_csv(hd_mgmt, file.path(dir_scores, "layers/res_hd_mgmt.csv"))
+```
+

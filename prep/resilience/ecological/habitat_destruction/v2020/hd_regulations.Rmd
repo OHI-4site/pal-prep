@@ -62,9 +62,16 @@ hd_pa <- offshore %>%
   summarize(status = mean(status)) %>% 
   filter(year >= 2014) %>% 
   mutate(region_id = 1) %>% 
-  dplyr::select(region_id, year, score = status)
+  dplyr::select(region_id, year, resilience_score = status)
 
 # Save files to output folder
 write_csv(hd_pa, file.path(dir_res, "output/hd_reg.csv"))
+```
+
+## Save to Toolbox
+
+```{r save-to-toolbox, eval=F}
+hd_reg <- read_csv(file.path(dir_res, "output/hd_reg.csv"))
+write_csv(hd_reg, file.path(dir_scores, "layers/res_hd_reg.csv"))
 ```
 
