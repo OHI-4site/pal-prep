@@ -51,6 +51,7 @@ This ocean acidification (OA) pressure layer for Palmyra Atoll is derived from a
 # Set options for all chunks in code
 knitr::opts_chunk$set(warning=FALSE, message=FALSE, fig.width=6, fig.height=6)
 
+library(tidyverse)
 library(raster)
 library(ncdf4)
 library(maps)
