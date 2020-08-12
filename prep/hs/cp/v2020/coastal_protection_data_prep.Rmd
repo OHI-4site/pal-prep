@@ -57,7 +57,7 @@ $C_{condition}~=~C_{current}~/~C_{ref}$
 
 Where $C_{current}$ is the current status of coral habitats and $C_{ref}$ is the reference point of coral habitats. This is the same as the coral status calculated in the Biodiversity Habitats subgoal.   
 
-Use the coral status layer to find the coral condition. Coral condition will be the average status of the three zones: fore reef, back reef, and lagoon.   
+Use the coral status calculated in the Biodiversity: Habitats sub-goal.      
 
 ```{r coral-condition, eval=F}
 
@@ -76,22 +76,13 @@ write_csv(coral_condition, file.path(dir_goal, "int/coral_condition.csv"))
 
 ## Coral Extent 
 
-Use the shapefiles from the coral habitats layer to find the area (extent).   
+Use the coral extent calculated as parts of the Biodiversity: Habitats sub-goal.    
 
 ```{r coral-extent, eval=F}
 
-# 2011 coral reef map in an equal area projection
-zones_shp <- st_read(file.path(dir_hab, 'int/'), layer = "coral_zones") %>% 
-  st_transform(crs = us_alb)
+# Use the extent calculated as part of the habitats sub-goal
+coral_extent <- read_csv(file.path(dir_hab, "output/coral_extent.csv"))
 
-# Find the area of coral reefs that are included in the condition estimate
-reef_area_m2 <- sum(zones_shp$area) 
-reef_area_km2 <- reef_area_m2 * 0.000001
-
-# Create an extent data frame 
-coral_extent <- data.frame(region_id = 1, 
-                           dimension = "extent",
-                           value = reef_area_km2) 
 
 # Save to int folder
 write_csv(coral_extent, file.path(dir_goal, "int/coral_extent.csv"))
@@ -111,7 +102,7 @@ extent    <- read_csv(file.path(dir_goal, "int/coral_extent.csv"))
 
 # Assign values:
 C <- condition$value
-A <- extent$value
+A <- extent$km2
 w <- 3
 
 # Define function to calculate the status 
@@ -137,6 +128,7 @@ write_csv(cp_status, file.path(dir_goal, "output/cp_status.csv"))
 ## Save to Toolbox 
 
 ```{r save-to-toolbox, eval=F}
+cp_status <- read_csv(file.path(dir_goal, "output/cp_status.csv"))
 write_csv(cp_status, file.path(dir_scores, 'layers/hs_coastal_protection_status.csv'))
 ```
 
