@@ -1,4 +1,4 @@
-### Palmyra Ocean Health Index: Iconic Species Sub-goal 
+## Palmyra Ocean Health Index: Iconic Species Sub-goal 
 
 This folder describes the methods used to prepare the data layers for the iconic species sub-goal of the Sense of Place goal.     
 
