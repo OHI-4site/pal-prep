@@ -1,23 +1,25 @@
 ---
-title: 'OHI+ Palmyra 2020: Clean Waters Goal Soil Contamination Layer'
+title: 'Clean Waters: Soil Contamination Layer'
+subtitle: 'OHI+ Palmyra 2020 Assessment'
 author: "*Compiled on `r date()` by `r Sys.info()['user']`*"
 output: 
   html_document:
+    code_folding: show
     toc: true
-    toc_depth: 2 
+    toc_depth: 3 
     toc_float: yes
     number_sections: false
     theme: cerulean
     highlight: haddock
     includes: 
-     in_header: '../../../src/templates/ohi_hdr.html' 
+     in_header: '~/github/pal-prep/src/templates/pal_hdr.html' 
   pdf_document:
     toc: true
 ---
 
 # Summary
 
-This script calculates a status score for soil contamination as part of the Clean Water goal.  
+This script calculates a status score for soil contamination as part of the Clean Waters goal.  
 
 # Data
 
@@ -29,8 +31,7 @@ Citation: Struckhoff, M.A., Papoulias, D.M., Orazio, C.E., Annis, M.L., Shaver, 
 
 # Setup
 
-```{r setup, message = F, warning = F}
-knitr::opts_chunk$set(echo = FALSE)
+```{r setup, message=F, warning=F, results='hide'}
 
 library(tidyverse)
 library(sf)
@@ -52,7 +53,7 @@ dir_goal   <- '~/github/pal-prep/prep/cw/v2020'
 
 Map the sample sites over the shapefile of the island.  
 
-```{r map-sample-sites, eval=F}
+```{r map-sample-sites, message=F, warning=F, eval=F}
 
 # Read in raw USGS shapefiles
 usgs <- st_read(file.path(dir_anx, "_raw_data/USGS_data/XRF_samples_Palmyra_Atoll_2008_and_2010"),
@@ -73,7 +74,7 @@ ggplot() +
 
 21 marine sediment samples and 7 soil samples were taken at sites believed to represent uncontaminated, natural concentrations of elements. These samples have a site_type of "reference". Save these locations as a separate data frame to compare against soil samples.   
 
-```{r reference-sites, eval=F}
+```{r reference-sites, message=F, warning=F, eval=F}
 
 ref_sites <- usgs %>% 
   filter(site_type == "Reference") %>% 
@@ -95,7 +96,7 @@ st_write(ref_sites, file.path(dir_goal, "int/reference_sites.shp"), driver = 'ES
 
 Assign a soil_type (marine or land) to the sample sites based on the reported soil or sediment classification. Most sites were sampled on a wet-weight basis, filter the 7 sites that were sampled on a dry-weight basis. Check if any of the sites have been sampled in both 2008 and 2010 and add a samp_repeated column to identify any sites with repeated sampling. Filter out the reference sites.     
 
-```{r contamination-by-site, eval=F}
+```{r contamination-by-site, message=F, warning=F, eval=F}
 
 # Read in raw USGS shapefiles
 usgs <- st_read(file.path(dir_anx, "_raw_data/USGS_data/XRF_samples_Palmyra_Atoll_2008_and_2010"),
@@ -181,6 +182,8 @@ Citation: Struckhoff, M.A., Orazio, C.E., Tillitt, D.E., Shaver, D.K., and Papou
 
 Replicated from Table 1 of Struckhoff *e al* 2018. NA indicates a toxicity threshold has not been established.     
 
+**Table 1**: Threshold effects levels and ecological soil screening levels for the nine contaminants found on Palmyra Atoll.   
+
 | Contaminant | Symbol | TEL   | Eco-SSL |
 |-------------|--------|-------|---------|
 | Antimony    | Sb     | NA    | 78      |
@@ -199,7 +202,7 @@ The table reports thresholds in mg/kg of dry weight, however most of the samples
 
 "Soil moisture values between 15 and 25% can reduce measured sample concentrations from 70 to 80% relative to lab-confirmed concentrations (U.S. Environmental Protection Agency, 2015). Given that most measurements were made on moist samples, XRF values reported above TELs or SSLs are conservative estimates of threshold exceedance."  
 
-```{r tel-ref-levels}
+```{r tel-ref-levels, message=F, warning=F, eval=F}
 
 contaminant <- st_read(file.path(dir_goal, "int"),
                 layer = "contaminants") %>% 
@@ -222,9 +225,11 @@ contam_tels <- contaminant %>%
 
 ### Assign PEL Reference Levels 
 
-For soil samples, the Canadian freshwater contamination PELs (mg/kg dry weight) are used, as these are more conservative than the marine contamination levels. Concensus-based freshwater PEL levels were established in 2000. Concentrations were obtained from Table 3 in MacDonald *et al* 2000.   
+For soil samples, the Canadian freshwater contamination PELs (mg/kg dry weight) are used, as these are more conservative than the marine contamination levels. Consensus-based freshwater PEL levels were established in 2000. Concentrations were obtained from Table 3 in MacDonald *et al* 2000.   
 
 Citation: MacDonald, D.D., Ingersol, C.G., and Berger, T.A. (2000). Development and Evaluation of Consensus-Based Sediment Quality Guidelines for Freshwater Contamination. *Archives of Environmental Contamination and Toxicology.* 39:20-31. DOI: 10.1007/s002440010075   
+
+**Table 2**: Freshwater probable effect levels for contaminants found on Palmyra Atoll.   
 
 | Contaminant | Symbol | PEL   | 
 |-------------|--------|-------|
@@ -239,6 +244,8 @@ Marine sediment PEL levels (mg/kg of dry weight) are obtained from NOAA guidelin
 
 Citation: National Oceanic and Atmospheric Administration. (1999). Sediment Quality Guidelines developed for the National Status and Trend Program. 
 
+**Table 3**: Marine sediment probable effect levels for contaminants found on Palmyra Atoll.   
+
 | Contaminant | Symbol | PEL   | 
 |-------------|--------|-------|
 | Arsenic     | As     | 70    |
@@ -250,7 +257,7 @@ Citation: National Oceanic and Atmospheric Administration. (1999). Sediment Qual
 
 No PELs are available for Antimony, Colbalt, and Manganese. For these we will approximate an upper limit that is one order of magntiude higher than the established TEL or Eco-SSL.  
 
-```{r pel-ref-levels, eval=F}
+```{r pel-ref-levels, message=F, warning=F, eval=F}
 
 # Set reference levels for each contaminant
 # Where PEL is not established use one order of magnitude higher than TEL
@@ -273,7 +280,9 @@ st_write(contam_ref, file.path(dir_goal, "int/contaminant_refs.shp"), driver = '
 
 ## Calculate Status
 
-The current status for soil contamination will be linearly scaled 0-1 using the TEL and PEL reference levels as midpoint (0.5) and end point (1) values. Values above 1 will be capped at 1.  
+**Reference Point:** The TELs and PELs for each individual contaminant are used as the reference point values.   
+
+The current status for soil contamination will be linearly scaled 0-1 using the TEL and PEL reference levels as midpoint (0.5) and end point (1) values, respectively. Values above 1 will be capped at 1.  
 
 A status is then found for each site using a geometric mean of the status of all contaminants at that site. The overall status score is found for each year as an area weighted mean. This will be used for the soil contamination pressure layer. The CW status score will be the inverse, found by 1 - status.   
 
@@ -333,18 +342,18 @@ write_csv(sc_status, file.path(dir_goal, "output/sc_status.csv"))
 
 ## Save to Toolbox 
 
-```{r save-to-toolbox}
+```{r save-to-toolbox, message=F, warning=F, eval=F}
 sc_status <- read_csv(file.path(dir_goal, "output/sc_status.csv"))
 write_csv(sc_status, file.path(dir_scores, "layers/cw_contamination_status.csv"))
 ```
 
-## Pressure Layer
+# Pressure Layer
 
-### Calculate Pressure Layer
+## Calculate Pressure Layer
 
 Soil contamination will also be a pressure layer where higher scores indicate more contamination. This is the inverse of the status score calculated above.  
 
-```{r debris-pressure-layer, eval=F}
+```{r debris-pressure-layer, message=F, warning=F, eval=F}
 sc_status <- read_csv(file.path(dir_goal, "output/sc_status.csv"))
 
 # Use same pressure score from 2014-2020
@@ -362,9 +371,9 @@ prs <- data.frame(
 write_csv(prs, file.path(dir_goal, "output/po_soil.csv"))
 ```
 
-### Save Pressure to Toolbox 
+## Save Pressure to Toolbox 
 
-```{r save-prs-toolbox, eval=F}
+```{r save-prs-toolbox, message=F, warning=F, eval=F}
 po_soil <- read_csv(file.path(dir_goal, "output/po_soil.csv"))
 write_csv(po_soil, file.path(dir_scores, "layers/prs_po_contamination.csv"))
 ```

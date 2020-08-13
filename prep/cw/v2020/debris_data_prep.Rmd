@@ -1,23 +1,25 @@
 ---
-title: 'OHI+ Palmyra 2020: Clean Waters Goal Marine Debris Layer'
+title: 'Clean Waters: Marine Debris Layer'
+subtitle: 'OHI+ Palmyra 2020 Assessment'
 author: "*Compiled on `r date()` by `r Sys.info()['user']`*"
 output: 
   html_document:
+    code_folding: show
     toc: true
-    toc_depth: 2 
+    toc_depth: 3 
     toc_float: yes
     number_sections: false
     theme: cerulean
     highlight: haddock
     includes: 
-     in_header: '../../../src/templates/ohi_hdr.html' 
+     in_header: '~/github/pal-prep/src/templates/pal_hdr.html' 
   pdf_document:
     toc: true
 ---
 
 # Summary
 
-This script calculates the status of marine debris on Palmyra Atoll. The main type of marine debris on Palmyra is drifting fish aggregation devices (dFADs).         
+This script calculates the status of marine debris on Palmyra Atoll from 2014 - 2020. The main type of marine debris on Palmyra is drifting fish aggregation devices (dFADs).         
 
 # Data 
 
@@ -25,8 +27,7 @@ The data for this layer was obtained from Alex Wegmann at The Nature Conservancy
 
 # Setup
 
-```{r setup, message = F, warning = F}
-knitr::opts_chunk$set(echo = FALSE)
+```{r setup, message=F, warning=F, results='hide'}
 
 library(tidyverse)
 library(janitor)
@@ -50,7 +51,7 @@ fad_raw <- read_csv(file.path(dir_goal, "raw/PANWR_FAD_Database_updated_27May202
 fad_clean <- fad_raw %>% 
   clean_names() %>% 
   dplyr::select(-x11) %>% # Remove extra column
-  dplyr::filter(fad_accession_number != is.na(fad_accession_number)) %>% # Filter out the NA observations
+  dplyr::filter(fad_accession_number != is.na(fad_accession_number)) %>% 
   rename("fad_number" = "fad_accession_number") %>% 
   dplyr::select(fad_number, date_found)  
   
@@ -58,7 +59,7 @@ fad_clean <- fad_raw %>%
 fad_dates <- fad_clean %>% 
   mutate(date_logged = parse_date_time(fad_clean$date_found, orders = c('mdy', 'dmy'))) %>% 
   mutate(year_found = lubridate::year(fad_dates$date_logged),
-         year_found = ifelse(is.na(year_found), 2016, year_found)) %>% # Missing dates all 2016 according the fad #
+         year_found = ifelse(is.na(year_found), 2016, year_found)) %>% # Missing dates all 2016
   dplyr::select(fad_number, year_found)
 
 # Save to int folder
@@ -85,7 +86,7 @@ write_csv(fads_per_yr, file.path(dir_goal, "int/fad_groundings_annual.csv"))
 
 ## Calculate Status 
 
-*Reference Point:* Reduce FAD groundings by 50% of the highest annual recorded number of groundings between 2009-2019.   
+**Reference Point:** Reduce FAD groundings by 50% of the highest annual recorded number of groundings between 2009-2019.   
 
 The highest annual groundings occurred in 2016, with 12 groundings, so the reference point will be 6 annual FAD groundings. Any year where six or less FAD groundings were recorded will receive a perfect score.
 
@@ -108,7 +109,7 @@ fad_status <- annual_fad %>%
          value = (number_fads - ref_point) / ref_point,
          value = ifelse(value < 0, 0, value), # Adjust any below 0 values to zero 
          status = 1 - value,
-         status = ifelse(status == 0, 0.001, status)) %>% # Change from 0 to prevent geometric mean from going to 0
+         status = ifelse(status == 0, 0.001, status)) %>% 
   filter(year >= 2014 & year < 2020) %>% # Remove 2020 as data is incomplete
   dplyr::select(region_id, year, status)
 
@@ -123,9 +124,9 @@ fad_status <- read_csv(file.path(dir_goal, "output/fad_status.csv"))
 write_csv(fad_status, file.path(dir_scores, 'layers/cw_debris_status.csv'))
 ```
 
-## Pressure Layer
+# Pressure Layer
 
-### Calculate Pressure Layer
+## Calculate Pressure Layer
 
 Debris will also be a pressure layer where higher scores indicate more marine debris. This is the inverse of the status score calculated above.  
 
@@ -148,7 +149,7 @@ pressure <- fad_status %>%
 write_csv(pressure, file.path(dir_goal, "output/po_debris.csv"))
 ```
 
-### Save Pressure to Toolbox 
+## Save Pressure to Toolbox 
 
 ```{r save-prs-toolbox, eval=F}
 po_debris <- read_csv(file.path(dir_goal, "output/po_debris.csv"))
