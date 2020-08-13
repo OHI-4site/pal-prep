@@ -1,16 +1,18 @@
 ---
-title: 'OHI+ Palmyra 2020: Tourism and Recreation'
+title: 'Tourism and Recreation'
+subtitle: 'OHI+ Palmyra 2020 Assessment'
 author: "*Compiled on `r date()` by `r Sys.info()['user']`*"
 output: 
   html_document:
+    code_folding: show
     toc: true
-    toc_depth: 2 
+    toc_depth: 3 
     toc_float: yes
     number_sections: false
     theme: cerulean
     highlight: haddock
     includes: 
-     in_header: '../../../src/templates/ohi_hdr.html' 
+     in_header: '~/github/pal-prep/src/templates/pal_hdr.html' 
   pdf_document:
     toc: true
 ---
@@ -25,8 +27,7 @@ Data for this layer is supposed to come from the boat visitation log on Palmyra 
 
 # Setup
 
-```{r setup, message = F, warning = F}
-knitr::opts_chunk$set(echo = FALSE)
+```{r setup, message=F, warning=F, results='hide'}
 
 library(tidyverse)
 library(here)
