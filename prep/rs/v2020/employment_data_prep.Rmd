@@ -1,31 +1,33 @@
 ---
-title: 'OHI+ Palmyra 2020: Research Goal Employment Layer'
+title: 'Research: Employment Layer'
+subtitle: 'OHI+ Palmyra 2020 Assessment'
 author: "*Compiled on `r date()` by `r Sys.info()['user']`*"
 output: 
   html_document:
+    code_folding: show
     toc: true
-    toc_depth: 2 
+    toc_depth: 3 
     toc_float: yes
     number_sections: false
     theme: cerulean
     highlight: haddock
     includes: 
-     in_header: '../../../src/templates/ohi_hdr.html' 
+     in_header: '~/github/pal-prep/src/templates/pal_hdr.html' 
   pdf_document:
     toc: true
 ---
 
 # Summary
 
-This script calculates the status of employment in conservation science on Palmyra Atoll.             
+This script calculates the status of employment in conservation science on Palmyra Atoll from 2014 - 2020.                
 
 # Data 
 
-Data for this layer was gathered through verbal communication with Alex Wegmann at The Nature Conservancy on July 8, 2020.         
+Data for this layer was gathered through verbal communication with Alex Wegmann at The Nature Conservancy on July 8, 2020.          
+
 # Setup
 
-```{r setup, message = F, warning = F}
-knitr::opts_chunk$set(echo = FALSE)
+```{r setup, message=F, warning=F, results='hide'}
 
 library(tidyverse)
 library(here)
@@ -56,7 +58,7 @@ write_csv(emp_raw, file.path(dir_goal, "raw/emp_raw.csv"))
 
 ## Calculate Current Status 
 
-*Reference Point:* 5 full time equivalent (FTE) positions focused on conservation science at Palmyra Atoll      
+**Reference Point:** 5 full time equivalent (FTE) positions focused on conservation science at Palmyra Atoll      
 
 ```{r current-status, eval=F}
 
@@ -78,6 +80,7 @@ write_csv(emp_status, file.path(dir_goal, "output/emp_status.csv"))
 ## Save to Toolbox 
 
 ```{r save-to-toolbox, eval=F}
+emp_status <- read_csv(file.path(dir_goal, "output/emp_status.csv"))
 write_csv(emp_status, file.path(dir_scores, 'layers/rs_employment_status.csv'))
 ```
 

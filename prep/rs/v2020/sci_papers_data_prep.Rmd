@@ -1,23 +1,25 @@
 ---
-title: 'OHI+ Palmyra 2020: Research Goal Scientific Papers Layer'
+title: 'Research: Scientific Papers Layer'
+subtitle: 'OHI+ Palmyra 2020 Assessment'
 author: "*Compiled on `r date()` by `r Sys.info()['user']`*"
 output: 
   html_document:
+    code_folding: show
     toc: true
-    toc_depth: 2 
+    toc_depth: 3 
     toc_float: yes
     number_sections: false
     theme: cerulean
     highlight: haddock
     includes: 
-     in_header: '../../../src/templates/ohi_hdr.html' 
+     in_header: '~/github/pal-prep/src/templates/pal_hdr.html' 
   pdf_document:
     toc: true
 ---
 
 # Summary
 
-This script calculates the status of scientific research conducted on Palmyra Atoll.         
+This script calculates the status of scientific research conducted on Palmyra Atoll from 2014 - 2020.            
 
 # Data 
 
@@ -27,8 +29,7 @@ As the scientific library is not comprehensive, an additional search was done on
 
 # Setup
 
-```{r setup, message = F, warning = F}
-knitr::opts_chunk$set(echo = FALSE)
+```{r setup, message=F, warning=F, results='hide'}
 
 library(tidyverse)
 library(janitor)
@@ -57,10 +58,10 @@ sci_data <- raw_sci_lib %>%
 
 # Find the year of publication for all papers
 sci_lib <- sci_data %>% 
-  mutate(published = parse_date_time(sci_data$record_date, orders = c('y', 'dm', 'dmy', 'my'))) %>% 
+  mutate(published = parse_date_time(sci_data$record_date,
+                                     orders = c('y', 'dm', 'dmy', 'my'))) %>% 
   mutate(year_published = year(published),
          year_published = ifelse(year_published == 2020, "NA", year_published))
-# Any record without a year was automatically given year 2020 - turn these to NA so we can find the correct year 
 
 # Fill in missing publication dates
 # Set search title expression to look for digits (publication year)
@@ -73,7 +74,7 @@ years_missing <- sci_lib %>%
   dplyr::select(title, extract_year) %>% 
   filter(extract_year != 111 & extract_year != 2 &
          extract_year != 140 & extract_year != 146 &
-         extract_year != 122) # filter out the dates that aren't actually dates 
+         extract_year != 122) # Filter out the dates that aren't actually dates 
 
 # Add the dates back into the original data frame 
 sci_lib_years <- sci_lib %>% 
@@ -126,7 +127,7 @@ write_csv(pubs_year, file.path(dir_goal, "int/pubs_year.csv"))
 
 ## Calculate Status 
 
-*Reference Point:* 10 scientific publications per year. 
+**Reference Point:** 10 scientific publications per year   
 
 The scientific papers current status is calculated as the following:   
 
@@ -161,5 +162,6 @@ write_csv(sci_status, file.path(dir_goal, "output/sci_status.csv"))
 ## Save to Toolbox 
 
 ```{r save-to-toolbox, eval=F}
+sci_status <- read_csv(file.path(dir_goal, "output/sci_status.csv"))
 write_csv(sci_status, file.path(dir_scores, 'layers/rs_sci_papers_status.csv'))
 ```
