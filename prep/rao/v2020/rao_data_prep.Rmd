@@ -1,16 +1,18 @@
 ---
-title: 'OHI+ Palmyra 2020: Resource Access Opportunities'
+title: 'Resource Access Opportunities'
+subtitle: 'OHI+ Palmyra 2020 Assessment'
 author: "*Compiled on `r date()` by `r Sys.info()['user']`*"
 output: 
   html_document:
+    code_folding: show
     toc: true
-    toc_depth: 2 
+    toc_depth: 3 
     toc_float: yes
     number_sections: false
     theme: cerulean
     highlight: haddock
     includes: 
-     in_header: '../../../src/templates/ohi_hdr.html' 
+     in_header: '~/github/pal-prep/src/templates/pal_hdr.html' 
   pdf_document:
     toc: true
 ---
@@ -25,8 +27,7 @@ Data for this layer is supposed to come from the fishing log on Palmyra Atoll. T
 
 # Setup
 
-```{r setup, message = F, warning = F}
-knitr::opts_chunk$set(echo = FALSE)
+```{r setup, message=F, warning=F, results='hide'}
 
 library(tidyverse)
 library(here)
@@ -60,7 +61,7 @@ write_csv(rao_status, file.path(dir_goal, "output/rao_status_placeholder.csv"))
 
 ## Save to Toolbox
 
-```{r save-to-toolbox, eval=F}
+```{r save-to-toolbox, eval=F, message=F, warning=F}
 rao_status <- read_csv(file.path(dir_goal, "output/rao_status_placeholder.csv"))
 write_csv(rao_status, file.path(dir_scores, "layers/rao_status_placeholder.csv"))
 ```
