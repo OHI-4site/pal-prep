@@ -303,7 +303,7 @@ spp_trend <- spp_trend_scores %>%
   summarize(trend = mean(trend_score, na.rm=T)) %>%
   group_by(region_id) %>%
   summarize(trend = mean(trend, na.rm=T)) %>% # find average of the 10 classes
-  mutate( year = 2020) %>% 
+  mutate( year = 2019) %>% 
   dplyr::select(region_id, year, trend_score = trend)
 
 # Save to output folder

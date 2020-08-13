@@ -75,7 +75,7 @@ spp_status <- class_status %>%
   mutate(region_id = 1) %>% 
   group_by(region_id) %>% 
   summarize(status = mean(class_status)) %>% 
-  mutate(year = 2020) %>% 
+  mutate(year = 2019) %>% 
   dplyr::select(region_id, year, status)
 
 # Save to output folder 
@@ -85,6 +85,7 @@ write_csv(spp_status, file.path(dir_goal, "output/spp_status.csv"))
 ## Save to Toolbox 
 
 ```{r save-to-toolbox, eval=F}
+spp_status <- read_csv(file.path(dir_goal, "output/spp_status.csv"))
 write_csv(spp_status, file.path(dir_scores, 'layers/spp_status.csv'))
 ```
 

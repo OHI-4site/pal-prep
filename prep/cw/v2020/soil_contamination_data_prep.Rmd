@@ -320,14 +320,10 @@ status <- site_status %>%
   dplyr::select(region_id, year, status)
 
 # The 2008 and 2010 statuses are similar, we will use 2010 as an estimate for every year 2014-2020
-# Define years and status 
-years  <- 2014:2020
-score <- status$status[2]
-
 sc_status <- data.frame(
-  region_id = rep(1, length(years)),
-  year = years, 
-  status = rep(score, length(years))
+  region_id = 1,
+  year = 2010, 
+  status = status$status[status$year == 2010]
 )
 
 # Save to output folder
@@ -351,10 +347,16 @@ Soil contamination will also be a pressure layer where higher scores indicate mo
 ```{r debris-pressure-layer, eval=F}
 sc_status <- read_csv(file.path(dir_goal, "output/sc_status.csv"))
 
+# Use same pressure score from 2014-2020
+years  <- 2014:2020
+status <- sc_status$status
+
 # Find pressure score - inverse of status score 
-prs <- sc_status %>% 
-  mutate(pressure_score = 1 - status) %>% 
-  dplyr::select(region_id, year, pressure_score)
+prs <- data.frame(
+  region_id = rep(1, length(years)), 
+  year = years,
+  pressure_score = rep(1 - status, length(years))
+)
 
 # Save to output
 write_csv(prs, file.path(dir_goal, "output/po_soil.csv"))
