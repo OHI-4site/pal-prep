@@ -3,6 +3,7 @@ title: 'OHI+ Palmyra 2020 - Lasting Special Places subgoal'
 author: "*Compiled on `r date()` by `r Sys.info()['user']`*"
 output: 
   html_document:
+    code_folding: show
     toc: true
     toc_depth: 3 
     toc_float: yes
@@ -10,24 +11,22 @@ output:
     theme: cerulean
     highlight: haddock
     includes: 
-     in_header: '../../../src/templates/ohi_hdr.html' 
+     in_header: '~/github/pal-prep/src/templates/pal_hdr.html' 
   pdf_document:
     toc: true
 ---
 
 # Summary
 
-This script calculates the current status of lasting special places on Palmyra Atoll. While lasting special places are challenging to quantify, this goal assumes areas that are protected represent special places (i.e. the effort to protect them suggests they are important places) (Halpern *et al* 2012).    
+This script calculates the current status of lasting special places on Palmyra Atoll. While lasting special places are challenging to quantify, this goal assumes areas that are protected represent special places (i.e. the effort to protect them suggests they are important places) (Halpern *et al* 2012). We will consider both inland and offshore protected areas.       
 
 # Data 
 
-Data for this goal was given verbally by Alex Wegmann at The Nature Conservancy on June 29, 2020. Palmyra Atoll is 100% protected, the Wildlife Refuge at Palmyra was [established in 2001](https://www.fisheries.noaa.gov/pacific-islands/habitat-conservation/pacific-remote-islands-marine-national-monument). 
+Data for this goal were given verbally by Alex Wegmann at The Nature Conservancy on June 29, 2020. Palmyra Atoll is 100% protected since it was purchased by The Nature Conservancy in 2000 and the [National Wildlife Refuge](https://www.fws.gov/refuge/Palmyra_Atoll/about.html) protecting the offshore areas up to 12 nm around Palmyra was established in 2001.   
 
 # Setup
 
-```{r setup, echo = FALSE, message = FALSE, warning = FALSE}
-
-knitr::opts_chunk$set(echo = FALSE)
+```{r setup, message=F, warning=F, results='hide'}
 
 library(tidyverse)
 library(sf)
@@ -35,7 +34,6 @@ library(here)
 
 # Set filepaths and source functions
 source(here('src/R/common.R'))
-source(ohicore)
 
 dir_goal   <- '~/github/pal-prep/prep/sp/lsp/v2020'
 ```
@@ -46,7 +44,7 @@ dir_goal   <- '~/github/pal-prep/prep/sp/lsp/v2020'
 
 Create the offshore region area output file based on the Palmyra shapefiles. The offshore region is based on a 3 nm buffer around the island.  
 
-```{r create-rgn-area-offshore, eval=F}
+```{r create-rgn-area-offshore, message=F, warning=F}
 
 # Calculate region area from the 3nm buffer shapefile:
 buff_3nm <- pal_buffer_3nm %>% 
@@ -68,7 +66,7 @@ write_csv(rgn_area_offshore3nm, file.path(dir_goal, "int/rgn_area_offshore3nm.cs
 
 Create inland region area output file. The entire land area of Palmyra Atoll will be included in the inland region.  
 
-```{r create-rgn-area-inland, eval=F}
+```{r create-rgn-area-inland, message=F, warning=F}
 
 # Calculate region area from the land shapefile:
 land <- pal_shoreline %>% 
@@ -89,9 +87,9 @@ write_csv(rgn_area_inland1km, file.path(dir_goal, 'int/rgn_area_inland1km.csv'))
 
 ## Offshore Protected Areas 
 
-Find the total offshore area that is protected on Palmyra. Since the establishment of the Wildlife Refuge in 2001, the entire island offshore area has been protected.   
+Find the total offshore area that is protected on Palmyra. Since the establishment of the Wildlife Refuge in 2001, the entire island offshore area up to 12 nm has been protected.   
 
-```{r create-lsp-prot-area-offshore, eval=F}
+```{r create-lsp-prot-area-offshore, message=F, warning=F}
 # Wildlife Refuge was established in 2001 so I'll use years 2001-2019
 years <- seq(2001,2020,1)
 
@@ -108,7 +106,7 @@ write_csv(lsp_prot_area_offshore3nm, file.path(dir_goal, 'int/lsp_prot_area_offs
 
 Find the total inland area that is protected on Palmyra. The Nature Conservancy bought Palmyra in 2000 and the entire island area has been protected.  
 
-```{r create-lsp-prot-area-inland, eval=F}
+```{r create-lsp-prot-area-inland, message=F, warning=F}
 # Use same years as offshore
 years <- seq(2001,2020,1)
 
@@ -123,29 +121,29 @@ write_csv(lsp_prot_area_inland1km, file.path(dir_goal, 'int/lsp_prot_area_inland
 
 ## Calculate Status 
 
-*Reference Point:* 99% of Palmyra Atoll is protected   
+**Reference Point:** 99% of Palmyra Atoll is protected   
 
 The lasting special places status is calculated for offshore + inland areas relative to the reference point, and the average status of both is used as the overall status score.  
-
+<br>
 $status_{offshore}~=~pct_{offshore}~/~pct~ref_{offshore}$   
 
 $status_{inland}~=~pct_{inland}~/~pct~ref_{inland}$    
-
+<br>
 Where $pct_{offshore}$, $pct_{inland}$ is the percent of offshore and inland areas, respectively, that are protected and $pct~ref_{offshore}$, $pct~ref_{inland}$ are the reference point percentages of protected areas offshore and inland, respectively.  
-
+<br>
 Finally, the status of offshore and inland areas are averaged to find the overall status.  
-
+<br>
 $status~=~(status_{offshore}~+status_{inland})~/~2$
 
-```{r calc_status, eval=F}
+```{r calc_status, message=F, warning=F}
 # Read in the output data files:  
-rgn_area_inland1km <- read_csv(file.path(dir_goal, 'int/rgn_area_inland1km.csv')) %>% 
+rgn_area_inland1km        <- read_csv(file.path(dir_goal, 'int/rgn_area_inland1km.csv')) %>% 
   mutate(layer = "rgn_area_inland1km")
 
-rgn_area_offshore3nm <- read_csv(file.path(dir_goal, 'int/rgn_area_offshore3nm.csv')) %>% 
+rgn_area_offshore3nm      <- read_csv(file.path(dir_goal, 'int/rgn_area_offshore3nm.csv')) %>% 
   mutate(layer = "rgn_area_offshore3nm")
 
-lsp_prot_area_inland1km <- read_csv(file.path(dir_goal, 'int/lsp_prot_area_inland1km.csv'))
+lsp_prot_area_inland1km   <- read_csv(file.path(dir_goal, 'int/lsp_prot_area_inland1km.csv'))
 
 lsp_prot_area_offshore3nm <- read_csv(file.path(dir_goal, 'int/lsp_prot_area_offshore3nm.csv'))
 
@@ -187,7 +185,7 @@ write_csv(inland, file.path(dir_goal, "output/inland_status.csv"))
 
 Save the two output to the toolbox as `lsp_offshore.csv` and `lsp_inland.csv`      
 
-```{r save-to-toolbox, eval=F}
+```{r save-to-toolbox, message=F, warning=F}
 write_csv(offshore, file.path(dir_scores, 'layers/lsp_offshore.csv'))
 write_csv(inland, file.path(dir_scores, 'layers/lsp_inland.csv'))
 ```
