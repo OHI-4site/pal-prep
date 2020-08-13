@@ -3,6 +3,7 @@ title: 'OHI+ Palmyra 2020 - Iconic species subgoal'
 author: "*Compiled on `r date()` by `r Sys.info()['user']`*"
 output: 
   html_document:
+    code_folding: show
     toc: true
     toc_depth: 3 
     toc_float: yes
@@ -10,14 +11,14 @@ output:
     theme: cerulean
     highlight: haddock
     includes: 
-     in_header: '../../../src/templates/ohi_hdr.html' 
+     in_header: '~/github/pal-prep/src/templates/pal_hdr.html' 
   pdf_document:
     toc: true
 ---
 
 # Summary
 
-This script finds the current status for Iconic Species in Palmyra Atoll. For each iconic species, extinction risk category is pulled based on current and past assessments; by tracking the assessed extinction risk over time, we can understand the trends of extinction risk for iconic species directly rather than using the "population trend" method from prior OHI assessments.  
+This script finds the current status for Iconic Species in Palmyra Atoll. For each iconic species, extinction risk category is pulled based on current and past assessments; by tracking the assessed extinction risk over time, we can understand the trends of extinction risk for iconic species.    
 
 # Data
 
@@ -26,27 +27,28 @@ Calculating the iconic species current status requires a list of iconic species 
 *List of iconic species:*
 A list of iconic species was created based on species listed on the U.S. Fish an Wildlife Service webpage for the Palmyra Atoll National Wildlife Refuge. 
 
-Citation: U.S. Fish and Wildlife Service. (2016, January 14). Wildlife and Habitat. Retrieved from <https://www.fws.gov/refuge/Palmyra_Atoll/wildlife_and_habitat/index.html> 
+Citation: U.S. Fish and Wildlife Service. (2016, January 14). Wildlife and Habitat. Retrieved from <https://www.fws.gov/refuge/Palmyra_Atoll/wildlife_and_habitat/index.html>   
   *__Accessed__: 04 June 2020   
 
 *Conservation Status:*
 Conservation status was pulled from the IUCN Red List.  
 
-Citation: IUCN 2020. IUCN Red List of Threatened Species. Version 2020-1 <www.iucnredlist.org>
-  * __Accessed__: 9 June 2020 
-  * __Time range__: 1965-2020 (discrete past assessments by species) 
-  * __Format__:  JSON
+Citation: IUCN 2020. IUCN Red List of Threatened Species. Version 2020-1 <www.iucnredlist.org>   
+  * __Accessed__: 9 June 2020   
+  * __Time range__: 1965-2020 (discrete past assessments by species)   
+  * __Format__:  JSON   
 
 # Setup 
 
-```{r setup, echo = FALSE, message = FALSE, warning = FALSE, eval=FALSE}
+```{r setup, message=F, warning=F, results='hide'}
 
-knitr::opts_chunk$set(echo = FALSE)
 library(rredlist)
 library(tidyverse)
 library(dplyr)
 library(raster)
 library(here)
+
+# Source common.R
 source(here('src/R/common.R'))
 
 # Global filepaths for API
@@ -67,17 +69,20 @@ api_key <- scan(api_file, what = 'character')
 
 # Methods
 
-## Download Species List from IUCN 
+## IUCN Species List
 
-Using the IUCN API, we accessed the full IUCN species list for the US Minor Outlying Islands at <http://apiv3.iucnredlist.org/api/v3/country/getspecies/id/%s?token=%s>. With some minor formatting, this list contains the following variables:
+Using the IUCN API, we accessed the full IUCN species list for the US Minor Outlying Islands at <http://apiv3.iucnredlist.org/api/v3/country/getspecies/id/%s?token=%s>.   
 
-iucn_sid | scientific_name | subspecies | rank | subpopulation | category | country_code
+With some minor formatting, this list contains the following variables:   
+<br>   
+
+iucn_sid | scientific_name | subspecies | rank | subpopulation | category | country_code   
 
 ```{r get-spp-iucn, eval=F}
 
-## get a dataframe of all iucn redlist species
-out <- rl_sp(all = TRUE, key = api_key)
-all_df <- do.call(rbind, lapply(out, "[[", "result"))
+## Get a dataframe of all iucn redlist species
+out         <- rl_sp(all = TRUE, key = api_key)
+all_df      <- do.call(rbind, lapply(out, "[[", "result"))
 all_df_comp <- all_df %>%
   dplyr::select(-infra_rank, -infra_name) %>%
     dplyr::rename(iucn_sid = taxonid, sciname = scientific_name) %>%
@@ -104,7 +109,7 @@ spp_pal <- all_df_comp %>%
 write_csv(spp_pal, file.path(dir_goal, 'raw/spp_list_from_api.csv'))
 ```
 
-## Get Iconic Species List
+## Pal Iconic Species List
 
 This initial list of iconic species is compiled based on USFWS birds, mammals, reptiles, and invertebrates list found [here](https://www.fws.gov/refuge/Palmyra_Atoll/wildlife_and_habitat/index.html). 
 
@@ -121,22 +126,26 @@ Reptiles: green turtles (Chelonia mydas), hawksbill turtles (Eretmochelys imbric
 Invertebrates: stony corals (many species), giant clams (Tridacna gigas), coconut crabs (Birgus latro)   
 
 ```{r usfws-ico-spp, eval=F}
-# Create vector of iconic species scientific names from the USFWS webpage to cross reference (17 spp total)
-# Note this list excludes specific coral and fish species that weren't listed on the USFWS webpage
-sci_name <- c("Sula leucogaster", "Sula dactylatra", "Sula sula", "Anous minutus", "Anous stolidus",
-          "Fregata minor", "Onychoprion fuscata", "Numenius tahitiensis", "Pluvialis fulva",
-          "Heteroscelus incanus", "Arenaria interpres", "Tursiops aduncus", "Stenella longirostris",
-          "Peponocephala electra", "Chelonia mydas", "Eretmochelys imbricata", "Tridacna gigas",
-          "Birgus latro")
-# Vector of common names (in same order as sci_name)
-common_name <- c("Brown booby", "Masked booby", "Red-footed booby", "Black noddy", "Brown noddy", 
-                 "Great frigatebird", "Sooty tern", "Bristle-thighed curlew", "Pacific golden plover",
-                 "Wandering tattler", "Ruddy ternstone", "Pacific bottlenose dolphin", "Spinner dolphin",
-                 "Melon-headed whales", "Green turtle", "Hawksbill turtle", "Giant clam", "Coconut crab")
+# Create vector of iconic species scientific names from the USFWS webpage
+# 17 spp total 
+sci_name <- c("Sula leucogaster", "Sula dactylatra", "Sula sula", "Anous minutus", 
+              "Anous stolidus", "Fregata minor", "Onychoprion fuscata", 
+              "Numenius tahitiensis", "Pluvialis fulva", "Heteroscelus incanus", 
+              "Arenaria interpres", "Tursiops aduncus", "Stenella longirostris",
+              "Peponocephala electra", "Chelonia mydas", "Eretmochelys imbricata", 
+              "Tridacna gigas", "Birgus latro")
 
-# Create the USFWS ico species list, include same columns as global so they can be combined - comname, sciname, ico_gl, and ico_rgn_id
+# Vector of common names (in same order as sci_name)
+common_name <- c("Brown booby", "Masked booby", "Red-footed booby", "Black noddy", 
+                 "Brown noddy", "Great frigatebird", "Sooty tern", "Bristle-thighed curlew", 
+                 "Pacific golden plover", "Wandering tattler", "Ruddy ternstone", 
+                 "Pacific bottlenose dolphin", "Spinner dolphin", "Melon-headed whales", 
+                 "Green turtle", "Hawksbill turtle", "Giant clam", "Coconut crab")
+
+# Create the USFWS ico species list
 ico_list_usfws <- data.frame(comname = common_name, sciname = sci_name,
-                             ico_gl = rep("FALSE", length(sci_name)), ico_rgn_id = rep(150, length(sci_name)))
+                             ico_gl = rep("FALSE", length(sci_name)),
+                             ico_rgn_id = rep(150, length(sci_name)))
 
 
 # Write csv file
@@ -148,8 +157,8 @@ USFWS list is small, add the iconic species for US Minor Outlying Islands from t
 The OHI global list of Iconic Species is based upon the original ICO list generated in 2011, using species identified as globally iconic (WWF Flagship species and Priority species) or regionally iconic (based upon WWF regional/local priority species and nation-specific lists).
 
 ```{r get-global-ico-spp, eval=F}
-# ico master species list from Mazu: 'git-annex/globalprep/ico/ico/ico_global_list2016.csv'
-# function called get_ico_list() defined in the ico_fxn.R file
+# Ico master species list from Mazu: 'git-annex/globalprep/ico/ico/ico_global_list2016.csv'
+# Function called get_ico_list() defined in the ico_fxn.R file
 ico_list_global <- get_ico_list(reload = TRUE) 
 
 write_csv(ico_list_global, file.path(dir_goal, 'raw/ico_list_global.csv'))
@@ -161,14 +170,14 @@ Filter the full global iconic species list for species that are globally iconic 
 ico_list_global <- read_csv(file.path(dir_goal, "raw/ico_list_global.csv"))
 ico_list_usfws  <- read_csv(file.path(dir_goal, "raw/ico_list_usfws.csv"))
 
-# Filter global species list for only those globally iconic or iconic to palmyra 
+# Filter global species list for only those globally iconic or iconic to Palmyra 
 global_ico <- ico_list_global %>% 
-  filter(ico_gl == "TRUE" | ico_rgn_id == 150) # 39 total species from global list but none from rgn 150
+  filter(ico_gl == "TRUE" | ico_rgn_id == 150) # 39 total species from global list
 
 # See if there is any overlap in the USFWS ico list and the global ico list
 setdiff(ico_list_usfws$sciname, global_ico$sciname)
 
-# Only two sea turtles are included in the global list - exclude these when combining the datasets 
+# Only two sea turtles are included in the global list - exclude when combining
 ico_spp_pal <- ico_list_usfws %>% 
   filter(sciname != "Chelonia mydas" & sciname != "Eretmochelys imbricata") %>% 
   rbind(global_ico) # 55 species 
@@ -176,7 +185,7 @@ ico_spp_pal <- ico_list_usfws %>%
 write_csv(ico_spp_pal, file.path(dir_goal, 'raw/ico_list_pal.csv'))
 ```
 
-## Identify extant ICO species populations
+## Extant ICO populations
 
 Filtering the complete IUCN species list for US Minor Outlying islands to include only the identified Iconic Species from either the USFWS website or the 2011 ico list.  
 
@@ -191,8 +200,10 @@ ico_list <- ico_list_pal %>%
   left_join(spp_pal %>% 
             dplyr::select(iucn_sid, sciname, category),
             by = 'sciname') %>% 
-  mutate(all_na = ifelse(category == is.na(category) & iucn_sid == is.na(iucn_sid) & ico_rgn_id == is.na(ico_rgn_id), "yes", "no")) %>% 
-  filter(all_na == "no") %>% # keep columns only for species found in palmyra 
+  mutate(all_na = ifelse(category == is.na(category) & 
+                           iucn_sid == is.na(iucn_sid) & 
+                           ico_rgn_id == is.na(ico_rgn_id), "yes", "no")) %>% 
+  filter(all_na == "no") %>% # Keep columns only for species found in Palmyra 
   dplyr::select(-all_na)
 
 ## A few NAs from USFWS list:
@@ -203,7 +214,7 @@ no_status <- ico_list %>%
 # Make vector of those that didn't match
 ico_not_listed <- no_status$sciname
 
-# Filter overall species list for those that didnt match
+# Filter overall species list for those that didn't match
 pal_ico_not_listed <- all_df_comp %>%
   filter(sciname %in% ico_not_listed) # found 4 of the 6 species
 
@@ -217,12 +228,12 @@ no_status_fill <- no_status %>%
          "category" = "category.y")
 
 # Still missing terns and tattlers 
-# Found them on the IUCN webpage and pulled the iucn_sid for the web address and status from the spp page
+# Found them on the IUCN webpage and pulled the iucn_sid 
 missing_sid <- data.frame(sciname = c("Onychoprion fuscata", "Heteroscelus incanus"),
                           missing_id = c(22694740, 22693305),
                           missing_cat = c("LC", "LC"))
 
-# missing category needs to be a character not a factor
+# Missing category needs to be a character not a factor
 missing_sid$missing_cat <- as.character(missing_sid$missing_cat)
 
 # Join the two missing species to the no status fill to complete the missing species list
@@ -237,10 +248,11 @@ ico_list_prepped <- ico_list %>%
   rbind(no_status_filled) %>% 
   filter(!is.na(category))
 
-write_csv(ico_list_prepped, file.path(dir_goal, 'int/ico_list_prepped.csv')) #23 species in 2020
+# Save to int folder: 23 species in 2020
+write_csv(ico_list_prepped, file.path(dir_goal, 'int/ico_list_prepped.csv')) 
 ```
 
-## Historic threat
+## Historic Threat
 
 We accessed the IUCN API to determine past IUCN assessments for each of the identified iconic species: http://apiv3.iucnredlist.org/api/v3/species/history/id/?token=.
 
@@ -251,7 +263,7 @@ Each assessment includes a year and an extinction risk, along with additional in
 pal_ico_list <- read_csv(file.path(dir_goal, 'int/ico_list_prepped.csv'))
 ico_ids      <- unique(pal_ico_list$iucn_sid)
 
-# use rl_history, create loop that runs it for each id in our iconic species list
+# Use rl_history, create loop that runs it for each id in our iconic species list
 for(i in seq_along(ico_ids)){
 id = ico_ids[i]
 out <- rl_history(id = id, key = api_key) # this comes out as a list
@@ -270,7 +282,7 @@ write_csv(raw_ico_assess, file.path(dir_goal,'int/raw_ico_assess.csv'))
 ## Category Scores
 
 Break apart any dual categories and make sure all categories have a 1 or 2 digit upper case code 
-
+<br>   
 Category scores are the inverse of the risk value used in the SPP calculations:  
     * 'LC' = 1.0, 'NT' = 0.8, 'VU' = 0.6, 'EN' = 0.4, 'CR' = 0.2, 'EX' = 0.0
 
@@ -374,9 +386,9 @@ write_csv(ico_assess_2020, file.path(dir_goal,'int/ico_assess_full.csv'))
 ```
 
 
-## Prep layer for toolbox
+## Clean Layer
 
-The toolbox wants `rgn_id`, species `sciname`, and extinction risk `category` for the basic calculations.  Since some regions contain multiple subpops (or parent/subpop) we also include `iucn_sid` to differentiate. This information is included for each `year`, filtered back to the year 2014.  
+The toolbox wants `region_id`, species `sciname`, and extinction risk `category` for the basic calculations. Since some regions contain multiple subpops (or parent/subpop) we also include `iucn_sid` to differentiate. This information is included for each `year`, filtered back to the year 2014.  
 
 ```{r final-ico-layer-prep, eval=F}
 
@@ -385,7 +397,7 @@ pal_ico_list    <- read_csv(file.path(dir_goal, 'int/ico_list_prepped.csv'))
 
 # Add rgn_id to the ico dataframe 
 ico_rgn <- ico_assessments %>% 
-  mutate(rgn_id = 1)
+  mutate(region_id = 1)
 
 # Get scientific names 
 pal_scinames <- pal_ico_list %>% 
@@ -395,7 +407,7 @@ pal_scinames <- pal_ico_list %>%
 ico_scinames <- ico_rgn %>% 
   group_by(iucn_sid) %>% 
   left_join(pal_scinames, by = "iucn_sid") %>% 
-  dplyr::select(rgn_id, iucn_sid, sciname, year, category = cat, cat_score)
+  dplyr::select(region_id, iucn_sid, sciname, year, category = cat, cat_score)
 
 # Save to the output folder - this will be used to calculate the scores
 write_csv(ico_scinames, file.path(dir_goal,'output/ico_spp_scores.csv'))
@@ -403,12 +415,12 @@ write_csv(ico_scinames, file.path(dir_goal,'output/ico_spp_scores.csv'))
 
 ## Calculate Status
 
-*Reference Point:* All species have a conservation status of Least Concern (LC) 
+**Reference Point:** All species have a conservation status of Least Concern (LC) 
 
 We will use the category scores for each species to calculate the status. The status for Palmyra is just the average of the status of each iconic species found in the region, as defined by the following equation:  
-
+    
 $status~=~mean(spp_{score})$   
-
+  
 Where $spp_{score}$ is the category score for each species given by its IUCN conservation status.  
 
 ```{r calc-status, eval=F}
@@ -416,7 +428,6 @@ ico_spp_scores <- read_csv(file.path(dir_goal,'output/ico_spp_scores.csv'))
 
 # Find the status score for each year 
 ico_status <- ico_spp_scores %>%
-  rename(region_id = rgn_id) %>% 
   group_by(year, region_id) %>%
   summarize(mean_cat = round(mean(cat_score, na.rm = TRUE), 5), 
             status = (1 - mean_cat)) %>% 
@@ -427,9 +438,10 @@ ico_status <- ico_spp_scores %>%
 write_csv(ico_status, file.path(dir_goal, "output/ico_status.csv"))
 ```
 
-# Save to Toolbox
+## Save to Toolbox
 
 ```{r save-to-toolbox, eval=F}
+ico_status <- read_csv(file.path(dir_goal, "output/ico_status.csv"))
 write_csv(ico_status, file.path(dir_scores, 'layers/ico_status.csv'))
 ```
 
