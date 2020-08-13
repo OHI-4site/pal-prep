@@ -1,6 +1,6 @@
-### Palmyra Ocean Health Index: Habitat Services 
+## Palmyra Ocean Health Index: Habitat Services 
 
-This folder describes the methods used to prepare the data layers for the Habitat Services goal. This goal is made up of 2 sub-goals, **Carbon Storage** and **Coastal Protection**.  
+This folder describes the methods used to prepare the data layers for the Habitat Services goal. This goal is made up of two sub-goals, **Carbon Storage** and **Coastal Protection**.  
 
 This folder contains the following sub-folders:    
 
