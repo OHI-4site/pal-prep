@@ -23,20 +23,28 @@ For the global OHI assessment, the raw data is processed into anomaly products. 
 
 This script takes the global anomaly rasters and crops them to Palmyra. This time we have decided to use a reference point that represents a regime shift. Once a given cell is anomalous for more than 50% of a five-year period, it has shifted into a new regime. All cells that have a value greater than 130 weeks (51% of a 5 year time period) are assigned a 1. The rest of the cells are scaled to this reference point by dividing by 130.  
 
+***
+
 # Data
 
 The Ultraviolet Radiation pressures layer uses the [Aura OMI GLobal Surface UVB Data Product](https://disc.gsfc.nasa.gov/uui/datasets/OMUVBG_V003/summary#).  
 
 **Native Data Resolution**: 0.25 degrees  
+
 **Values**: OMI/Aura Surface UVB Irradiance and Erythemal Dose Daily L2 Global Gridded 0.25 degree x 0.25 degree V3  
+
 **Time Range**: Daily data from 2005 - 2019  
+
 **Format**: HDF5
 
-Citation: Jari Hovila, Antii Arola, and Johanna Tamminen (2014), OMI/Aura Surface UVB Irradiance and Erythemal Dose Daily L2 Global Gridded 0.25 degree x 0.25 degree V3, NASA Goddard Space Flight Center, Goddard Earth Sciences Data and Information Services Center (GES DISC), Accessed [June 22, 2020] DOI:10.5067/Aura/OMI/DATA2028.  
+**Citation**: Jari Hovila, Antii Arola, and Johanna Tamminen (2014), OMI/Aura Surface UVB Irradiance and Erythemal Dose Daily L2 Global Gridded 0.25 degree x 0.25 degree V3, NASA Goddard Space Flight Center, Goddard Earth Sciences Data and Information Services Center (GES DISC), Accessed [June 22, 2020] DOI:10.5067/Aura/OMI/DATA2028.  
+
+***
 
 # Setup 
 
 ```{r setup, message = F, warning = F}
+
 knitr::opts_chunk$set(echo = FALSE)
 
 library(tidyverse)
@@ -52,8 +60,11 @@ library(here)
 # Source and set file paths
 source(here('src/R/common.R'))
 
-dir_prs   <- '~/github/pal-prep/prep/pressures/uv/v2020'
+dir_prs <- '~/github/pal-prep/prep/pressures/uv/v2020'
+
 ```
+
+***
 
 # Methods
 
@@ -73,6 +84,7 @@ world = getMap()
 plot(raster(anom_files[15]), col=cols, main = "UV Radiation Anomalies 2019", box=F, axes=F,
      legend.args=list(text='Anomalous Weeks', side=4, font=2, line=2.5, cex=0.8))
 plot(world, col='black', add=T)
+
 ```
 
 ## Crop to Palmyra
@@ -80,6 +92,7 @@ plot(world, col='black', add=T)
 Using the `crop` function from the `raster` package we crop all uv rasters to the Palmyra extent and then reproject them to the US Albers projection for consistency across the assessment. We crop the global rasters first to reduce the time it takes to reproject the rasters. `ocean_rast3_100` is used as a mask to remove land cells from the raster for better visuals.  
 
 ```{r crop-to-pal, eval=F}
+
 registerDoParallel(10) # Register 10 cores for parallel processing
 
 foreach(f = anom_files) %dopar% {
@@ -102,6 +115,7 @@ foreach(f = anom_files) %dopar% {
 ```
 
 ```{r check, eval=F, include=F}
+
 # Check a few rasters to make sure this makes sense:
 check07 <- raster(file.path(dir_anx, '/dataprep/prs_uv/output/uv_annual_anoms/annual_anom_2007.tif'))
 check19 <- raster(file.path(dir_anx, '/dataprep/prs_uv/output/uv_annual_anoms/annual_anom_2019.tif'))
@@ -113,8 +127,8 @@ plot(check07, col=cols,
 plot(check19, col=cols, 
      main = "Ultraviolet Radiation 2016",
      legend.args=list(text='Anomalous Weeks', side=4, font=2, line=2.5, cex=0.8))
-```
 
+```
 
 ## Visualize Change
 
@@ -139,6 +153,7 @@ saveGIF({
       
   }
 }, movie.name = 'uv_annual_anoms.gif')
+
 ```
 
 <img src="uv_annual_anoms.gif"/>
@@ -160,6 +175,7 @@ for(i in 2005:2015){ #i=2005
   writeRaster(s, filename = paste0(dir_anx, "/dataprep/prs_uv/output/uv_sum_anoms/sum_anoms_",
                                    min(yrs), '-', max(yrs), '.tif'), overwrite=T)
 }
+
 ```
 
 ## Rescale
@@ -188,6 +204,7 @@ resc_func <- function(x){
 foreach(file = uv_aggs) %dopar% {
   resc_func(file)
 }
+
 ```
 
 ## Presure Over Time
@@ -212,9 +229,12 @@ saveGIF({
       
   }
 }, movie.name = 'uv_rescale.gif')
+
 ```
 
 <img src="uv_rescale.gif"/>   
+
+***
 
 # Results
 
@@ -242,21 +262,25 @@ uv_data <- pivot_longer(pal_stats,
 
 # Save to output folder
 write_csv(uv_data, file.path(dir_prs, "output/uv_pressure.csv"))
+
 ```
 
 ## Save To Toolbox
 
 ```{r save-to-toolbox, eval=F}
+
 uv_pressure <- read_csv(file.path(dir_prs, "output/uv_pressure.csv"))
+
 write_csv(uv_pressure, file.path(dir_scores, "layers/prs_cc_uv.csv"))
+
 ```
 
 
 ## Final Visualization
 
 ```{r uv-viz}
-uv_data <- read_csv(file.path(dir_prs, "output/uv_pressure.csv"))
 
+uv_data <- read_csv(file.path(dir_prs, "output/uv_pressure.csv"))
 
 ggplot(uv_data, aes(x = year, y = pressure_score)) +
   geom_line() + 
@@ -265,11 +289,13 @@ ggplot(uv_data, aes(x = year, y = pressure_score)) +
   scale_y_continuous(expand = c(0,0), limits = c(0.25,0.45)) + 
   labs(y = "Pressure Score", x = "Year") + 
   theme_minimal()
+
 ```
 
 This code chunk creates a google visualization of the scores through time. It unfortunately does not allow the google chart to show up in the RMarkdown knitted document.
 
 ```{r googlevis}
+
 library(googleVis)
 
 plotData <- uv_data %>%
@@ -280,4 +306,5 @@ Motion <- gvisMotionChart(plotData,
                        timevar="year")
 plot(Motion)
 print(Motion, file='uv.html')
+
 ```
