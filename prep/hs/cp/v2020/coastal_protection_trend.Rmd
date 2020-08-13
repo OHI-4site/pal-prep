@@ -1,8 +1,10 @@
 ---
-title: 'OHI+ Palmyra 2020: Habitat Services Subgoal Coastal Protection Trend'
+title: 'Coastal Protection Trend'
+subtitle: 'OHI+ Palmyra 2020 Assessment'
 author: "*Compiled on `r date()` by `r Sys.info()['user']`*"
 output: 
   html_document:
+    code_folding: show
     toc: true
     toc_depth: 3 
     toc_float: yes
@@ -10,7 +12,7 @@ output:
     theme: cerulean
     highlight: haddock
     includes: 
-     in_header: '../../../src/templates/ohi_hdr.html' 
+     in_header: '~/github/pal-prep/src/templates/pal_hdr.html' 
   pdf_document:
     toc: true
 ---
@@ -23,14 +25,14 @@ This script calculates the trend in coastal protection based on the trend in the
 
 *Coral Reef Condition Trend*   
 
-The coastal protection trend will use the same data as the coral condition trend calculated for the Biodiversity Habitats subgoal. 
+The coastal protection trend will use the same data as the coral condition trend calculated for the Biodiversity Habitats sub-goal. 
 
-Coral condition is lacking historic data for all areas of the reef used to estimate current status (fore reef, reef crest, back reef, and lagoon). Therefore, the trend of coral condition will be estimated using the OHI global data. The OHI global trend data is calculated as a linear trend in coral condition, calculated on a per country basis across all available data from 1975-2006. More information on the coral trend method can be found in the [OHI Global Methods](https://raw.githack.com/OHI-Science/ohi-global/published/documents/methods/Supplement.html#62_biodiversity) documentation, Section 6.2.1. 
+Coral condition is lacking historic data for all areas of the reef used to estimate current status (fore reef, reef crest, back reef, and lagoon). Therefore, the trend of coral condition will be estimated using the OHI global data. The OHI global trend data are calculated as a linear trend in coral condition, calculated on a per country basis across all available data from 1975-2006. More information on the coral trend method can be found in the [OHI Global Methods](https://raw.githack.com/OHI-Science/ohi-global/published/documents/methods/Supplement.html#62_biodiversity) documentation, Section 6.2.1. 
 
 # Methods 
 
 ## Coastal Protection Trend 
 
-Coral reefs are the only habitat included in the coastal protection goal. Therefore, the coastal protection trend is just the coral condition trend, which was calculated for the Biodiversity Habitats subgoal in `coral_trend.Rmd` and saved to the pal-scores toolbox as `hab_coral_trend.csv`.    
+Coral reefs are the only habitat included in the coastal protection goal. Therefore, the coastal protection trend is just the coral condition trend, which was calculated for the Biodiversity Habitats sub-goal in `coral_trend.Rmd` and saved to the pal-scores toolbox as `hab_coral_trend.csv`.    
 
 

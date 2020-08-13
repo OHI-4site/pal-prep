@@ -1,8 +1,10 @@
 ---
-title: 'OHI+ Palmyra 2020: Habitat Services Subgoal Coastal Protection Status'
+title: 'Coastal Protection Sub-goal'
+subtitle: 'OHI+ Palmyra 2020 Assessment'
 author: "*Compiled on `r date()` by `r Sys.info()['user']`*"
 output: 
   html_document:
+    code_folding: show
     toc: true
     toc_depth: 3 
     toc_float: yes
@@ -10,7 +12,7 @@ output:
     theme: cerulean
     highlight: haddock
     includes: 
-     in_header: '../../../src/templates/ohi_hdr.html' 
+     in_header: '~/github/pal-prep/src/templates/pal_hdr.html' 
   pdf_document:
     toc: true
 ---
@@ -33,8 +35,7 @@ Citation: U.S. Department of Commerce, National Oceanic and Atmospheric Administ
 
 # Setup 
 
-```{r setup, message = F, warning = F}
-knitr::opts_chunk$set(echo = FALSE)
+```{r setup, message=F, warning=F, results='hide'}
 
 library(tidyverse)
 library(here)
@@ -51,11 +52,11 @@ dir_hab    <- '~/github/pal-prep/prep/bd/hab/v2020'
 
 ## Coral Condition
 
-Coral condition is the current condition of coral reef habitats relative to the reference point. 
+Coral condition is the current condition of coral reef habitats relative to the reference point.   
 
 $C_{condition}~=~C_{current}~/~C_{ref}$   
 
-Where $C_{current}$ is the current status of coral habitats and $C_{ref}$ is the reference point of coral habitats. This is the same as the coral status calculated in the Biodiversity Habitats subgoal.   
+Where $C_{current}$ is the current status of coral habitats and $C_{ref}$ is the reference point of coral habitats. This is the same as the coral status calculated in the Biodiversity Habitats sub-goal.   
 
 Use the coral status calculated in the Biodiversity: Habitats sub-goal.      
 
@@ -90,6 +91,13 @@ write_csv(coral_extent, file.path(dir_goal, "int/coral_extent.csv"))
 
 ## Calculate Status
 
+**Reference Point:** The coral condition will use the same reference points as the coral habitats sub-goal. 
+
+ - Back Reef:  10-50%   
+ - Reef Crest: 10-50%      
+ - Fore Reef:  50-90%     
+ - Lagoon:     10-50%    
+
 The coastal protection status is calculated as the relative health of the habitats that provide coastal protection weighted by their area and protectiveness rank. Coral reefs are the only habitat included in the coastal protection goal for Palmyra, and the status is found by the following equation:  
 
 $status~=~(C_{condition}~x~A~x~w)~/~(A~x~w)$   
@@ -110,7 +118,8 @@ status <- function(C,A,w) {
   (C * A * w) / (A * w)
 }
 
-# Find status - should be the same as the condition (area and weighting cancel out)
+# Find status - should be the same as the condition
+# Area and weighting cancel out)
 c_status <- status(C=C, A=A, w=w)   
 
 # Create status data frame 
