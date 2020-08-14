@@ -1,8 +1,10 @@
 ---
-title: 'OHI+ Palmyra 2020: Habitats Subgoal Rainforest'
+title: 'Habitats Sub-goal: Rainforest'
+subtitle: 'OHI+ Palmyra 2020 Assessment'
 author: "*Compiled on `r date()` by `r Sys.info()['user']`*"
 output: 
   html_document:
+    code_folding: show
     toc: true
     toc_depth: 3 
     toc_float: yes
@@ -10,7 +12,7 @@ output:
     theme: cerulean
     highlight: haddock
     includes: 
-     in_header: '../../../src/templates/ohi_hdr.html' 
+     in_header: '~/github/pal-prep/src/templates/pal_hdr.html' 
   pdf_document:
     toc: true
 ---
@@ -29,7 +31,7 @@ The most recent estimates for rainforest coverage on Palmyra Atoll comes from a 
 Citation: Burnett, M.W. *et al.* (2019). "Quantifying coconut palm extent on Pacific islands using spectral textural analysis of very high resolution imagery". *International Journal of Remote Sensing* 40(19): 7329-7355   
   [Available here](https://www.tandfonline.com/doi/epub/10.1080/01431161.2019.1594440?needAccess=true). 
   
-The data comes from Table A1 downloaded on July 8, 2020 from [here](https://www.tandfonline.com/doi/figure/10.1080/01431161.2019.1594440?scroll=top&needAccess=true).  
+The data come from Table A1 downloaded on July 8, 2020 from [here](https://www.tandfonline.com/doi/figure/10.1080/01431161.2019.1594440?scroll=top&needAccess=true).  
 
 *2001 Data*   
 The historic percent coverage of palm and rainforest will be used as the reference point for the status score. Historic values are based on a 2001 satellite image evaluated in the U.S. Geological Survey 2011 Terrestrial Forest Management Plan for Palmyra Atoll. There is no downloadable data, these numbers are pulled from the report to create the historic data frame.    
@@ -39,8 +41,7 @@ Citation: Hathaway, S.A., McEachern K., & Fisher, R.N. (2011). "Terrestrial Fore
 
 # Setup
 
-```{r setup, message = F, warning = F}
-knitr::opts_chunk$set(echo = FALSE)
+```{r setup, message=F, warning=F, results='hide'}
 
 library(tidyverse)
 library(janitor)
@@ -56,7 +57,7 @@ dir_goal   <- '~/github/pal-prep/prep/bd/hab/v2020'
 
 ## Get Vegetation Data
 
-Vegetation data is grouped into the following categories: cocos, native forest, scaevola, and non-vegetated. Non-vegetated land area is excluded from the total area. Using the data we can find the total land area ($km^2$) and using the percent coverage, find the total area occupied by each vegetation category.  
+Vegetation data is grouped into the following categories: cocos, native forest, scaevola, and non-vegetated. Non-vegetated land area is excluded from the total area. Using the data we can find the total land area (km^2^) and using the percent coverage, find the total area occupied by each vegetation category.  
 
 ```{r vegetation-data, eval=F}
 
@@ -91,7 +92,7 @@ write_csv(veg_cover, file.path(dir_goal, "int/veg_cover.csv"))
 
 ## Calculate Vegetation Area
 
-For this goal, we are concerned with calculating the area ($km^2$) of the rainforest and of coconut palm plantations
+For this goal, we are concerned with calculating the area (km^2^) of the rainforest and of coconut palm plantations
 
 ```{r calculate-percent-cover, eval=F}
 
@@ -100,7 +101,7 @@ veg_cover <- read_csv(file.path(dir_goal, "int/veg_cover.csv"))
 # Regroup vegetation categories and find the total area 
 veg_area <- veg_cover %>%
   mutate(category = ifelse(category == "scaevola", "forest", category),
-         category = ifelse(category == "native_forest", "forest", category)) %>% # group the native forest and scaevola together as forest 
+         category = ifelse(category == "native_forest", "forest", category)) %>%
   mutate(cover_area = percent_cover * total_area_km) %>% 
   filter(category != "non_veg") %>% 
   dplyr::select(-total_area_km, - percent_cover) %>% 
@@ -136,7 +137,7 @@ historic_cover <- data.frame(category = c("cocos", "native_forest", "scaevola", 
 # Regroup vegetation categories and find the total area 
 hist_area <- historic_cover %>%
   mutate(category = ifelse(category == "scaevola", "forest", category),
-         category = ifelse(category == "native_forest", "forest", category)) %>% # group the native forest and scaevola together as forest 
+         category = ifelse(category == "native_forest", "forest", category)) %>%
   mutate(cover_area = percent_cover * total_area_km) %>% 
   filter(category != "non_veg") %>% 
   dplyr::select(-total_area_km, - percent_cover) %>% 
@@ -149,6 +150,8 @@ write_csv(hist_area, file.path(dir_goal, "int/historic_area.csv"))
 
 
 ## Calculate Status 
+
+**Reference Point:** The reference point for rainforest habitat is 2.19 km^2^.      
 
 The rainforest habitat status is calculated based on the area of rainforest currently present compared to the area of rainforest that would exist once 95% of the  historic area of coconut palm has been removed. 
 
@@ -174,7 +177,8 @@ present_area <- read_csv(file.path(dir_goal, "int/veg_area.csv"))
 coco_area_hist <- hist_area$cover_area[hist_area$category == "cocos"]
 area_added     <- 0.95 * coco_area_hist
 
-# Total potential rainforest area is historic rainforest area + area added by removing 95% of coconut palms 
+# Total potential rainforest area is historic rainforest area
+# Plus area added by removing 95% of coconut palms 
 forest_area_hist      <- hist_area$cover_area[hist_area$category == "forest"]
 potential_forest_area <- area_added + forest_area_hist 
 
@@ -196,7 +200,7 @@ write_csv(rainforest_status, file.path(dir_goal, "output/rainforest_status.csv")
 
 ## Rainforest Habitat Extent
 
-Find the extent (km^2^) of native rainforest habitat. This extent is used in creating weights for pressures and resiliences.  
+Find the extent (km^2^) of native rainforest habitat. This extent is used in creating weights for pressures and resilience.  
 
 ```{r rainforest-hab-extent, eval=F}
 # Use 2005, 2016, and 2019 vegetation area data:

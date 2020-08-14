@@ -1,8 +1,10 @@
 ---
-title: 'OHI+ Palmyra 2020: Habitats Subgoal Rainforest Trend'
+title: 'Habitats Sub-goal: Rainforest Trend'
+subtitle: 'OHI+ Palmyra 2020 Assessment'
 author: "*Compiled on `r date()` by `r Sys.info()['user']`*"
 output: 
   html_document:
+    code_folding: show
     toc: true
     toc_depth: 3 
     toc_float: yes
@@ -10,7 +12,7 @@ output:
     theme: cerulean
     highlight: haddock
     includes: 
-     in_header: '../../../src/templates/ohi_hdr.html' 
+     in_header: '~/github/pal-prep/src/templates/pal_hdr.html' 
   pdf_document:
     toc: true
 ---
@@ -27,23 +29,22 @@ Trend comes from three sources of satellite images and published papers:
  - Hathaway, S.A., McEachern K., & Fisher, R.N. (2011). "Terrestrial Forest Management Plan for Palmyra Atoll". U.S. Geological Survey Open-File Report 2011-1007.  
   [Available here](https://permanent.fdlp.gov/gpo119875/ofr20111007.pdf)  
   
-2005: The 2005 data was obtained from Alex Wegmann at The Nature Conservancy on July 31, 2020. Shapefiles were compiled as part of Alex Wegmann's PhD dissertation.  
+2005: The 2005 data were obtained from Alex Wegmann at The Nature Conservancy on July 31, 2020. Shapefiles were compiled as part of Alex Wegmann's PhD dissertation.  
  
-2010: The 2010 data is estimated from a study on invasive rats that quantified the percent of land area on each islet occupied by *Cocos nucifera* (Table 1).    
+2010: The 2010 data are estimated from a study on invasive rats that quantified the percent of land area on each islet occupied by *Cocos nucifera* (Table 1).    
  - Lafferty, K.D. et al. (2010). "Stomach nematodes (*Mastophorus muris*) in rats (*Rattus rattus*) are associated with coconut (*Cocos nucifera*) habitat at Palmyra Atoll. *Journal of Parasitology* 96(1): 16-20.   
   [Available here](https://bioone.org/journals/Journal-of-Parasitology/volume-96/issue-1/GE-2180.1/Stomach-Nematodes-Mastophorus-muris-in-Rats-Rattus-rattus-Are-Associated/10.1645/GE-2180.1.full)   
   
-2016: The 2016 data is estimated using a U.S. Geological Survey vegetation community mapping project for Palmyra Atoll. Vegetation maps were completed in October 2016 and published in June 2019. Data was downloaded on July 2, 2020 from the USGS data portal, [here](https://www.sciencebase.gov/catalog/item/5c66fc5be4b0fe48cb3aca49).   
+2016: The 2016 data are estimated using a U.S. Geological Survey vegetation community mapping project for Palmyra Atoll. Vegetation maps were completed in October 2016 and published in June 2019. Data were downloaded on July 2, 2020 from the USGS data portal, [here](https://www.sciencebase.gov/catalog/item/5c66fc5be4b0fe48cb3aca49).   
  - Struckhoff, M.A., 2019, Woody species crown and vegetation community data, Palmyra Atoll, 2016: U.S. Geological Survey data release, https://doi.org/10.5066/P9GMPVIO.  
  
- 2019: The 2019 data set comes from Table A1 in the Burnett et al. paper   
+ 2019: The 2019 data set comes from Table A1 in the Burnett *et al.* paper   
   - Burnett, M.W. et al. (2019). "Quantifying coconut palm extent on Pacific islands using spectral textural analysis of very high resolution imagery". *International Journal of Remote Sensing* 40(19): 7329-7355   
   [Available here](https://www.tandfonline.com/doi/epub/10.1080/01431161.2019.1594440?needAccess=true). 
 
 # Setup 
 
-```{r setup, message = F, warning = F}
-knitr::opts_chunk$set(echo = FALSE)
+```{r setup, message=F, warning=F, results='hide'}
 
 library(tidyverse)
 library(sf)
@@ -74,7 +75,7 @@ The report gives the following vegetation categories and percent coverage:
  
 The remaining 8.8% of the land area will be assumed to be non-vegetated.  
 
-Historic data was created into a data frame in the `rainforest_data_prep.Rmd` and saved as `historic_area.csv`.        
+Historic data were created into a data frame in the `rainforest_data_prep.Rmd` and saved as `historic_area.csv`.        
 
 ```{r 2001-area, eval=F}
 
@@ -94,28 +95,36 @@ write_csv(area_2001, file.path(dir_goal, "int/trend_area_2001.csv"))
 
 ## 2005 Data 
 
-Data for 2005 was obtained from Alex Wegmann at The Nature Conservancy. Shapefiles are included for cocos, pisonia, terminalia, scaevola, pandanus, hibiscus, grassland, and non-vegetated areas. All shapefiles are combined to produce a single data file for the 2005 data. Nonvegetated areas and grasslands will be excluded from the analysis as the focus of this goal is on forest communities.   
+Data for 2005 were obtained from Alex Wegmann at The Nature Conservancy. Shapefiles are included for cocos, pisonia, terminalia, scaevola, pandanus, hibiscus, grassland, and non-vegetated areas. All shapefiles are combined to produce a single data file for the 2005 data. Nonvegetated areas and grasslands will be excluded from the analysis as the focus of this goal is on forest communities.   
 
 ### Get 2005 Vegetation Data 
 
 ```{r get-2005-data, eval=F}
 
 # All 2005 data
-cocos_2005  <- st_read(file.path(dir_anx, '_raw_data/Wegmann_data/Palmyra_Forest_Project_ArcView_Shapefiles'),
+cocos_2005  <- st_read(file.path(dir_anx,
+                                 '_raw_data/Wegmann_data/Palmyra_Forest_Project_ArcView_Shapefiles'),
                    layer = "cocos_forest")
-hib_2005    <- st_read(file.path(dir_anx, '_raw_data/Wegmann_data/Palmyra_Forest_Project_ArcView_Shapefiles'),
+hib_2005    <- st_read(file.path(dir_anx,
+                                 '_raw_data/Wegmann_data/Palmyra_Forest_Project_ArcView_Shapefiles'),
                    layer = "HIBISC~1")
-pand_2005   <- st_read(file.path(dir_anx, '_raw_data/Wegmann_data/Palmyra_Forest_Project_ArcView_Shapefiles'),
+pand_2005   <- st_read(file.path(dir_anx,
+                                 '_raw_data/Wegmann_data/Palmyra_Forest_Project_ArcView_Shapefiles'),
                    layer = "PANDAN~1")
-pis_2005    <- st_read(file.path(dir_anx, '_raw_data/Wegmann_data/Palmyra_Forest_Project_ArcView_Shapefiles'),
+pis_2005    <- st_read(file.path(dir_anx,
+                                 '_raw_data/Wegmann_data/Palmyra_Forest_Project_ArcView_Shapefiles'),
                    layer = "pisonia_forest")
-scaev_2005  <- st_read(file.path(dir_anx, '_raw_data/Wegmann_data/Palmyra_Forest_Project_ArcView_Shapefiles'),
+scaev_2005  <- st_read(file.path(dir_anx,
+                                 '_raw_data/Wegmann_data/Palmyra_Forest_Project_ArcView_Shapefiles'),
                    layer = "SCAEVO~1")
-term_2005   <- st_read(file.path(dir_anx, '_raw_data/Wegmann_data/Palmyra_Forest_Project_ArcView_Shapefiles'),
+term_2005   <- st_read(file.path(dir_anx,
+                                 '_raw_data/Wegmann_data/Palmyra_Forest_Project_ArcView_Shapefiles'),
                    layer = "terminalia_forest")
-grass_2005  <- st_read(file.path(dir_anx, '_raw_data/Wegmann_data/Palmyra_Forest_Project_ArcView_Shapefiles'),
+grass_2005  <- st_read(file.path(dir_anx,
+                                 '_raw_data/Wegmann_data/Palmyra_Forest_Project_ArcView_Shapefiles'),
                    layer = "GRASSL~1")
-nonveg_2005 <- st_read(file.path(dir_anx, '_raw_data/Wegmann_data/Palmyra_Forest_Project_ArcView_Shapefiles'),
+nonveg_2005 <- st_read(file.path(dir_anx,
+                                 '_raw_data/Wegmann_data/Palmyra_Forest_Project_ArcView_Shapefiles'),
                    layer = "PHYMAT~1")
 
 # Bind all the files together 
@@ -130,7 +139,8 @@ veg_2005 <- cocos_2005 %>%
   dplyr::select(vegetation = VEGETATION, area = AREA)
 
 # Save combined data to raw data folder
-st_write(veg_2005, file.path(dir_goal, "raw/veg_communities_2005.shp"), driver = 'ESRI Shapefile', append=FALSE)
+st_write(veg_2005, file.path(dir_goal, "raw/veg_communities_2005.shp"),
+         driver = 'ESRI Shapefile', append=FALSE)
 ```
 
 ### Find Area 
@@ -140,7 +150,8 @@ st_write(veg_2005, file.path(dir_goal, "raw/veg_communities_2005.shp"), driver =
 veg_2005 <- st_read(file.path(dir_goal, "raw"), layer = "veg_communities_2005")
 
 area_2005 <- veg_2005 %>% 
-  filter(vegetation != "Grassland or Bare Ground" & vegetation != "Phymatosorus or Bare Ground") %>% 
+  filter(vegetation != "Grassland or Bare Ground" & 
+         vegetation != "Phymatosorus or Bare Ground") %>% 
   mutate(community = ifelse(vegetation == "Cocos", "cocos", "forest")) %>% 
   group_by(community) %>% 
   summarize(area = sum(area)) %>% 
@@ -163,7 +174,8 @@ write_csv(area_2005, file.path(dir_goal, "int/trend_area_2005.csv"))
 Grasslands will be excluded from the analysis but we need to find grassland area to use as an estimate of grassland area in 2010.  
 
 ```{r grassland-area-2005, eval=F}
-veg_2005 <- st_read(file.path(dir_goal, "raw"), layer = "veg_communities_2005")
+veg_2005 <- st_read(file.path(dir_goal, "raw"),
+                    layer = "veg_communities_2005")
 
 # Find grassland area
 grass_area_2005 <- veg_2005 %>% 
@@ -183,7 +195,8 @@ pct_grass_2005 <- grass_area_2005$area / total_area_2005 # 8.77%
 Bare ground will be excluded from the analysis but we need to find the bare ground area to use as an estimate of bare ground in 2010.  
 
 ```{r bareground-area-2005, eval=F}
-veg_2005 <- st_read(file.path(dir_goal, "raw"), layer = "veg_communities_2005")
+veg_2005 <- st_read(file.path(dir_goal, "raw"),
+                    layer = "veg_communities_2005")
 
 # Find bare ground area
 bare_2005 <- veg_2005 %>% 
@@ -201,16 +214,16 @@ pct_bare_2005 <- bare_2005$area / total_area_2005 # 3.66%
 
 ## 2010 Data 
 
-Data for 2010 is recreated from Table 1 in the Lafferty et al paper. The table gives each islet, the islet area (ha), and the percent cocos. Since no specific percent area of non-vegetated land is included in this study, we will use the average percent between the 2001, 2005, and 2016 data. The 2001 estimate for non-vegetated land is 8.8%, the 2005 estimate is 3.66% and the 2016 estimate is 4.69%. For the 2010 data, we'll assume 5.72% of the land area is non-vegetated. Grasslands have also been excluded for this analysis and since no specific percent of grasslands is given in the study we will use the average area of grasslands between 2005 and 2016. The 2005 estimate for grasslands is 8.77% and the 2016 estimate is 6.40%. For the 2010 data, we'll assume 7.59% of land area is grasslands.  
+Data for 2010 are recreated from Table 1 in the Lafferty *et al* paper. The table gives each islet, the islet area (ha), and the percent cocos. Since no specific percent area of non-vegetated land is included in this study, we will use the average percent between the 2001, 2005, and 2016 data. The 2001 estimate for non-vegetated land is 8.8%, the 2005 estimate is 3.66% and the 2016 estimate is 4.69%. For the 2010 data, we'll assume 5.72% of the land area is non-vegetated. Grasslands have also been excluded for this analysis and since no specific percent of grasslands is given in the study we will use the average area of grasslands between 2005 and 2016. The 2005 estimate for grasslands is 8.77% and the 2016 estimate is 6.40%. For the 2010 data, we'll assume 7.59% of land area is grasslands.  
 
 ### Create 2010 Data
 
 ```{r create-2010-data, eval=F}
 
 # Recreate the Table 1 data as a data frame
-raw_2010 <- data.frame(islet = c("Ainsley", "Cooper", "Dudley", "Eastern", "Fern",
-                                 "Home", "Leslie", "Lost", "North Fighter", "Portsmouth",
-                                 "Sand", "Southern", "Whippoorwill"),
+raw_2010 <- data.frame(islet = c("Ainsley", "Cooper", "Dudley", "Eastern", 
+                                 "Fern", "Home", "Leslie", "Lost", "North Fighter",
+                                 "Portsmouth", "Sand", "Southern", "Whippoorwill"),
                        area_ha = c(0.1, 110.8, 1.2, 12.7, 0.5, 7.1, 1.7, 1, 0.3,
                                    61.4, 0.8, 8.2, 1.9),
                        percent_cocos = c(1, 0.3, 0, 0.01, 1, 0.43, 0, 0, 0.08,
@@ -274,12 +287,13 @@ The following communities are excluded from the analysis:
 
 ```{r get-2016-vegetation-maps, eval=F}
 
-veg_map_2016 <- st_read(file.path(dir_anx, '_raw_data/USGS_data/Vegetation_Commmunities_Palmyra_Atoll_2016'),
+veg_map_2016 <- st_read(file.path(dir_anx,
+                                  '_raw_data/USGS_data/Vegetation_Commmunities_Palmyra_Atoll_2016'),
                    layer = "Vegetation_Commmunities_Palmyra_Atoll_2016")
 
 plot(veg_map_2016)
 
-# Shows vegetation communities across all the islands in the atoll along with area in hectares
+# Shows vegetation communities across all the islands in the atoll, area in ha
 # group by community and calculate the total area of each type of community
 
 community_areas_2016 <- veg_map_2016 %>% 
@@ -298,9 +312,11 @@ percent_non_veg <- area_non_veg / sum(community_areas$comm_area_ha) # 4.69%
 # Interested in the amount dominated by palm vs the amount dominated by other tree species 
 # Find area in square kilometers
 area_2016 <- community_areas_2016 %>% 
-  dplyr::filter(Community != "Bare ground" & Community != "Water" & Community != "Runway" &
-                Community != "Lepturus" & Community != "Lepturus-Fimbristylis") %>% 
-  mutate(veg_comm = ifelse(Community == "Cocos" | Community == "Cocos/Heliotropium", "cocos", "forest")) %>% 
+  dplyr::filter(Community != "Bare ground" & Community != "Water" & 
+                Community != "Runway" & Community != "Lepturus" & 
+                Community != "Lepturus-Fimbristylis") %>% 
+  mutate(veg_comm = ifelse(Community == "Cocos" | 
+                           Community == "Cocos/Heliotropium", "cocos", "forest")) %>% 
   group_by(veg_comm) %>% 
   summarize(area_ha = sum(comm_area_ha)) %>% 
   mutate(area_km = area_ha * 0.01) %>% 
@@ -323,7 +339,8 @@ write_csv(area_2016, file.path(dir_goal, "int/trend_area_2016.csv"))
 Find the estimated percent of area occupied by grasslands (Lepturus and Lepturus-Fimbristylis communities). This area will be averaged with the grassland area in 2005 to provide an estimated percent area of grasslands for 2010.  
 
 ```{r grassland-area-2016, eval=F}
-veg_map_2016 <- st_read(file.path(dir_anx, '_raw_data/USGS_data/Vegetation_Commmunities_Palmyra_Atoll_2016'),
+veg_map_2016 <- st_read(file.path(dir_anx,
+                                  '_raw_data/USGS_data/Vegetation_Commmunities_Palmyra_Atoll_2016'),
                    layer = "Vegetation_Commmunities_Palmyra_Atoll_2016")
 
 # Find grassland area
@@ -416,5 +433,6 @@ write_csv(rainforest_trend, file.path(dir_goal, "output/rainforest_trend.csv"))
 ## Save to Toolbox
 
 ```{r save-to-toolbox, eval=F}
+rainforest_trend <- read_csv(file.path(dir_goal, "output/rainforest_trend.csv"))
 write_csv(rainforest_trend, file.path(dir_scores, 'layers/hab_rainforest_trend.csv'))
 ```
