@@ -37,6 +37,7 @@ library(tidyverse)
 library(janitor)
 library(sf)
 library(raster)
+library(pals)
 library(here)
 
 # Source and set file paths
@@ -66,7 +67,7 @@ The following zones are grouped together to form the four major reef zone of int
 The fore reef is reassigned to part of the reef crest to better reflect the position of those data points on the reef. The Bank/Shelf and Bank/Shelf Escarpment are then grouped together and renamed as the fore reef with an additional designation to differentiate the western fore reef and the eastern fore reef. These groupings follow the zones delineated by NOAA in the Coral Reef Ecosystems Monitoring Report for the Pacific Remote Islands Marine National Monument, available [here](https://repository.library.noaa.gov/view/noaa/23421).   
 
  
-```{r coral-maps, eval=F}
+```{r coral-maps, warning=F, message=F, results='hide'}
 
 hab_map <- st_read(file.path(dir_anx, '_raw_data/NCCOS_data/habitat_map'),
                    layer = "Palmyra_Habitat_Map_Final") %>% 
@@ -75,9 +76,11 @@ hab_map <- st_read(file.path(dir_anx, '_raw_data/NCCOS_data/habitat_map'),
 # Interested in the coral cover map which is column 'P_CORAL_CV'
 coral_map <- hab_map %>% 
   clean_names() %>% # lower case column names
+  filter(zone != "Unknown",
+         p_coral_cv != "Unknown") %>% 
   dplyr::select(zone, p_coral_cv, area)
 
-plot(coral_map)
+#plot(coral_map)
 
 # Extract the percent coral cover for each zone 
 zones <- coral_map %>% 
@@ -96,9 +99,76 @@ zones <- coral_map %>%
                                p_coral_cv == "10% - <50%" ~ 2,
                                p_coral_cv == "0% - <10%"  ~ 1))
 
-# Plot layer
-ggplot() +
-  geom_sf(data = zones, aes(fill = zone))
+```
+
+## Plot Maps 
+
+Original data vs. reclassified data for zones and live coral cover percentage in those zones.   
+
+```{r plot-maps, message=F}
+
+# Coral zones - original data 
+zones_og <- ggplot() + 
+  geom_sf(data = coral_map, aes(fill = zone)) + 
+  scale_fill_manual(breaks = c("Back Reef", "Bank/Shelf",
+                               "Bank/Shelf Escarpment", "Channel",
+                               "Dredged", "Fore Reef", "Lagoon",
+                               "Land", "Reef Crest", "Salt Pond"),
+                    values = c("#408ab4", "#edf7fa", 
+                               "#f7be16", "#e3dfc8", 
+                               "#838383", "#63b7af", "#bae5e5",
+                               "#c9d1d3", "#ee8572", "#519872")) + 
+  theme_minimal() + 
+  theme(legend.position = "bottom") +
+  labs(fill = "Coral Reef Zones") +
+  ggtitle("Raw Data Coral Reef Zones")
+
+# Coral zones - reclassified 
+zones_reclass <- ggplot() + 
+  geom_sf(data = zones, aes(fill = zone)) + 
+  scale_fill_manual(breaks = c("Back Reef", "Fore Reef",
+                               "Lagoon", "Reef Crest"), 
+                    values = c("#408ab4", "#63b7af",
+                               "#bae5e5", "#ee8572")) +
+  theme_minimal() + 
+  theme(legend.position = "bottom") +
+  labs(fill = "Coral Reef Zones") +
+  ggtitle("Reclassified Coral Reef Zones")
+
+# Coral cover percent - original data
+cover_og <- ggplot() + 
+  geom_sf(data = coral_map, aes(fill = p_coral_cv)) + 
+  scale_fill_manual(breaks = c("0% - <10%", "10% - <50%", 
+                               "50% - <90%", "90% - 100%",
+                               "NA"),
+                    values = c("#d2ebcd", "#aed09e", 
+                               "#64a36f", "#28544b",
+                               "#c9d1d3")) +
+  theme_minimal() + 
+  theme(legend.position = "bottom") +
+  labs(fill = "Live Coral Cover Percent") +
+  ggtitle("Raw Data Live Coral Cover Percent")
+
+# Coral cover percent - reclassified 
+cover_reclass <- ggplot() + 
+  geom_sf(data = zones, aes(fill = p_coral_cv)) + 
+  scale_fill_manual(breaks = c("0% - <10%", "10% - <50%", 
+                               "50% - <90%", "90% - 100%",
+                               "NA"),
+                    values = c("#d2ebcd", "#aed09e", 
+                               "#64a36f", "#28544b",
+                               "#c9d1d3")) +
+  theme_minimal() + 
+  theme(legend.position = "bottom") +
+  labs(fill = "Live Coral Cover Percent") +
+  ggtitle("Reclassified Live Coral Cover Percent")
+
+
+# Print all maps
+zones_og
+zones_reclass
+cover_og
+cover_reclass
 ```
 
 ## Fore Reef Zones 
@@ -237,67 +307,4 @@ coral_status <- read_csv(file.path(dir_goal, "output/coral_status.csv"))
 # Write to toolbox
 write_csv(coral_extent, file.path(dir_scores, "layers/hab_coral_extent.csv"))
 write_csv(coral_status, file.path(dir_scores, 'layers/hab_coral_status.csv'))
-```
-
-## Old Method
-
-Reference points for coral cover zones are:   
-
- - Back Reef:  10-50% (2) 
- - Reef Crest: 10-50% (2)   
- - Fore Reef:  50-90% (3)  
- - Lagoon:     10-50% (2)   
- 
-Coral reef status is calculated as number of data points falling within or above the reference point category compared to the overall number of data points in each zone of the reef.   
-
-$status~=~ref_{n}~/~total_{n}$   
-
-Where $ref_{n}$ is the number of data points in each zone falling within or above the reference point category and $total_{n}$ is the total number of data points in each zone. 
-
-The overall status score is calculated as the area weighted mean of the status score for each zone.  
-
-```{r calculate-status, eval=F}
-
-zones <- read_csv(file.path(dir_goal, "int/coral_zones.csv"))
-
-# Define reference point categories
-ref_back  <- 2
-ref_crest <- 2
-ref_fore  <- 3
-ref_lag   <- 2
-
-# Find the number of data points for each cover category and add reference categories
-zone_n <- zones %>%
-  group_by(zone, cover_cat, p_coral_cv) %>%
-  summarize(n_cover = n()) %>% 
-  mutate(ref = case_when(zone == "Back Reef" ~ ref_back,
-                         zone == "Reef Crest" ~ ref_crest,
-                         zone == "Fore Reef West" ~ ref_fore,
-                         zone == "Fore Reef East" ~ ref_fore,
-                         zone == "Lagoon" ~ ref_lag))
-
-# Area by zone
-zone_areas <- zones %>% 
-  group_by(zone) %>% 
-  summarize(area_km = sum(area) * 0.000001)
-
-# Find the status scores using the number of points that are at the reference category or better
-coral_status <- zone_n %>% 
-  filter(cover_cat == ref | cover_cat > ref) %>% 
-  group_by(zone) %>% 
-  summarize(n_ref = sum(n_cover)) %>% 
-  mutate(n_total = case_when(zone == "Back Reef" ~ 126,
-                             zone == "Reef Crest" ~ 12,
-                             zone == "Fore Reef West" ~ 65,
-                             zone == "Fore Reef East" ~ 92,
-                             zone == "Lagoon" ~ 146),
-         status = n_ref / n_total,
-         region_id = 1, 
-         year = 2020,
-         habitat = "coral") %>% 
-  left_join(zone_areas, by = "zone") %>% 
-  dplyr::select(region_id, habitat, year, zone, area_km, status)
-
-# Save to output for use in coastal protection data prep
-write_csv(coral_status, file.path(dir_goal, "output/coral_status.csv"))
 ```
