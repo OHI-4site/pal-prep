@@ -6,9 +6,9 @@ Click on the layers to see data preparation:
 
 #### [Coral Trend](https://mazu.nceas.ucsb.edu/rstudio/files/github/pal-prep/prep/bd/hab/v2020/coral_trend.html) 
 
-#### [Rainforest Status]()
+#### [Rainforest Status](https://mazu.nceas.ucsb.edu/rstudio/files/github/pal-prep/prep/bd/hab/v2020/rainforest_data_prep.html)
 
-#### [Rainforest Trend]()
+#### [Rainforest Trend](https://mazu.nceas.ucsb.edu/rstudio/files/github/pal-prep/prep/bd/hab/v2020/rainforest_trend.html)
 
 ### Layers Created
 
