@@ -1,8 +1,10 @@
 ---
-title: 'OHI+ Palmyra 2020: 3_spp_status'
+title: 'Species Sub-goal: Status'
+subtitle: 'OHI+ Palmyra 2020 Assessment'
 author: "*Compiled on `r date()` by `r Sys.info()['user']`*"
 output: 
   html_document:
+    code_folding: show
     toc: true
     toc_depth: 3 
     toc_float: yes
@@ -10,23 +12,22 @@ output:
     theme: cerulean
     highlight: haddock
     includes: 
-     in_header: '../../../src/templates/ohi_hdr.html' 
+     in_header: '~/github/pal-prep/src/templates/pal_hdr.html' 
   pdf_document:
     toc: true
 ---
 
 # Summary
 
-This is the third script in the species data prep. It takes the fully combined IUCN and Palmyra species lists and calculates the status score.   
+This is the third script in the species data prep. It takes the fully combined IUCN and Palmyra species lists and calculates the status score using weights for each species' IUCN conservation status.   
 
 # Data 
 
-Data used in this script is the result of processing species lists in `01_iucn_spp_lists.Rmd` and `02_pal_spp_lits.Rmd`.  
+Data used in this script is the result of processing species lists in `01_iucn_spp_lists.Rmd` and `02_pal_spp_lits.Rmd`  
 
 # Setup 
 
-```{r setup, message = F, warning = F}
-knitr::opts_chunk$set(echo = FALSE)
+```{r setup, message=F, warning=F, results='hide'}
 
 library(tidyverse)
 library(here)
@@ -41,65 +42,16 @@ dir_goal   <- '~/github/pal-prep/prep/bd/spp/v2020'
 
 ## Calculate Status 
 
-The reference point is 100% of historically occurring species are present in healthy abundance. Healthy is defined as being a category of "Least Concern" in the IUCN Red List.   
+**Reference Point:** All species have an IUCN status of "Least Concern"   
 
-The status is first calculated for each class as the proportion of species in the class with a rank of "Least Concern", as given by the following equation:   
-$class_{status}~=~n_{LC}~/~n_{class}$   
+A 0-1 score is assigned to each species based on IUCN conservation status:   
+ 
+  * 'LC' = 0, 'NT' = 0.2, 'CD' = 0.3, 'VU' = 0.4, 'T' = 0.6, 'EN' = 0.6, 'CR' = 0.8, 'EX' = 1.0  
 
-Where $n_{LC}$ is the number of species in each class that have a rank of "Least Concern" and $n_{class}$ is the total number of species in each class. 
+The status is first calculated for each class by averaging the category scores. The overall status is then the average of the status score for each class.  
 
-The overall status is then the average of the status score for each class.  
 
 ```{r calc-spp-status, eval=F}
-# Use the combined all species lists
-all_spp <- read_csv(file.path(dir_goal, 'int/all_spp_list.csv')) 
-
-
-# Find the number of species in each class 
-class_counts <- all_spp %>% 
-  group_by(class) %>% 
-  tally() %>% 
-  rename(total = n)
-
-# Find the number of species ranked LC in each class 
-class_status <- all_spp %>%
-  group_by(class, category) %>% 
-  tally() %>% 
-  rename(number_spp = n) %>% 
-  left_join(class_counts, by = "class") %>% 
-  filter(category == "LC") %>% 
-  mutate(class_status = number_spp / total)
-
-# Find the overall species status
-spp_status <- class_status %>% 
-  mutate(region_id = 1) %>% 
-  group_by(region_id) %>% 
-  summarize(status = mean(class_status)) %>% 
-  mutate(year = 2019) %>% 
-  dplyr::select(region_id, year, status)
-
-# Save to output folder 
-write_csv(spp_status, file.path(dir_goal, "output/spp_status.csv"))
-```
-
-## Save to Toolbox 
-
-```{r save-to-toolbox, eval=F}
-spp_status <- read_csv(file.path(dir_goal, "output/spp_status.csv"))
-write_csv(spp_status, file.path(dir_scores, 'layers/spp_status.csv'))
-```
-
-
-### Global Method 
-
-The global method gives a slightly higher score for species, so I want to keep it in case Alex and Nick want to use this method instead.  
-
-#### Calculate Species Scores
-
-Add category weights to species list and calculate species status. Category weights are based on species risk extinction    
-    * 'LC' = 0, 'NT' = 0.2, 'CD' = 0.3, 'VU' = 0.4, 'T' = 0.6, 'EN' = 0.6, 'CR' = 0.8, 'EX' = 1.0    
-
-```{r calc-spp-status2, eval=F}
 # Use the combined all species lists
 all_spp <- read_csv(file.path(dir_goal, 'int/all_spp_list.csv')) 
 
@@ -116,28 +68,17 @@ spp_status <- all_spp %>%
   distinct() %>% 
   mutate(region_id = 1,
          status = cat_score,
-         year = 2020) %>% # need a year for toolbox to run
+         year = 2019) %>%
   dplyr::select(region_id, sciname, class, common, status, year) 
 
-# The spp_status layer is the one you would save to the toolbox
+# Save to output folder
+write_csv(spp_status, file.path(dir_goal, "output/spp_status.csv"))
 ```
 
-#### Check Scores 
 
-Calculate overall species sub-goal score to compare with the above method. 
+## Save to Toolbox 
 
-```{r calc-scores-alt, eval=F}
-### Calculate the score for comparison:
-score2 <- spp_status %>% 
-  group_by(region_id, class) %>% # first find the average status by class
-  summarize(status = mean(status)) %>%
-  group_by(region_id) %>%
-  summarize(status = mean(status)) %>%  # find overall average of the 10 classes
-  mutate(score = (0.75 - status) / 0.75) # Adjust score
-
-## Overall score for this method 80.1
-
-# Save to output folder 
-write_csv(score2, file.path(dir_goal, "output/spp_status_gl.csv"))
+```{r save-to-toolbox, eval=F}
+spp_status <- read_csv(file.path(dir_goal, "output/spp_status.csv"))
+write_csv(spp_status, file.path(dir_scores, 'layers/spp_status.csv'))
 ```
-

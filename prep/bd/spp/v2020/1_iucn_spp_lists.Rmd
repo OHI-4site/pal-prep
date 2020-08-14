@@ -1,8 +1,10 @@
 ---
-title: 'OHI+ Palmyra 2020: 1_iucn_spp_lists'
+title: 'Species Sub-goal: IUCN Species List'
+subtitle: 'OHI+ Palmyra 2020 Assessment'
 author: "*Compiled on `r date()` by `r Sys.info()['user']`*"
 output: 
   html_document:
+    code_folding: show
     toc: true
     toc_depth: 3 
     toc_float: yes
@@ -10,29 +12,28 @@ output:
     theme: cerulean
     highlight: haddock
     includes: 
-     in_header: '../../../src/templates/ohi_hdr.html' 
+     in_header: '~/github/pal-prep/src/templates/pal_hdr.html' 
   pdf_document:
     toc: true
 ---
 
 # Summary
 
-This script takes the OHI Palmyra region shapefile and compares it to the global shapefiles we have from IUCN to extract all species maps that fall within our region. We then get the conservation status for all the species falling within the Palmyra 50nm boundary and calculate the species scores. A lot of this code dips into the `spp_risk_dists` repo from Casey O'Hara: 
+This script is the first step toward calculating the species status. It takes the OHI Palmyra region shapefile and compares it to the global shapefiles we have from IUCN to extract all species maps that fall within 50 nm of Palmyra Atoll. We then get the conservation status for all these species. A lot of this code dips into the `spp_risk_dists` repo from Casey O'Hara: 
 https://github.com/saraorofino/spp_risk_dists  
 
 # Data 
 
-Species maps and conservation status was pulled from the IUCN Red List.  
+Species maps and conservation status were pulled from the IUCN Red List.  
 
-Citation: IUCN 2020. IUCN Red List of Threatened Species. Version 2020-1 <www.iucnredlist.org>
-  * __Accessed__: 9 June 2020 
-  * __Time range__: 1965-2020 (discrete past assessments by species) 
+Citation: IUCN 2020. IUCN Red List of Threatened Species. Version 2020-1 <www.iucnredlist.org>   
+  * __Accessed__: 9 June 2020   
+  * __Time range__: 1965-2020 (discrete past assessments by species)   
   * __Format__:  JSON   
 
 # Setup
 
-```{r setup, message = F, warning = F}
-knitr::opts_chunk$set(echo = FALSE)
+```{r setup, message=F, warning=F, results='hide'}
 
 library(tidyverse)
 library(sf)
@@ -40,7 +41,7 @@ library(raster)
 library(rfishbase)
 library(rredlist)
 library(taxize)
-library(rentrez) # to use the api key for searching the NCBI database
+library(rentrez) # To use the api key for the NCBI database
 library(here)
 
 # Source and set file paths
@@ -48,7 +49,7 @@ source(here('src/R/common.R'))
 
 dir_goal   <- '~/github/pal-prep/prep/bd/spp/v2020'
 
-# palmyra region shapefile 50nm boundary
+# Palmyra region shapefile 50nm boundary
 pal_shp <- pal_monument
 
 # api keys for IUCN 
@@ -64,21 +65,26 @@ api_key <- scan(api_file, what = 'character')
 First step is to get a list of the cell IDs contained in the pal_region
 
 ```{r global-cells, eval=F}
-# these are global cell ids in raster format pulled from the spp_risk_dists repo.
+# These are global cell ids in raster format pulled from the spp_risk_dists repo.
 cells <- raster("~/github/spp_risk_dists/_spatial/cell_id_rast.tif")
 ```
 
+  
 Then I select only those cells in Palmyra and use that list to query the larger species data. First we transform our regions shapefile into the same CRS as the cell ID raster (`cells`).
 
 ```{r reproject-rgns, eval=F}
-# reproject to our CRS
-pal_reproj <- st_transform(pal_shp, crs = "+proj=cea +lon_0=0 +lat_ts=45 +x_0=0 +y_0=0 +ellps=WGS84
-+units=m +no_defs")
+
+# Reproject to our CRS
+pal_reproj <- st_transform(pal_shp,
+              crs = "+proj=cea +lon_0=0 +lat_ts=45 +x_0=0 +y_0=0 +ellps=WGS84 +units=m +no_defs")
+
+# Plot to check
 plot(cells)
 plot(pal_reproj, add = T)
 ```
 
-Extract the cell ids for our region
+Extract the cell ids for our region 
+
 ```{r extract-pal-cell-ids, eval=F}
 pal_cells <- raster::extract(cells, pal_reproj) %>%
   unlist()
@@ -96,25 +102,29 @@ spp_info <- read_csv("/home/ohara/git-annex/spp_risk_dists/iucn/spp_info_from_ap
 ```
 
 The following forloop goes through each species:  
-- finds it's species path
-- reads in the species .csv that lists all global cells where it is found
-- filters that list to just those in Palmyra
-- returns an aggregated dataframe (`taxa_cells_df`) with all species scientific names, their unique ids (sids), and cellIDs
+- finds it's species path   
+- reads in the species .csv that lists all global cells where it is found   
+- filters that list to just those in Palmyra   
+- returns an aggregated dataframe (`taxa_cells_df`) with all species scientific names, their unique ids (sids), and cellIDs   
 
 ```{r get-spp-files, eval=F}
-# grab each taxa's folder filepath
+
+# Grab each taxa's folder filepath
 taxa <- spp_maps$dbf_file %>%
     unique() %>%
     str_replace('\\....$', '')
 
-# create an empty list that is the length of all taxa. We are going to fill this list  
+# Create an empty list that is the length of all taxa  
 taxa_cells_list <- vector('list', length = length(taxa))
 
 
-# for each taxa, grab the species map (raster) and filter to only keep those cells in Palmyra.
+# For each taxa, grab the species map (raster)
+# filter to only keep those cells in Palmyra
+
 for(i in seq_along(taxa)) { ### i <- 5
     taxon <- taxa[i]
     print(i)
+    
     spp_ids_in_taxon <- spp_maps %>%
      filter(str_detect(dbf_file, taxon)) %>%
       .$iucn_sid
@@ -149,24 +159,25 @@ taxa_cells_df <- taxa_cells_list %>%
     distinct() %>%
     left_join(spp_info)
 
-# save raw output to the raw folder
+# Save raw output to the raw folder
 write.csv(taxa_cells_df, file.path(dir_goal, 'raw/spp_list_raw.csv'))
 ```
 
 ## Add Common Names
+
 Attach common names using `rredlist`
 
 ```{r get-common-name, eval=F}
 
-# read in raw data list:
+# Read in raw data list:
 spp_list_raw <- read_csv(file.path(dir_goal, 'raw/spp_list_raw.csv')) %>% 
   dplyr::select(-X1)
 
-# create list of scientific names of species
+# Create list of scientific names of species
 scinames <- spp_list_raw$sciname
 
-# create loop around redlist function rl_search to find common names  
-# create empty data frame that will be filled
+# Create loop around redlist function rl_search to find common names  
+# Create empty data frame that will be filled
 iucn_common_names <- data.frame() 
 
 
@@ -191,46 +202,50 @@ Check out the ones we are still missing for common name
 
 miss_sp <- iucn_common_names %>%
   filter(is.na(common))
+
 ```
 
-We are still missing `r nrow(filter(iucn_common_names, is.na(common)))`. Check fishbase
+We are still missing 106 common names. Check fishbase
 
 ```{r fishbase, eval=F}
 
-# select scientific names of missing species
+# Select scientific names of missing species
 sp <- iucn_common_names %>%
   filter(is.na(common))  %>%
   dplyr::select(sciname)
 
-# check fishbase for common names
+# Check fishbase for common names
 fb_list <- species(sp$sciname) %>%
   dplyr::select(Species, FBname)
 
-# filter out NAs
+# Filter out NAs
 fb <- fb_list %>% 
   filter(!is.na(FBname)) 
 
 ```
 
-This got us `r nrow(filter(fb_list, !is.na(FBname)))` more common names we need to add back in.
+This only got us two more common names we need to add back in.  
 
 ```{r add-fishbase, eval=F}
-# add back in common names
+
+# Add back in common names
 out <- iucn_common_names %>%
   left_join(fb_list, by = c("sciname" = "Species")) %>%
   mutate(common_fb = ifelse(is.na(common), FBname, common)) %>%
   dplyr::select(-FBname, -common)
+
 ```
 
 Use the `taxize` R package to try and get more of the missing common names
 
 ```{r taxize, eval=F}
-# missing scientific names
+
+# Missing scientific names
 missing_scinames <- out %>%
   filter(is.na(common_fb)) %>%
   .$sciname
 
-# pull out common names from taxize
+# Pull out common names from taxize
 common_names <- c()
 for(i in 1:length(missing_scinames)){ #i <- 1
   sp <- missing_scinames[i]
@@ -241,18 +256,18 @@ common_names <- c(common_names, comm)
 }
 
 
-# turn list into dataframe
+# Turn list into dataframe
 df <- do.call(rbind,lapply(common_names,data.frame))
 df$sciname <- rownames(df)
 df2 <- df %>%
   rename(common = X..i..) %>%
   filter(!is.na(common)) %>%
-  mutate(sciname = str_extract(sciname, "[^.]+")) # remove numbers
+  mutate(sciname = str_extract(sciname, "[^.]+")) # Remove numbers
 
 ## Try using the NCBI in taxize
 uids <- get_uid(missing_scinames)
 
-# combine uids with sciname 
+# Combine uids with sciname 
 uids_found <- data.frame(sciname = missing_scinames, uid = uids)
 uids_found$sciname <- as.character(uids_found$sciname)
 
@@ -269,7 +284,7 @@ common_found <- common_names2 %>%
   rownames_to_column(., "sciname") %>% 
   rename("ncbi_common" = ".")
 
-# make sure names are characters not factors 
+# Make sure names are characters not factors 
 common_found$ncbi_common <- as.character(common_found$ncbi_common)
 
 ```
@@ -281,7 +296,8 @@ None of the 104 remaining species had common names in the taxize 'itis' database
 Add common names and select final list of spp information
 
 ```{r add-common-names, eval=F}
-# add back in common names from fishbase and ncbi 
+
+# Add back in common names from fishbase and ncbi 
 add_common <- iucn_common_names %>%
   left_join(common_found, by = "sciname") %>%
   mutate(common = ifelse(is.na(common), ncbi_common, common)) %>% 
@@ -299,11 +315,12 @@ iucn_spp_info <- spp_list_raw %>%
 ## Experiment with taxonomic groupings:
 spp_class <- iucn_spp_info %>% 
   group_by(class) %>% 
-  tally() # this gives me 10 classes of species - seems reasonable
+  tally() # This gives me 10 classes of species - seems reasonable
 
+# Common names/animals in the different classes
 class_common <- c("ray finned fishes", "corals/sea anemones", "birds",
                   "sharks/rays", "snails/slugs", "sea cucumbers",
-                  "crabs/lobsters", "mammals", "hagfish", "reptiles") # common names/animals in the different classes
+                  "crabs/lobsters", "mammals", "hagfish", "reptiles") 
 spp_class$common <- class_common
 
 spp_family <- iucn_spp_info %>% 
@@ -315,7 +332,7 @@ iucn_spp_info <- iucn_spp_info %>%
   dplyr::select(-family)
 
 
-# write output to int folder
+# Write output to int folder
 write.csv(iucn_spp_info, file.path(dir_goal, 'int/iucn_spp_info.csv'))
 ```
 
@@ -324,24 +341,25 @@ write.csv(iucn_spp_info, file.path(dir_goal, 'int/iucn_spp_info.csv'))
 Some exploration of the species missing common names:  
 
 ```{r missing_spp_explore, eval = F}
+
 scinames_explore <- miss_sp %>%
   separate(sciname, sep = " ", into = c("genus", "family")) %>% 
   group_by(genus) %>% 
   summarize(
-    count = length(family)
-  )
+    count = length(family))
+
 ```
 
 Looks like there are 20 genus' in the missing data, 9 of them have more than one species in the genus:   
 
- - `scinames_explore$genus[1]` are small polyp stony corals (5 species) 
- - `scinames_explore$genus[4]` are types of sea snails (43 species)   
- - `scinames_explore$genus[7]` are reef-building stony corals (4 species)  
- - `scinames_explore$genus[8]` are also stony corals (5 species)   
- - `scinames_explore$genus[12]` are sea cucumbers (15 species)     
- - `scinames_explore$genus[14]` are also reef-building stony corals (4 species)
- - `scinames_explore$genus[15]` are colonial stony corals (2 species)       
- - `scinames_explore$genus[16]` are Scleractinian corals (12 species)     
- - `scinames_explore$genus[17]` are also stony corals (5 species)  
+ - `Acopora` are small polyp stony corals (5 species) 
+ - `Conus` are types of sea snails (43 species)   
+ - `Favia` are reef-building stony corals (4 species)  
+ - `Favites` are also stony corals (5 species)   
+ - `Holothuria` are sea cucumbers (15 species)     
+ - `Leptastrea` are also reef-building stony corals (4 species)
+ - `Montastrea` are colonial stony corals (2 species)       
+ - `Montipora` are Scleractinian corals (12 species)     
+ - `Platygyra` are also stony corals (5 species)  
 
 

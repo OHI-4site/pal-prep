@@ -1,8 +1,10 @@
 ---
-title: 'OHI+ Palmyra 2020: 2_pal_spp_lists'
+title: 'Species Sub-goal: Palmyra Species List'
+subtitle: 'OHI+ Palmyra 2020 Assessment'
 author: "*Compiled on `r date()` by `r Sys.info()['user']`*"
 output: 
   html_document:
+    code_folding: show
     toc: true
     toc_depth: 3 
     toc_float: yes
@@ -10,14 +12,14 @@ output:
     theme: cerulean
     highlight: haddock
     includes: 
-     in_header: '../../../src/templates/ohi_hdr.html' 
+     in_header: '~/github/pal-prep/src/templates/pal_hdr.html' 
   pdf_document:
     toc: true
 ---
 
 # Summary
 
-Additional species lists were obtained for Palmyra fish and birds. These lists are added to the IUCN species list created in `1_iucn_spp_lists.Rmd`.   
+Additional species lists were obtained for Palmyra fish and birds. Conservation status is obtained from the IUCN Red List for these species and then these lists are added to the IUCN species list created in `1_iucn_spp_lists.Rmd`.   
 
 # Data
 
@@ -25,8 +27,7 @@ The additional species lists were obtained from Alex Wegmann at The Nature Conse
 
 # Setup 
 
-```{r setup, message = F, warning = F}
-knitr::opts_chunk$set(echo = FALSE)
+```{r setup, message=F, warning=F, results='hide'}
 
 library(tidyverse)
 library(purrr)
@@ -58,11 +59,11 @@ Some of the species on the bird list are believed extirpated on Palmyra, for the
 birds <- read_csv(file.path(dir_goal, "raw/pal_bird_list.csv")) %>% 
   filter(sciname != is.na(sciname)) %>% 
   mutate(category = ifelse(status == "believed extirpated", "EX", category),
-         category = ifelse(status == "extirpated", "EX", category)) %>%  # Re-categorize extirpated to EX
+         category = ifelse(status == "extirpated", "EX", category)) %>%  # Re-categorize as EX
   dplyr::select(-status)
 
 # Add class and iucn_sid using rredlist
-# create list of scientific names of species
+# Create list of scientific names of species
 bird_scinames <- birds$sciname
 
 iucn_info_birds <- data.frame() 
@@ -113,8 +114,10 @@ bird_list <- birds %>%
 # Manually add the missing IUCN species taxonomic ids
 # Some weren't found because the scientific names in IUCN are different 
 missing_ids <- data.frame(
-  bird_scinames = c("Ardenna pacifica", "Anous ceruleus", "Onychoprion fuscatus", "Onychoprion lunatus"),
-  common = c("Wedge-tailed shearwater", "Blue noddy", "Sooty tern", "Gray-backed tern"),
+  bird_scinames = c("Ardenna pacifica", "Anous ceruleus", 
+                    "Onychoprion fuscatus", "Onychoprion lunatus"),
+  common = c("Wedge-tailed shearwater", "Blue noddy", 
+             "Sooty tern", "Gray-backed tern"),
   missing_ids = c(132631353, 133493654, 132571340, 132569974)) %>% 
   mutate(common = as.character(common),
          bird_scinames = as.character(bird_scinames))
@@ -128,8 +131,9 @@ bird_list_filled <- bird_list %>%
   dplyr::select(iucn_sid, sciname, class, common, category)
 
 # List of extirpated birds
-ex_birds <- c("Puffinus lherminieri", "Ardenna pacifica", "Pterodroma alba",
-              "Puffinus nativitatis", "Bulweria bulwerii", "Anous minutus",
+ex_birds <- c("Puffinus lherminieri", "Ardenna pacifica", 
+              "Pterodroma alba", "Puffinus nativitatis", 
+              "Bulweria bulwerii", "Anous minutus",
               "Anous ceruleus", "Onychoprion lunatus")
 
 # Save to int folder
@@ -289,7 +293,8 @@ all_spp <- iucn_list %>%
          class.x = ifelse(is.na(class.x), class, class.x),
          common.x = ifelse(is.na(common.x), common, common.x),
          category.x = ifelse(is.na(category.x), category, category.x)) %>% 
-  dplyr::select(iucn_sid = iucn_sid.x, sciname, class = class.x, common = common.x, category = category.x)
+  dplyr::select(iucn_sid = iucn_sid.x, sciname, class = class.x, 
+                common = common.x, category = category.x)
 
 # Save to int folder
 write_csv(all_spp, file.path(dir_goal, "int/all_spp_list.csv"))

@@ -1,8 +1,10 @@
 ---
-title: 'OHI+ Palmyra 2020: 4_spp_trend'
+title: 'Species Sub-goal: Trend'
+subtitle: 'OHI+ Palmyra 2020 Assessment'
 author: "*Compiled on `r date()` by `r Sys.info()['user']`*"
 output: 
   html_document:
+    code_folding: show
     toc: true
     toc_depth: 3 
     toc_float: yes
@@ -10,9 +12,9 @@ output:
     theme: cerulean
     highlight: haddock
     includes: 
-     in_header: '../../../src/templates/ohi_hdr.html' 
+     in_header: '~/github/pal-prep/src/templates/pal_hdr.html' 
   pdf_document:
-    toc: true
+    toc: true 
 ---
 
 # Summary 
@@ -24,14 +26,15 @@ This script estimates the population trend in species over time, using historic 
 Historic assessments are based on the IUCN Red List past assessments.   
 
 
-Citation: IUCN 2020. IUCN Red List of Threatened Species. Version 2020-1 <www.iucnredlist.org>
-  * __Accessed__: 9 June 2020 
-  * __Time range__: 1965-2020 (discrete past assessments by species) 
-  * __Format__:  JSON   
+Citation: IUCN 2020. IUCN Red List of Threatened Species. Version 2020-1 <www.iucnredlist.org>     
+  * __Accessed__: 9 June 2020    
+  * __Time range__: 1965-2020 (discrete past assessments by species)   
+  * __Format__:  JSON     
 
 # Setup
 
-```{r setup, eval=F}
+```{r setup, eval=F, messsage=F, warning=F, results='hide'}
+
 library(tidyverse)
 library(rredlist)
 library(here)
@@ -65,7 +68,7 @@ for(i in 1:nrow(spp_list)){
   ###i <- 1
   print(i)
   
-  sp <- as.character(spp_list[i,2]) #grab scientific name
+  sp <- as.character(spp_list[i,2]) # Grab scientific name
   
   possibleError <- tryCatch(
    
@@ -91,13 +94,13 @@ Using `rl_search` find the population trend from the IUCN for each species. Tren
 
 spp_list <- read_csv(file.path(dir_goal, "int/all_spp_list.csv")) 
 
-# loop for each species to grab population trend
+# Loop for each species to grab population trend
 df_iucn_trend <- data.frame()
 
 for(i in 1:nrow(spp_list)){
   
   print(i)
-  sp <- as.character(spp_list[i,2]) #grab scientific name
+  sp <- as.character(spp_list[i,2]) # Grab scientific name
   
   tr <- rl_search(sp, key = api_key)$result$population_trend
   
@@ -129,7 +132,7 @@ Some categories may have changed designations in the past. A list of old categor
 ``` {r add-past-categories, eval=F}
 
 spp_hist   <- read_csv(file.path(dir_goal, 'int/raw_spp_assess.csv'))
-cat_lookup <- read_csv(file.path(dir_goal, "risk_code_lookup.csv")) # match old categories to today's categories
+cat_lookup <- read_csv(file.path(dir_goal, "raw/risk_code_lookup.csv"))
 
 # Join past categories    
 spp_past_df <- spp_hist %>%
@@ -137,11 +140,11 @@ spp_past_df <- spp_hist %>%
     dplyr::rename(
            old_cat  = code,
            cat_txt  = category,
-           cat_ts   = code_current) #rename stuff and get scores
+           cat_ts   = code_current) 
 
 # Define category scores
 pop_cat <- data.frame(cat_ts       = c('LC', 'NT', 'VU', 'EN', 'CR', 'EX', 'NE', 'DD'),
-                        cat_ts_score = c( 0.0,  0.2,  0.4,  0.6,  0.8,  1.0,  NA,   NA)) ## define scores again
+                        cat_ts_score = c( 0.0,  0.2,  0.4,  0.6,  0.8,  1.0,  NA,   NA)) 
 
 # Add scores to past categories 
 spp_past_df1 <- spp_past_df %>%
@@ -149,7 +152,7 @@ spp_past_df1 <- spp_past_df %>%
     filter(!is.na(cat_ts_score) & !is.na(year)) %>%
     arrange(sciname, year) %>%
     dplyr::select(sciname, year, cat_ts, cat_ts_score) %>%
-    mutate(iucn_version = api_version) #this tells you what year it is pulling from 
+    mutate(iucn_version = api_version) # What year it is pulling from 
 ```
 
 ## Linear Model
@@ -162,7 +165,7 @@ Create data frames for modeling
 ``` {r df-modeling, eval=F}
 
 pop_trends <- read_csv(file.path(dir_goal, "int/iucn_pop_trend.csv")) %>%
-  dplyr::rename(pop_trend = trend) ## read in population trends grabbed from IUCN
+  dplyr::rename(pop_trend = trend) # Read in population trends grabbed from IUCN
 
 # Group historic trends and population trends
 cat_trend <- pop_trends %>%
@@ -175,7 +178,7 @@ cat_trend$year <- as.numeric(cat_trend$year)
 
 # Run a linear regression to get trend based on historical assessments
 lm_trend <- cat_trend %>%
-  filter(n_assess >= 2) %>% # only include ones with enough assessments
+  filter(n_assess >= 2) %>% # Only include ones with enough assessments
   group_by(sciname) %>%
   do(calc_trend = lm(cat_ts_score ~ year, data = .)[['coefficients']][['year']]) %>%
   mutate(calc_trend = as.numeric(calc_trend)) %>%
@@ -226,12 +229,13 @@ Calculate the trend scores based on the regression coefficients
 ``` {r grab-values-lm, eval=F}
 
 pop_trends <- read_csv(file.path(dir_goal, "int/iucn_pop_trend.csv")) %>%
-  dplyr::rename(pop_trend = trend) ## read in population trends grabbed from IUCN
+  dplyr::rename(pop_trend = trend) # Read in population trends grabbed from IUCN
 
 # Get values from linear regression:
 slope <- trend_coeffs$coefficients[1] %>% round(5) # Grabs slope from model
 
-trend_score_lookup <- c('Decreasing' = -slope, 'Stable' = 0, 'Increasing' = slope) # this is for gapfilling if the model didn't find anything
+# Gapfilling if the model didn't find anything
+trend_score_lookup <- c('Decreasing' = -slope, 'Stable' = 0, 'Increasing' = slope) 
 
 trend <- comp_trend2 %>%
   dplyr::select(sciname, calc_trend) %>%
@@ -251,7 +255,7 @@ spp_trends <- pop_trends %>%
 
 # Check for trend score NAs:
 trend_na <- spp_trends %>% 
-  filter(is.na(trend_score)) # 292 NA values - need to gapfill using the IUCN population trend
+  filter(is.na(trend_score)) # 292 NA values - gapfill using the IUCN population trend
 
 # Save to int folder
 write_csv(spp_trends, file.path(dir_goal, 'int/spp_trends_model.csv'))
@@ -278,13 +282,13 @@ pop_trend_score <- data.frame(pop_trend = c("Increasing", "Decreasing", "Stable"
 # Fill in NA trend scores with iucn population trend scores:
 spp_trend_scores <- model_trend %>% 
   left_join(pop_trend_score, by = "pop_trend") %>% 
-  filter(!is.na(pop_trend)) %>%  # remove species with NAs
+  filter(!is.na(pop_trend)) %>%  # Remove species with NAs
   mutate(trend_score = ifelse(is.na(trend_score), score, trend_score),
          trend_source = case_when(is.na(trend_source) & trend_score == score ~ "iucn_pop_trend",
                                   !is.na(trend_source) ~ trend_source)) %>% 
-  left_join(spp_list, by = 'sciname') %>%  # add class for averaging
+  left_join(spp_list, by = 'sciname') %>%  # Add class for averaging
   mutate(year = 2020,
-         region_id = 1) %>% # need to add a year and region_id for the toolbox to run
+         region_id = 1) %>% # Need to add a year and region_id for the toolbox to run
   dplyr::select(region_id, sciname, class, trend_score, trend_source, year) 
 
 # Save to int folder 
@@ -299,10 +303,10 @@ Use the same method as the current status to find the trend in species status. T
 spp_trend_scores <- read_csv(file.path(dir_goal, "int/spp_trend_scores.csv"))
 
 spp_trend <- spp_trend_scores %>% 
-  group_by(region_id, class) %>% # first find average score by class
+  group_by(region_id, class) %>% # First find average score by class
   summarize(trend = mean(trend_score, na.rm=T)) %>%
   group_by(region_id) %>%
-  summarize(trend = mean(trend, na.rm=T)) %>% # find average of the 10 classes
+  summarize(trend = mean(trend, na.rm=T)) %>% # Find average of the 10 classes
   mutate( year = 2019) %>% 
   dplyr::select(region_id, year, trend_score = trend)
 
