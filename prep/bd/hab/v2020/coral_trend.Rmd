@@ -1,8 +1,10 @@
 ---
-title: 'OHI+ Palmyra 2020: Habitats Subgoal Coral Trend'
+title: 'Habitats Sub-goal: Coral Trend'
+subtitle: 'OHI+ Palmyra 2020 Assessment'
 author: "*Compiled on `r date()` by `r Sys.info()['user']`*"
 output: 
   html_document:
+    code_folding: show
     toc: true
     toc_depth: 3 
     toc_float: yes
@@ -10,7 +12,7 @@ output:
     theme: cerulean
     highlight: haddock
     includes: 
-     in_header: '../../../src/templates/ohi_hdr.html' 
+     in_header: '~/github/pal-prep/src/templates/pal_hdr.html' 
   pdf_document:
     toc: true
 ---
@@ -25,8 +27,7 @@ Coral condition is lacking historic data for all areas of the reef used to estim
 
 # Setup
 
-```{r setup, message = F, warning = F}
-knitr::opts_chunk$set(echo = FALSE)
+```{r setup, message=F, warning=F, results='hide'}
 
 library(tidyverse)
 library(ohicore)
@@ -45,7 +46,8 @@ dir_goal   <- '~/github/pal-prep/prep/bd/hab/v2020'
 ```{r get-global-trend-data, eval=F}
 
 # Global coral trend data
-global_trend <- read_csv(file.path(dir_global, "hab_coral/v2012/data/habitat_trend_coral_updated.csv"))
+global_trend <- read_csv(file.path(dir_global,
+                                   "hab_coral/v2012/data/habitat_trend_coral_updated.csv"))
 
 # Find region ids 
 region_data() # Loads data frames needed to reference global region ids
@@ -89,7 +91,8 @@ um <- c(158,149,159,150,12)
 global_geo <- rgns_all %>% 
   left_join(UNgeorgn, by = "rgn_id") %>% 
   dplyr::select(rgn_id, rgn_name, r1_label, r2_label) %>% 
-  mutate(um_island = ifelse(rgn_id %in% um, "US Minor Outlying Island", "no")) # Add UM designation
+  mutate(um_island = ifelse(rgn_id %in% um,
+                            "US Minor Outlying Island", "no")) # Add UM designation
 
 # Add coral trend data 
 corals_georgn <- global_geo %>% 
@@ -140,6 +143,7 @@ write_csv(coral_trend, file.path(dir_goal, "output/coral_trend.csv"))
 ## Save to Toolbox
 
 ```{r save-to-toolbox, eval=F}
+coral_trend <- read_csv(file.path(dir_goal, "output/coral_trend.csv"))
 write_csv(coral_trend, file.path(dir_scores, 'layers/hab_coral_trend.csv'))
 ```
 
