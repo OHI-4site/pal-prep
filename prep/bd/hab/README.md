@@ -10,7 +10,7 @@ The folders in this file include the metadata, R scripts, and data for each asse
 - `rainforest_trend.Rmd` script to generate the trend in rainforest status   
 - `int` folder contains all intermediate files created by running through the `corals_data_prep.Rmd`, `coral_trend.Rmd`, `rainforest_data_prep.Rmd`, and `rainforest_trend.Rmd` files      
 - `output` folder with the layers generated in the script that are required to calculate the status score    
- - `raw` folder contains shapefiles from 2005 tree mapping surveys   
+- `raw` folder contains shapefiles from 2005 tree mapping surveys   
 
 Click [add link here to the scores/metadata_documentation/ohi-model/goal_descriptions/ *specific_goal.rmd*] to learn more about how the [name of goal/sub-goal] is calculated. 
 

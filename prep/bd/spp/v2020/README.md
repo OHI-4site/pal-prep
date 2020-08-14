@@ -1,12 +1,16 @@
-### Palmyra Ocean Health Index: Species Sub-goal 2020  
-
-#### Data Prep
+## Palmyra Ocean Health Index: Species Sub-goal 2020  
 
 Click on the layers to see data preparation:  
 
-[Link to each of the html data prep files]
+#### [IUCN Species List](https://mazu.nceas.ucsb.edu/rstudio/files/github/pal-prep/prep/bd/spp/v2020/1_iucn_spp_lists.html) 
 
-#### Layers Created
+#### [Palmyra Species List](https://mazu.nceas.ucsb.edu/rstudio/files/github/pal-prep/prep/bd/spp/v2020/2_pal_spp_lists.html)
 
-- Layer_name [short description]
-- Layer_name [short description]
+#### [Species Status]()   
+
+#### [Species Trend]()   
+
+### Layers Created
+
+- `spp_status.csv` current species status relative to the reference point   
+- `spp_trend.csv` trend in species status     
