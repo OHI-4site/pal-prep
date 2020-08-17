@@ -12,5 +12,5 @@ Click on the layers to see data preparation:
 
 ### Layers Created
 
-- `spp_status.csv` current species status relative to the reference point   
-- `spp_trend.csv` trend in species status     
+- `spp_status.csv` extinction risk scores for all species based on IUCN conservation status      
+- `spp_trend.csv` trend in species extinction risk scores        

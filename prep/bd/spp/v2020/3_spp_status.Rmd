@@ -44,11 +44,11 @@ dir_goal   <- '~/github/pal-prep/prep/bd/spp/v2020'
 
 **Reference Point:** All species have an IUCN status of "Least Concern"   
 
-A 0-1 score is assigned to each species based on IUCN conservation status:   
+A 0-1 extinction risk score is assigned to each species based on IUCN conservation status:   
  
   * 'LC' = 0, 'NT' = 0.2, 'CD' = 0.3, 'VU' = 0.4, 'T' = 0.6, 'EN' = 0.6, 'CR' = 0.8, 'EX' = 1.0  
 
-The status is first calculated for each class by averaging the category scores. The overall status is then the average of the status score for each class.  
+The status is first calculated for each class by averaging the risk scores. Then, the risk status is averaged over all the classes. The overall score is rescaled so a risk factor of 0.75 is equal to zero. This assigns a score of 0 when 75% species are extinct, a level comparable to the five documented mass extinctions (Barnosky et al. 2011) and would constitute a catastrophic loss of biodiversity.    
 
 
 ```{r calc-spp-status, eval=F}

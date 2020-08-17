@@ -9,7 +9,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
-<meta name="author" content="Compiled on Fri Aug 14 12:45:27 2020 by orofino" />
+<meta name="author" content="Compiled on Mon Aug 17 11:11:54 2020 by orofino" />
 
 
 <title>Species Sub-goal: Status</title>
@@ -1651,7 +1651,7 @@ div.tocify {
 
 <h1 class="title toc-ignore">Species Sub-goal: Status</h1>
 <h3 class="subtitle">OHI+ Palmyra 2020 Assessment</h3>
-<h4 class="author"><em>Compiled on Fri Aug 14 12:45:27 2020 by orofino</em></h4>
+<h4 class="author"><em>Compiled on Mon Aug 17 11:11:54 2020 by orofino</em></h4>
 
 </div>
 
@@ -1679,11 +1679,11 @@ div.tocify {
 <div id="calculate-status" class="section level2">
 <h2>Calculate Status</h2>
 <p><strong>Reference Point:</strong> All species have an IUCN status of “Least Concern”</p>
-<p>A 0-1 score is assigned to each species based on IUCN conservation status:</p>
+<p>A 0-1 extinction risk score is assigned to each species based on IUCN conservation status:</p>
 <ul>
 <li>‘LC’ = 0, ‘NT’ = 0.2, ‘CD’ = 0.3, ‘VU’ = 0.4, ‘T’ = 0.6, ‘EN’ = 0.6, ‘CR’ = 0.8, ‘EX’ = 1.0</li>
 </ul>
-<p>The status is first calculated for each class by averaging the category scores. The overall status is then the average of the status score for each class.</p>
+<p>The status is first calculated for each class by averaging the risk scores. Then, the risk status is averaged over all the classes. The overall score is rescaled so a risk factor of 0.75 is equal to zero. This assigns a score of 0 when 75% species are extinct, a level comparable to the five documented mass extinctions (Barnosky et al. 2011) and would constitute a catastrophic loss of biodiversity.</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="co"># Use the combined all species lists</span></span>
 <span id="cb2-2"><a href="#cb2-2"></a>all_spp &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="kw">file.path</span>(dir_goal, <span class="st">&#39;int/all_spp_list.csv&#39;</span>)) </span>
 <span id="cb2-3"><a href="#cb2-3"></a></span>
