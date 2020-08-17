@@ -114,14 +114,14 @@ fad_status <- annual_fad %>%
   dplyr::select(region_id, year, status)
 
 # Save to output
-write_csv(fad_status, file.path(dir_goal, "output/fad_status.csv"))
+write_csv(fad_status, file.path(dir_goal, "output/debris_status.csv"))
 ```
 
 ## Save to Toolbox
 
 ```{r save-to-toolbox, eval=F}
-fad_status <- read_csv(file.path(dir_goal, "output/fad_status.csv"))
-write_csv(fad_status, file.path(dir_scores, 'layers/cw_debris_status.csv'))
+debris_status <- read_csv(file.path(dir_goal, "output/debris_status.csv"))
+write_csv(debris_status, file.path(dir_scores, 'layers/cw_debris_status.csv'))
 ```
 
 # Pressure Layer
@@ -131,16 +131,16 @@ write_csv(fad_status, file.path(dir_scores, 'layers/cw_debris_status.csv'))
 Debris will also be a pressure layer where higher scores indicate more marine debris. This is the inverse of the status score calculated above.  
 
 ```{r debris-pressure-layer, eval=F}
-fad_status <- read_csv(file.path(dir_goal, "output/fad_status.csv"))
+debris_status <- read_csv(file.path(dir_goal, "output/debris_status.csv"))
 
 # Add year 2020 (repeat 2019)
 add_20 <- data.frame(
   region_id = 1, 
   year = 2020,
-  status = fad_status$status[fad_status$year == 2019])
+  status = debris_status$status[debris_status$year == 2019])
 
 # Pressure scores
-pressure <- fad_status %>% 
+pressure <- debris_status %>% 
   rbind(add_20) %>% 
   mutate(pressure_score = 1 - status) %>% 
   dplyr::select(-status)

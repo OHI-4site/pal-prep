@@ -336,15 +336,15 @@ sc_status <- data.frame(
 )
 
 # Save to output folder
-write_csv(sc_status, file.path(dir_goal, "output/sc_status.csv"))
+write_csv(sc_status, file.path(dir_goal, "output/contamination_status.csv"))
 ```
 
 
 ## Save to Toolbox 
 
 ```{r save-to-toolbox, message=F, warning=F, eval=F}
-sc_status <- read_csv(file.path(dir_goal, "output/sc_status.csv"))
-write_csv(sc_status, file.path(dir_scores, "layers/cw_contamination_status.csv"))
+contam_status <- read_csv(file.path(dir_goal, "output/contamination_status.csv"))
+write_csv(contam_status, file.path(dir_scores, "layers/cw_contamination_status.csv"))
 ```
 
 # Pressure Layer
@@ -354,11 +354,11 @@ write_csv(sc_status, file.path(dir_scores, "layers/cw_contamination_status.csv")
 Soil contamination will also be a pressure layer where higher scores indicate more contamination. This is the inverse of the status score calculated above.  
 
 ```{r debris-pressure-layer, message=F, warning=F, eval=F}
-sc_status <- read_csv(file.path(dir_goal, "output/sc_status.csv"))
+contam_status <- read_csv(file.path(dir_goal, "output/contamination_status.csv"))
 
 # Use same pressure score from 2014-2020
 years  <- 2014:2020
-status <- sc_status$status
+status <- contam_status$status
 
 # Find pressure score - inverse of status score 
 prs <- data.frame(
@@ -368,14 +368,14 @@ prs <- data.frame(
 )
 
 # Save to output
-write_csv(prs, file.path(dir_goal, "output/po_soil.csv"))
+write_csv(prs, file.path(dir_goal, "output/po_contamination.csv"))
 ```
 
 ## Save Pressure to Toolbox 
 
 ```{r save-prs-toolbox, message=F, warning=F, eval=F}
-po_soil <- read_csv(file.path(dir_goal, "output/po_soil.csv"))
-write_csv(po_soil, file.path(dir_scores, "layers/prs_po_contamination.csv"))
+po_contam <- read_csv(file.path(dir_goal, "output/po_contamination.csv"))
+write_csv(po_contam, file.path(dir_scores, "layers/prs_po_contamination.csv"))
 ```
 
 
