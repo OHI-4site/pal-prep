@@ -2,9 +2,9 @@
 
 Click on the layers to see data preparation:  
 
-#### [Carbon Storage](https://mazu.nceas.ucsb.edu/rstudio/files/github/pal-prep/prep/hs/cs/v2020/carbon_storage_data_prep.html)   
+#### [Carbon Storage](https://raw.githack.com/OHI-4site/pal-prep/gh-pages/prep/hs/cs/v2020/carbon_storage_data_prep.html)   
 
-#### [Carbon Storage Trend](https://mazu.nceas.ucsb.edu/rstudio/files/github/pal-prep/prep/hs/cs/v2020/carbon_storage_trend.html)   
+#### [Carbon Storage Trend](https://raw.githack.com/OHI-4site/pal-prep/gh-pages/prep/hs/cs/v2020/carbon_storage_trend.html)   
 
 ### Layers Created
 
