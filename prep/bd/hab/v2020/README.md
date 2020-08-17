@@ -2,13 +2,13 @@
 
 Click on the layers to see data preparation:  
 
-#### [Coral Status](https://mazu.nceas.ucsb.edu/rstudio/files/github/pal-prep/prep/bd/hab/v2020/corals_data_prep.html) 
+#### [Coral Status](https://raw.githack.com/OHI-4site/pal-prep/gh-pages/prep/bd/hab/v2020/corals_data_prep.html) 
 
-#### [Coral Trend](https://mazu.nceas.ucsb.edu/rstudio/files/github/pal-prep/prep/bd/hab/v2020/coral_trend.html) 
+#### [Coral Trend](https://raw.githack.com/OHI-4site/pal-prep/gh-pages/prep/bd/hab/v2020/coral_trend.html) 
 
-#### [Rainforest Status](https://mazu.nceas.ucsb.edu/rstudio/files/github/pal-prep/prep/bd/hab/v2020/rainforest_data_prep.html)
+#### [Rainforest Status](https://raw.githack.com/OHI-4site/pal-prep/gh-pages/prep/bd/hab/v2020/rainforest_data_prep.html)
 
-#### [Rainforest Trend](https://mazu.nceas.ucsb.edu/rstudio/files/github/pal-prep/prep/bd/hab/v2020/rainforest_trend.html)
+#### [Rainforest Trend](https://raw.githack.com/OHI-4site/pal-prep/gh-pages/prep/bd/hab/v2020/rainforest_trend.html)
 
 ### Layers Created
 
