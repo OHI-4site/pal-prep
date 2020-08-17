@@ -119,7 +119,12 @@ zones_og <- ggplot() +
                                "#838383", "#63b7af", "#bae5e5",
                                "#c9d1d3", "#ee8572", "#519872")) + 
   theme_minimal() + 
-  theme(legend.position = "bottom") +
+  theme(legend.position = "bottom",
+        legend.key = element_rect(fill = "transparent", colour = "transparent"),
+        panel.background = element_rect(fill = "transparent",colour = NA),
+        plot.background = element_rect(fill = "transparent",colour = NA),
+        legend.background = element_blank(),
+        legend.box.background = element_blank()) +
   labs(fill = "Coral Reef Zones") +
   ggtitle("Raw Data Coral Reef Zones")
 
@@ -131,7 +136,12 @@ zones_reclass <- ggplot() +
                     values = c("#408ab4", "#63b7af",
                                "#bae5e5", "#ee8572")) +
   theme_minimal() + 
-  theme(legend.position = "bottom") +
+  theme(legend.position = "bottom",
+        legend.key = element_rect(fill = "transparent", colour = "transparent"),
+        panel.background = element_rect(fill = "transparent",colour = NA),
+        plot.background = element_rect(fill = "transparent",colour = NA),
+        legend.background = element_blank(),
+        legend.box.background = element_blank()) +
   labs(fill = "Coral Reef Zones") +
   ggtitle("Reclassified Coral Reef Zones")
 
@@ -145,7 +155,12 @@ cover_og <- ggplot() +
                                "#64a36f", "#28544b",
                                "#c9d1d3")) +
   theme_minimal() + 
-  theme(legend.position = "bottom") +
+  theme(legend.position = "bottom",
+        legend.key = element_rect(fill = "transparent", colour = "transparent"),
+        panel.background = element_rect(fill = "transparent",colour = NA),
+        plot.background = element_rect(fill = "transparent",colour = NA),
+        legend.background = element_blank(),
+        legend.box.background = element_blank()) +
   labs(fill = "Live Coral Cover Percent") +
   ggtitle("Raw Data Live Coral Cover Percent")
 
@@ -159,7 +174,12 @@ cover_reclass <- ggplot() +
                                "#64a36f", "#28544b",
                                "#c9d1d3")) +
   theme_minimal() + 
-  theme(legend.position = "bottom") +
+  theme(legend.position = "bottom",
+        legend.key = element_rect(fill = "transparent", colour = "transparent"),
+        panel.background = element_rect(fill = "transparent",colour = NA),
+        plot.background = element_rect(fill = "transparent",colour = NA),
+        legend.background = element_blank(),
+        legend.box.background = element_blank()) +
   labs(fill = "Live Coral Cover Percent") +
   ggtitle("Reclassified Live Coral Cover Percent")
 
@@ -169,6 +189,23 @@ zones_og
 zones_reclass
 cover_og
 cover_reclass
+
+# Save all maps
+ggsave(zones_og,
+       filename = file.path(dir_goal, "figs/coral_zones_raw.png"),
+       bg = "transparent")
+
+ggsave(zones_reclass,
+       filename = file.path(dir_goal, "figs/coral_zones_reclassified.png"),
+       bg = "transparent")
+
+ggsave(cover_og,
+       filename = file.path(dir_goal, "figs/coral_cover_raw.png"),
+       bg = "transparent")
+
+ggsave(cover_reclass,
+       filename = file.path(dir_goal, "figs/coral_cover_reclassified.png"),
+       bg = "transparent")
 ```
 
 ## Fore Reef Zones 
