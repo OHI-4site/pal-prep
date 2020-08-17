@@ -2,9 +2,9 @@
 
 Click on the layers to see data preparation:  
 
-#### [Employment](https://mazu.nceas.ucsb.edu/rstudio/files/github/pal-prep/prep/rs/v2020/employment_data_prep.html)   
+#### [Employment](https://raw.githack.com/OHI-4site/pal-prep/gh-pages/prep/rs/v2020/employment_data_prep.html)   
 
-#### [Scientific Papers](https://mazu.nceas.ucsb.edu/rstudio/files/github/pal-prep/prep/rs/v2020/sci_papers_data_prep.html)   
+#### [Scientific Papers](https://raw.githack.com/OHI-4site/pal-prep/gh-pages/prep/rs/v2020/sci_papers_data_prep.html)   
 
 ### Layers Created
 

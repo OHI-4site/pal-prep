@@ -2,7 +2,7 @@
 
 Click on the layers to see data preparation:  
 
-#### [Iconic Species](https://mazu.nceas.ucsb.edu/rstudio/files/github/pal-prep/prep/sp/ico/v2020/ico_data_prep.html) 
+#### [Iconic Species](https://raw.githack.com/OHI-4site/pal-prep/gh-pages/prep/sp/ico/v2020/ico_data_prep.html) 
 
 ### Layers Created
 

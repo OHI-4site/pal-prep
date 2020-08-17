@@ -2,7 +2,7 @@
 
 Click on the layers to see data preparation:  
 
-#### [Tourism and Recreation](https://mazu.nceas.ucsb.edu/rstudio/files/github/pal-prep/prep/tr/v2020/tr_data_prep.html)
+#### [Tourism and Recreation](https://raw.githack.com/OHI-4site/pal-prep/gh-pages/prep/tr/v2020/tr_data_prep.html)
 
 ### Layers Created
 
