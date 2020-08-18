@@ -29,6 +29,8 @@ Habitat maps were completed in December 2011 and data were downloaded on June 30
 
 Citation: U.S. Department of Commerce, National Oceanic and Atmospheric Administration, National Center for Coastal Ocean Sciences. (2011). Palmyra Habitat Maps [Data file]. Retrieved from https://products.coastalscience.noaa.gov/collections/benthic/e58palmyra/
 
+Lagoon maps for adjusting the area of the lagoon where live coral can reasonably grow were obtained from Alex Wegmann at The Nature Conservancy on August 18, 2020.   
+
 # Setup
 
 ```{r setup, message=F, warning=F, results='hide'}
@@ -246,17 +248,107 @@ ggplot() +
   geom_sf(data = fore_zones, aes(fill = p_coral_cv)) # The long N/S are split evenly so that should be fine
 
 ## Combine back into the coral zones data frame 
-zones_final <- zones %>% 
+zones_combined <- zones %>% 
   filter(zone != "Fore Reef") %>% # Filter out fore reef
   rbind(fore_zones)
 
-# Final zones map 
-ggplot() + 
-  geom_sf(data = zones_final, aes(fill = zone))
-
 # Save layer to int folder as shp and csv
-st_write(zones_final, file.path(dir_goal, "int/coral_zones.shp"), driver = 'ESRI Shapefile', append=FALSE)
-write_csv(zones_final, file.path(dir_goal, "int/coral_zones.csv"))
+st_write(zones_combined, file.path(dir_goal, "int/coral_zones.shp"),
+         driver = 'ESRI Shapefile', append=FALSE)
+write_csv(zones_combined, file.path(dir_goal, "int/coral_zones.csv"))
+```
+
+## Adjust Lagoon Area 
+
+Coral status will be area weighted for each of the main four zones. However, the entire lagoon cannot support live coral growth. The area of the lagoon will be adjusted based on shapefiles showing where live coral can reasonably grow. These shapefiles were obtained from Alex Wegmann at The Nature Conservancy on August 18, 2020.   
+
+```{r adjust-lagoon-area, eval=F}
+
+## Read in all lagoon polygon shapefiles
+east_line    <- st_read(file.path(dir_anx, 'dataprep/bd/hab/v2020/raw/lagoon_area'),
+                   layer = "East_Lagoon_Coral_Potential_5m_Swath-line")
+
+lesley_west  <- st_read(file.path(dir_anx, 'dataprep/bd/hab/v2020/raw/lagoon_area'),
+                   layer = "Lesley_West-polygon")
+
+lost_flats   <- st_read(file.path(dir_anx, 'dataprep/bd/hab/v2020/raw/lagoon_area'),
+                   layer = "Lost_Flats-polygon")
+
+ns_line      <- st_read(file.path(dir_anx, 'dataprep/bd/hab/v2020/raw/lagoon_area'),
+                   layer = "N_S_FS_Coral_Potential_5m_Swath-line")
+
+north_garden <- st_read(file.path(dir_anx, 'dataprep/bd/hab/v2020/raw/lagoon_area'),
+                   layer = "North_Coral_Gardens-polygon")
+
+sand_south   <- st_read(file.path(dir_anx, 'dataprep/bd/hab/v2020/raw/lagoon_area'),
+                   layer = "Sand_South-polygon")
+
+south_garden <- st_read(file.path(dir_anx, 'dataprep/bd/hab/v2020/raw/lagoon_area'),
+                   layer = "South_Coral_Gardens-polygon")
+
+turtle_hole  <- st_read(file.path(dir_anx, 'dataprep/bd/hab/v2020/raw/lagoon_area'),
+                   layer = "Turtle_Hole_Flats-polygon")
+
+turtle_line  <- st_read(file.path(dir_anx, 'dataprep/bd/hab/v2020/raw/lagoon_area'),
+                   layer = "Turtle_Hole_Potential_Coral_5m_Swath-line")
+
+west_barren  <- st_read(file.path(dir_anx, 'dataprep/bd/hab/v2020/raw/lagoon_area'),
+                   layer = "West_Barren_Lagoon-polygon")
+
+west_line    <- st_read(file.path(dir_anx, 'dataprep/bd/hab/v2020/raw/lagoon_area'),
+                   layer = "West_Lagoon_Coral_Potential_5m_Swath-line")
+
+# Combine to form one shapefile - find the area 
+lagoon <- east_line %>% 
+  rbind(lesley_west) %>% 
+  rbind(lost_flats) %>% 
+  rbind(ns_line) %>% 
+  rbind(north_garden) %>% 
+  rbind(sand_south) %>% 
+  rbind(south_garden) %>% 
+  rbind(turtle_hole) %>% 
+  rbind(turtle_line) %>% 
+  rbind(west_barren) %>% 
+  rbind(west_line) %>% 
+  mutate(zone = "Lagoon") %>% 
+  mutate(area_m2 = st_area(.),
+         area_km2 = area_m2 * 0.000001) %>% 
+  separate(area_km2, into = c("area_km2", "units"), sep = " ") %>% 
+  dplyr::select(site = Name, zone, area_km2)
+# No area for the line features
+
+# Find area of line features 
+lagoon_lines   <- lagoon %>% 
+  filter(area_km2 == 0) %>%  # Should be 4 
+  dplyr::select(-area_km2) %>% 
+  mutate(length_m = st_length(.),
+         width_m = 5) %>% 
+  separate(length_m, into = c("length_m", "units"), sep = " ") %>%
+  mutate(length_m = as.numeric(length_m),
+         area_km2 = (length_m * width_m) * 0.000001) %>% 
+  dplyr::select(site, zone, area_km2)
+
+# Isolate the lagoon polygons 
+lagoon_noline <- lagoon %>% 
+  filter(area_km2 != 0)
+
+# Convert both objects to multilinestrings to combine
+lagoon_mln <- st_cast(lagoon_noline, "MULTILINESTRING", do_split = FALSE)
+lines_mln  <- st_cast(lagoon_lines, "MULTILINESTRING", do_split = FALSE)
+
+# Combine 
+lagoon_all <- rbind(lagoon_mln, lines_mln) %>% 
+  mutate(area_km2 = as.numeric(area_km2))
+
+## Find total area of lagoon 
+lagoon_area <- data.frame(
+  zone = "Lagoon", 
+  area_km2 = sum(lagoon_all$area_km2))
+
+# Save shp and csv to int folder
+st_write(lagoon_all, file.path(dir_goal, "int/lagoon_area.shp"),
+         append=FALSE)
+write_csv(lagoon_area, file.path(dir_goal, "int/lagoon_area.csv"))
 ```
 
 ## Calculate Coral Status
@@ -277,7 +369,8 @@ Where $ref_{area}$ is the area of the reef zone falling within or above the refe
 The overall status score is calculated as the area weighted mean of the status score for each zone. 
  
 ```{r calc-status, eval=F}
-zones <- read_csv(file.path(dir_goal, "int/coral_zones.csv"))
+zones       <- read_csv(file.path(dir_goal, "int/coral_zones.csv"))
+lagoon_area <- read_csv(file.path(dir_goal, "int/lagoon_area.csv"))
 
 # Define reference point categories
 ref_back  <- 2
@@ -288,7 +381,9 @@ ref_lag   <- 2
 # Total area for each zone
 tot_areas <- zones %>% 
   group_by(zone) %>% 
-  summarize(tot_area_km = sum(area) * 0.000001)
+  summarize(tot_area_km = sum(area) * 0.000001) %>% 
+  mutate(tot_area_km = ifelse(zone == "Lagoon",
+                              lagoon_area$area_km2, tot_area_km)) # Use updated lagoon area
 
 # Area in each zone where cover_cat = ref, or cover_cat > ref
 zone_area <- zones %>% 
