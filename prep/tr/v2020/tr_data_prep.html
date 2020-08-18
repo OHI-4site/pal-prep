@@ -9,7 +9,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
-<meta name="author" content="Compiled on Thu Aug 13 15:17:10 2020 by orofino" />
+<meta name="author" content="Compiled on Tue Aug 18 14:41:02 2020 by orofino" />
 
 
 <title>Tourism and Recreation</title>
@@ -1651,18 +1651,18 @@ div.tocify {
 
 <h1 class="title toc-ignore">Tourism and Recreation</h1>
 <h3 class="subtitle">OHI+ Palmyra 2020 Assessment</h3>
-<h4 class="author"><em>Compiled on Thu Aug 13 15:17:10 2020 by orofino</em></h4>
+<h4 class="author"><em>Compiled on Tue Aug 18 14:41:02 2020 by orofino</em></h4>
 
 </div>
 
 
 <div id="summary" class="section level1">
 <h1>Summary</h1>
-<p>This script generates a temporary layer to use in place of a status score for the Tourism and Recreation goal.</p>
+<p>This script status score for tourism and recreation based on the number of private visiting vessels per year from 2014 - 2020.</p>
 </div>
 <div id="data" class="section level1">
 <h1>Data</h1>
-<p>Data for this layer is supposed to come from the boat visitation log on Palmyra Atoll. The log was not digitized at the time of the assessment and therefore couldn’t be used.</p>
+<p>Data for this layer is supposed to come from the boat visitation log on Palmyra Atoll. The log was not digitized at the time of the assessment, but estimates were obtained via email from Stefan Kropidlowski at the U.S. Fish and Wildlife Service on August 18, 2020.</p>
 </div>
 <div id="setup" class="section level1">
 <h1>Setup</h1>
@@ -1676,25 +1676,42 @@ div.tocify {
 </div>
 <div id="methods" class="section level1">
 <h1>Methods</h1>
-<p>The toolbox requires the layer to have a column for region_id, year, and status (a score 0-1). For trend we like to have five years of data, so the years will span 2014-2020, but since the data is not available to complete this layer in time for the assessment, a placeholder with a value of NA will be used.</p>
-<div id="create-temporary-layer" class="section level2">
-<h2>Create Temporary Layer</h2>
+<p>The USFWS estimates about three private vessels visit Palmyra each year. We will use this estimate for all years from 2014 - 2020. These estimates should be updated once the boat visitation log on Palmyra Atoll is digitized.</p>
+<div id="create-raw-data" class="section level2">
+<h2>Create Raw Data</h2>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="co"># Set years </span></span>
 <span id="cb2-2"><a href="#cb2-2"></a>years &lt;-<span class="st"> </span><span class="dv">2014</span><span class="op">:</span><span class="dv">2020</span></span>
 <span id="cb2-3"><a href="#cb2-3"></a></span>
-<span id="cb2-4"><a href="#cb2-4"></a>tr_status &lt;-<span class="st"> </span><span class="kw">data.frame</span>(</span>
+<span id="cb2-4"><a href="#cb2-4"></a>visits_raw &lt;-<span class="st"> </span><span class="kw">data.frame</span>(</span>
 <span id="cb2-5"><a href="#cb2-5"></a>  <span class="dt">region_id =</span> <span class="kw">rep</span>(<span class="dv">1</span>, <span class="kw">length</span>(years)), </span>
 <span id="cb2-6"><a href="#cb2-6"></a>  <span class="dt">year =</span> years, </span>
-<span id="cb2-7"><a href="#cb2-7"></a>  <span class="dt">status =</span> <span class="kw">rep</span>(<span class="ot">NA</span>, <span class="kw">length</span>(years))</span>
+<span id="cb2-7"><a href="#cb2-7"></a>  <span class="dt">visits =</span> <span class="kw">rep</span>(<span class="dv">3</span>, <span class="kw">length</span>(years))</span>
 <span id="cb2-8"><a href="#cb2-8"></a>)</span>
 <span id="cb2-9"><a href="#cb2-9"></a></span>
-<span id="cb2-10"><a href="#cb2-10"></a><span class="co"># Save placeholder to output</span></span>
-<span id="cb2-11"><a href="#cb2-11"></a><span class="kw">write_csv</span>(tr_status, <span class="kw">file.path</span>(dir_goal, <span class="st">&quot;output/tr_status_placeholder.csv&quot;</span>))</span></code></pre></div>
+<span id="cb2-10"><a href="#cb2-10"></a><span class="co"># Save to raw </span></span>
+<span id="cb2-11"><a href="#cb2-11"></a><span class="kw">write_csv</span>(visits_raw, <span class="kw">file.path</span>(dir_goal, <span class="st">&quot;raw/boat_visits_raw.csv&quot;</span>))</span></code></pre></div>
+</div>
+<div id="calculate-status" class="section level2">
+<h2>Calculate Status</h2>
+<p><strong>Reference Point:</strong> Up to 6 private vessels visiting Palmyra Atoll per year.</p>
+<p>The current status will be scaled to the reference point using the following equation:</p>
+<p><span class="math inline">\(status~=~1~-~[(vessels_{y}~-vessels_{ref,y})~/~vessels_{ref,y}]\)</span></p>
+<p>Where <span class="math inline">\(vessels_{y}\)</span> is the number of private vessels coming to the island in each year (y) and <span class="math inline">\(vessel_{ref,y}\)</span> is the reference point number of private vessels coming to the island in year (y). Any value greater than one will be given a status of one, and any value less than zero will be given a zero. This gives a perfect score to any year where the number of visiting vessels is at or below the reference point and a zero if the number of visiting vessels is double or more than double the reference point. This method of scoring is based on The Nature Conservancy’s management goals to keep tourism at or below the reference point level and reflective of the view that having double the number of private vessels visiting each year would cause serious damage to the ecosystem.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>vessels &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="kw">file.path</span>(dir_goal, <span class="st">&quot;raw/boat_visits_raw.csv&quot;</span>))</span>
+<span id="cb3-2"><a href="#cb3-2"></a></span>
+<span id="cb3-3"><a href="#cb3-3"></a>tr_status &lt;-<span class="st"> </span>vessels <span class="op">%&gt;%</span><span class="st"> </span></span>
+<span id="cb3-4"><a href="#cb3-4"></a><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">ref =</span> <span class="dv">3</span>,</span>
+<span id="cb3-5"><a href="#cb3-5"></a>         <span class="dt">status =</span> <span class="dv">1</span> <span class="op">-</span><span class="st"> </span>(visits <span class="op">-</span><span class="st"> </span>ref) <span class="op">/</span><span class="st"> </span>ref) <span class="op">%&gt;%</span><span class="st"> </span></span>
+<span id="cb3-6"><a href="#cb3-6"></a><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">status =</span> <span class="kw">ifelse</span>(status <span class="op">&gt;</span><span class="st"> </span><span class="dv">1</span>, <span class="dv">1</span>, status)) <span class="op">%&gt;%</span><span class="st"> </span></span>
+<span id="cb3-7"><a href="#cb3-7"></a><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">select</span>(region_id, year, status)</span>
+<span id="cb3-8"><a href="#cb3-8"></a></span>
+<span id="cb3-9"><a href="#cb3-9"></a><span class="co"># Save to output folder</span></span>
+<span id="cb3-10"><a href="#cb3-10"></a><span class="kw">write_csv</span>(rao_status, <span class="kw">file.path</span>(dir_goal, <span class="st">&quot;output/tr_status.csv&quot;</span>))</span></code></pre></div>
 </div>
 <div id="save-to-toolbox" class="section level2">
 <h2>Save to Toolbox</h2>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>tr_status &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="kw">file.path</span>(dir_goal, <span class="st">&quot;output/tr_status_placeholder.csv&quot;</span>))</span>
-<span id="cb3-2"><a href="#cb3-2"></a><span class="kw">write_csv</span>(tr_status, <span class="kw">file.path</span>(dir_scores, <span class="st">&quot;layers/tr_status_placeholder.csv&quot;</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a>tr_status &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="kw">file.path</span>(dir_goal, <span class="st">&quot;output/tr_status.csv&quot;</span>))</span>
+<span id="cb4-2"><a href="#cb4-2"></a><span class="kw">write_csv</span>(tr_status, <span class="kw">file.path</span>(dir_scores, <span class="st">&quot;layers/tr_status.csv&quot;</span>))</span></code></pre></div>
 </div>
 </div>
 
