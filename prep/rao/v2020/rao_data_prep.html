@@ -9,7 +9,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
-<meta name="author" content="Compiled on Thu Aug 13 15:25:41 2020 by orofino" />
+<meta name="author" content="Compiled on Tue Aug 18 13:41:46 2020 by orofino" />
 
 
 <title>Resource Access Opportunities</title>
@@ -1651,18 +1651,18 @@ div.tocify {
 
 <h1 class="title toc-ignore">Resource Access Opportunities</h1>
 <h3 class="subtitle">OHI+ Palmyra 2020 Assessment</h3>
-<h4 class="author"><em>Compiled on Thu Aug 13 15:25:41 2020 by orofino</em></h4>
+<h4 class="author"><em>Compiled on Tue Aug 18 13:41:46 2020 by orofino</em></h4>
 
 </div>
 
 
 <div id="summary" class="section level1">
 <h1>Summary</h1>
-<p>This script generates a temporary layer to use in place of a status score for the Resource Access Opportunities goal.</p>
+<p>This script calculates a status score for access to sustenance fishing opportunities around Palmyra Atoll from 2014 - 2020.</p>
 </div>
 <div id="data" class="section level1">
 <h1>Data</h1>
-<p>Data for this layer is supposed to come from the fishing log on Palmyra Atoll. The log was not digitized at the time of the assessment and therefore couldn’t be used.</p>
+<p>Data for this layer is supposed to come from the fishing log on Palmyra Atoll. The log was not digitized at the time of the assessment, but estimates were obtained via email from Stefan Kropidlowski at the U.S. Fish and Wildlife Service on August 18, 2020.</p>
 </div>
 <div id="setup" class="section level1">
 <h1>Setup</h1>
@@ -1676,25 +1676,41 @@ div.tocify {
 </div>
 <div id="methods" class="section level1">
 <h1>Methods</h1>
-<p>The toolbox requires the layer to have a column for region_id, year, and status (a score 0-1). For trend we like to have five years of data, so the years will span 2014-2020, but since the data is not available to complete this layer in time for the assessment, a placeholder with a value of NA will be used.</p>
-<div id="create-temporary-layer" class="section level2">
-<h2>Create Temporary Layer</h2>
+<p>The USFWS estimates about 20 fish are caught each year for sustenance fishing. We will use this estimate for all years from 2014 - 2020. These estimates should be updated once the sustenance fishing log on Palmyra Atoll is digitized.</p>
+<div id="create-raw-data" class="section level2">
+<h2>Create Raw Data</h2>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="co"># Set years </span></span>
 <span id="cb2-2"><a href="#cb2-2"></a>years &lt;-<span class="st"> </span><span class="dv">2014</span><span class="op">:</span><span class="dv">2020</span></span>
 <span id="cb2-3"><a href="#cb2-3"></a></span>
-<span id="cb2-4"><a href="#cb2-4"></a>rao_status &lt;-<span class="st"> </span><span class="kw">data.frame</span>(</span>
+<span id="cb2-4"><a href="#cb2-4"></a>catch_raw &lt;-<span class="st"> </span><span class="kw">data.frame</span>(</span>
 <span id="cb2-5"><a href="#cb2-5"></a>  <span class="dt">region_id =</span> <span class="kw">rep</span>(<span class="dv">1</span>, <span class="kw">length</span>(years)), </span>
 <span id="cb2-6"><a href="#cb2-6"></a>  <span class="dt">year =</span> years, </span>
-<span id="cb2-7"><a href="#cb2-7"></a>  <span class="dt">status =</span> <span class="kw">rep</span>(<span class="ot">NA</span>, <span class="kw">length</span>(years))</span>
+<span id="cb2-7"><a href="#cb2-7"></a>  <span class="dt">catch =</span> <span class="kw">rep</span>(<span class="dv">20</span>, <span class="kw">length</span>(years))</span>
 <span id="cb2-8"><a href="#cb2-8"></a>)</span>
 <span id="cb2-9"><a href="#cb2-9"></a></span>
-<span id="cb2-10"><a href="#cb2-10"></a><span class="co"># Save placeholder to output</span></span>
-<span id="cb2-11"><a href="#cb2-11"></a><span class="kw">write_csv</span>(rao_status, <span class="kw">file.path</span>(dir_goal, <span class="st">&quot;output/rao_status_placeholder.csv&quot;</span>))</span></code></pre></div>
+<span id="cb2-10"><a href="#cb2-10"></a><span class="co"># Save to raw </span></span>
+<span id="cb2-11"><a href="#cb2-11"></a><span class="kw">write_csv</span>(catch_raw, <span class="kw">file.path</span>(dir_goal, <span class="st">&quot;raw/catch_raw.csv&quot;</span>))</span></code></pre></div>
+</div>
+<div id="calculate-status" class="section level2">
+<h2>Calculate Status</h2>
+<p><strong>Reference Point:</strong> Up to 20 fish caught for sustenance by residents of Palmyra Atoll per year.</p>
+<p>The current status will be calculated as the number of fish caught per year over the reference point, as in the following equation:</p>
+<p><span class="math inline">\(status~=~catch_{y}~/~catch_{ref,y}\)</span></p>
+<p>Where <span class="math inline">\(catch_{y}\)</span> is the catch in each year (y) and <span class="math inline">\(catch_{ref,y}\)</span> is the reference point catch in year (y).</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>catch &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="kw">file.path</span>(dir_goal, <span class="st">&quot;raw/catch_raw.csv&quot;</span>))</span>
+<span id="cb3-2"><a href="#cb3-2"></a></span>
+<span id="cb3-3"><a href="#cb3-3"></a>rao_status &lt;-<span class="st"> </span>catch <span class="op">%&gt;%</span><span class="st"> </span></span>
+<span id="cb3-4"><a href="#cb3-4"></a><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">ref =</span> <span class="dv">20</span>,</span>
+<span id="cb3-5"><a href="#cb3-5"></a>         <span class="dt">status =</span> catch <span class="op">/</span><span class="st"> </span>ref) <span class="op">%&gt;%</span><span class="st"> </span></span>
+<span id="cb3-6"><a href="#cb3-6"></a><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">select</span>(region_id, year, status)</span>
+<span id="cb3-7"><a href="#cb3-7"></a></span>
+<span id="cb3-8"><a href="#cb3-8"></a><span class="co"># Save to output folder</span></span>
+<span id="cb3-9"><a href="#cb3-9"></a><span class="kw">write_csv</span>(rao_status, <span class="kw">file.path</span>(dir_goal, <span class="st">&quot;output/rao_status.csv&quot;</span>))</span></code></pre></div>
 </div>
 <div id="save-to-toolbox" class="section level2">
 <h2>Save to Toolbox</h2>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>rao_status &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="kw">file.path</span>(dir_goal, <span class="st">&quot;output/rao_status_placeholder.csv&quot;</span>))</span>
-<span id="cb3-2"><a href="#cb3-2"></a><span class="kw">write_csv</span>(rao_status, <span class="kw">file.path</span>(dir_scores, <span class="st">&quot;layers/rao_status_placeholder.csv&quot;</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a>rao_status &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="kw">file.path</span>(dir_goal, <span class="st">&quot;output/rao_status.csv&quot;</span>))</span>
+<span id="cb4-2"><a href="#cb4-2"></a><span class="kw">write_csv</span>(rao_status, <span class="kw">file.path</span>(dir_scores, <span class="st">&quot;layers/rao_status.csv&quot;</span>))</span></code></pre></div>
 </div>
 </div>
 
