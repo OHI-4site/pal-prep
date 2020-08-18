@@ -364,9 +364,9 @@ Coral reef status is first calculated for each zone. The status is calculated as
 
 $status_{zone}~=~ref_{area}~/~total_{area}$   
 
-Where $ref_{area}$ is the area of the reef zone falling within or above the reference point category and $total_{area}$ is the total area of the reef zone.   
+Where $ref_{area}$ is the area of the reef zone falling within or above the reference point category and $total_{area}$ is the total area of the reef zone. The total area of the lagoon has been adjusted for the status calculation to include only the area of the lagoon where coral could reasonably grow.        
 
-The overall status score is calculated as the area weighted mean of the status score for each zone. 
+The overall status score is calculated as the area weighted mean of the status score for each zone. For this calculation, the total area of the lagoon is used.   
  
 ```{r calc-status, eval=F}
 zones       <- read_csv(file.path(dir_goal, "int/coral_zones.csv"))
@@ -383,7 +383,9 @@ tot_areas <- zones %>%
   group_by(zone) %>% 
   summarize(tot_area_km = sum(area) * 0.000001) %>% 
   mutate(tot_area_km = ifelse(zone == "Lagoon",
-                              lagoon_area$area_km2, tot_area_km)) # Use updated lagoon area
+                              lagoon_area$area_km2, tot_area_km)) # Use adjusted lagoon area
+
+lagoon_old <- 10.464687 # Total lagoon area for overall score
 
 # Area in each zone where cover_cat = ref, or cover_cat > ref
 zone_area <- zones %>% 
@@ -405,6 +407,8 @@ coral_status <- zone_area %>%
          region_id = 1, 
          year = 2011, 
          habitat = "coral") %>% 
+  mutate(tot_area_km = ifelse(zone == "Lagoon",
+                              lagoon_old, tot_area_km)) %>% # Use total lagoon area
   dplyr::select(region_id, habitat, year, zone, area_km = tot_area_km, status)
 
 # Save to output

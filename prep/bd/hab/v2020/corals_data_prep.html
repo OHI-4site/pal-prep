@@ -9,7 +9,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
-<meta name="author" content="Compiled on Tue Aug 18 11:32:25 2020 by orofino" />
+<meta name="author" content="Compiled on Tue Aug 18 12:06:25 2020 by orofino" />
 
 
 <title>Habitats Sub-goal: Coral</title>
@@ -1651,7 +1651,7 @@ div.tocify {
 
 <h1 class="title toc-ignore">Habitats Sub-goal: Coral</h1>
 <h3 class="subtitle">OHI+ Palmyra 2020 Assessment</h3>
-<h4 class="author"><em>Compiled on Tue Aug 18 11:32:25 2020 by orofino</em></h4>
+<h4 class="author"><em>Compiled on Tue Aug 18 12:06:25 2020 by orofino</em></h4>
 
 </div>
 
@@ -1989,8 +1989,8 @@ div.tocify {
 </ul>
 <p>Coral reef status is first calculated for each zone. The status is calculated as the area of the reef zone falling within or above the reference point category divided by the total area of the reef zone, as in the following equation:</p>
 <p><span class="math inline">\(status_{zone}~=~ref_{area}~/~total_{area}\)</span></p>
-<p>Where <span class="math inline">\(ref_{area}\)</span> is the area of the reef zone falling within or above the reference point category and <span class="math inline">\(total_{area}\)</span> is the total area of the reef zone.</p>
-<p>The overall status score is calculated as the area weighted mean of the status score for each zone.</p>
+<p>Where <span class="math inline">\(ref_{area}\)</span> is the area of the reef zone falling within or above the reference point category and <span class="math inline">\(total_{area}\)</span> is the total area of the reef zone. The total area of the lagoon has been adjusted for the status calculation to include only the area of the lagoon where coral could reasonably grow.</p>
+<p>The overall status score is calculated as the area weighted mean of the status score for each zone. For this calculation, the total area of the lagoon is used.</p>
 <div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a>zones       &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="kw">file.path</span>(dir_goal, <span class="st">&quot;int/coral_zones.csv&quot;</span>))</span>
 <span id="cb10-2"><a href="#cb10-2"></a>lagoon_area &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="kw">file.path</span>(dir_goal, <span class="st">&quot;int/lagoon_area.csv&quot;</span>))</span>
 <span id="cb10-3"><a href="#cb10-3"></a></span>
@@ -2005,32 +2005,36 @@ div.tocify {
 <span id="cb10-12"><a href="#cb10-12"></a><span class="st">  </span><span class="kw">group_by</span>(zone) <span class="op">%&gt;%</span><span class="st"> </span></span>
 <span id="cb10-13"><a href="#cb10-13"></a><span class="st">  </span><span class="kw">summarize</span>(<span class="dt">tot_area_km =</span> <span class="kw">sum</span>(area) <span class="op">*</span><span class="st"> </span><span class="fl">0.000001</span>) <span class="op">%&gt;%</span><span class="st"> </span></span>
 <span id="cb10-14"><a href="#cb10-14"></a><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">tot_area_km =</span> <span class="kw">ifelse</span>(zone <span class="op">==</span><span class="st"> &quot;Lagoon&quot;</span>,</span>
-<span id="cb10-15"><a href="#cb10-15"></a>                              lagoon_area<span class="op">$</span>area_km2, tot_area_km)) <span class="co"># Use updated lagoon area</span></span>
+<span id="cb10-15"><a href="#cb10-15"></a>                              lagoon_area<span class="op">$</span>area_km2, tot_area_km)) <span class="co"># Use adjusted lagoon area</span></span>
 <span id="cb10-16"><a href="#cb10-16"></a></span>
-<span id="cb10-17"><a href="#cb10-17"></a><span class="co"># Area in each zone where cover_cat = ref, or cover_cat &gt; ref</span></span>
-<span id="cb10-18"><a href="#cb10-18"></a>zone_area &lt;-<span class="st"> </span>zones <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb10-19"><a href="#cb10-19"></a><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">area_km =</span> area <span class="op">*</span><span class="st"> </span><span class="fl">0.000001</span>) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb10-20"><a href="#cb10-20"></a><span class="st">  </span><span class="kw">group_by</span>(zone) <span class="op">%&gt;%</span></span>
-<span id="cb10-21"><a href="#cb10-21"></a><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">ref =</span> <span class="kw">case_when</span>(zone <span class="op">==</span><span class="st"> &quot;Back Reef&quot;</span> <span class="op">~</span><span class="st"> </span>ref_back,</span>
-<span id="cb10-22"><a href="#cb10-22"></a>                         zone <span class="op">==</span><span class="st"> &quot;Reef Crest&quot;</span> <span class="op">~</span><span class="st"> </span>ref_crest,</span>
-<span id="cb10-23"><a href="#cb10-23"></a>                         zone <span class="op">==</span><span class="st"> &quot;Fore Reef West&quot;</span> <span class="op">~</span><span class="st"> </span>ref_fore,</span>
-<span id="cb10-24"><a href="#cb10-24"></a>                         zone <span class="op">==</span><span class="st"> &quot;Fore Reef East&quot;</span> <span class="op">~</span><span class="st"> </span>ref_fore,</span>
-<span id="cb10-25"><a href="#cb10-25"></a>                         zone <span class="op">==</span><span class="st"> &quot;Lagoon&quot;</span> <span class="op">~</span><span class="st"> </span>ref_lag)) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb10-26"><a href="#cb10-26"></a><span class="st">  </span><span class="kw">filter</span>(ref <span class="op">==</span><span class="st"> </span>cover_cat <span class="op">|</span><span class="st"> </span>cover_cat <span class="op">&gt;</span><span class="st"> </span>ref) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb10-27"><a href="#cb10-27"></a><span class="st">  </span><span class="kw">group_by</span>(zone) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb10-28"><a href="#cb10-28"></a><span class="st">  </span><span class="kw">summarize</span>(<span class="dt">area_km =</span> <span class="kw">sum</span>(area_km)) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb10-29"><a href="#cb10-29"></a><span class="st">  </span><span class="kw">left_join</span>(tot_areas, <span class="dt">by =</span> <span class="st">&quot;zone&quot;</span>)</span>
-<span id="cb10-30"><a href="#cb10-30"></a></span>
-<span id="cb10-31"><a href="#cb10-31"></a><span class="co"># Find the status</span></span>
-<span id="cb10-32"><a href="#cb10-32"></a>coral_status &lt;-<span class="st"> </span>zone_area <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb10-33"><a href="#cb10-33"></a><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">status =</span> area_km <span class="op">/</span><span class="st"> </span>tot_area_km,</span>
-<span id="cb10-34"><a href="#cb10-34"></a>         <span class="dt">region_id =</span> <span class="dv">1</span>, </span>
-<span id="cb10-35"><a href="#cb10-35"></a>         <span class="dt">year =</span> <span class="dv">2011</span>, </span>
-<span id="cb10-36"><a href="#cb10-36"></a>         <span class="dt">habitat =</span> <span class="st">&quot;coral&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb10-37"><a href="#cb10-37"></a><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">select</span>(region_id, habitat, year, zone, <span class="dt">area_km =</span> tot_area_km, status)</span>
-<span id="cb10-38"><a href="#cb10-38"></a></span>
-<span id="cb10-39"><a href="#cb10-39"></a><span class="co"># Save to output</span></span>
-<span id="cb10-40"><a href="#cb10-40"></a><span class="kw">write_csv</span>(coral_status, <span class="kw">file.path</span>(dir_goal, <span class="st">&quot;output/coral_status.csv&quot;</span>))</span></code></pre></div>
+<span id="cb10-17"><a href="#cb10-17"></a>lagoon_old &lt;-<span class="st"> </span><span class="fl">10.464687</span> <span class="co"># Total lagoon area for overall score</span></span>
+<span id="cb10-18"><a href="#cb10-18"></a></span>
+<span id="cb10-19"><a href="#cb10-19"></a><span class="co"># Area in each zone where cover_cat = ref, or cover_cat &gt; ref</span></span>
+<span id="cb10-20"><a href="#cb10-20"></a>zone_area &lt;-<span class="st"> </span>zones <span class="op">%&gt;%</span><span class="st"> </span></span>
+<span id="cb10-21"><a href="#cb10-21"></a><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">area_km =</span> area <span class="op">*</span><span class="st"> </span><span class="fl">0.000001</span>) <span class="op">%&gt;%</span><span class="st"> </span></span>
+<span id="cb10-22"><a href="#cb10-22"></a><span class="st">  </span><span class="kw">group_by</span>(zone) <span class="op">%&gt;%</span></span>
+<span id="cb10-23"><a href="#cb10-23"></a><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">ref =</span> <span class="kw">case_when</span>(zone <span class="op">==</span><span class="st"> &quot;Back Reef&quot;</span> <span class="op">~</span><span class="st"> </span>ref_back,</span>
+<span id="cb10-24"><a href="#cb10-24"></a>                         zone <span class="op">==</span><span class="st"> &quot;Reef Crest&quot;</span> <span class="op">~</span><span class="st"> </span>ref_crest,</span>
+<span id="cb10-25"><a href="#cb10-25"></a>                         zone <span class="op">==</span><span class="st"> &quot;Fore Reef West&quot;</span> <span class="op">~</span><span class="st"> </span>ref_fore,</span>
+<span id="cb10-26"><a href="#cb10-26"></a>                         zone <span class="op">==</span><span class="st"> &quot;Fore Reef East&quot;</span> <span class="op">~</span><span class="st"> </span>ref_fore,</span>
+<span id="cb10-27"><a href="#cb10-27"></a>                         zone <span class="op">==</span><span class="st"> &quot;Lagoon&quot;</span> <span class="op">~</span><span class="st"> </span>ref_lag)) <span class="op">%&gt;%</span><span class="st"> </span></span>
+<span id="cb10-28"><a href="#cb10-28"></a><span class="st">  </span><span class="kw">filter</span>(ref <span class="op">==</span><span class="st"> </span>cover_cat <span class="op">|</span><span class="st"> </span>cover_cat <span class="op">&gt;</span><span class="st"> </span>ref) <span class="op">%&gt;%</span><span class="st"> </span></span>
+<span id="cb10-29"><a href="#cb10-29"></a><span class="st">  </span><span class="kw">group_by</span>(zone) <span class="op">%&gt;%</span><span class="st"> </span></span>
+<span id="cb10-30"><a href="#cb10-30"></a><span class="st">  </span><span class="kw">summarize</span>(<span class="dt">area_km =</span> <span class="kw">sum</span>(area_km)) <span class="op">%&gt;%</span><span class="st"> </span></span>
+<span id="cb10-31"><a href="#cb10-31"></a><span class="st">  </span><span class="kw">left_join</span>(tot_areas, <span class="dt">by =</span> <span class="st">&quot;zone&quot;</span>)</span>
+<span id="cb10-32"><a href="#cb10-32"></a></span>
+<span id="cb10-33"><a href="#cb10-33"></a><span class="co"># Find the status</span></span>
+<span id="cb10-34"><a href="#cb10-34"></a>coral_status &lt;-<span class="st"> </span>zone_area <span class="op">%&gt;%</span><span class="st"> </span></span>
+<span id="cb10-35"><a href="#cb10-35"></a><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">status =</span> area_km <span class="op">/</span><span class="st"> </span>tot_area_km,</span>
+<span id="cb10-36"><a href="#cb10-36"></a>         <span class="dt">region_id =</span> <span class="dv">1</span>, </span>
+<span id="cb10-37"><a href="#cb10-37"></a>         <span class="dt">year =</span> <span class="dv">2011</span>, </span>
+<span id="cb10-38"><a href="#cb10-38"></a>         <span class="dt">habitat =</span> <span class="st">&quot;coral&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span></span>
+<span id="cb10-39"><a href="#cb10-39"></a><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">tot_area_km =</span> <span class="kw">ifelse</span>(zone <span class="op">==</span><span class="st"> &quot;Lagoon&quot;</span>,</span>
+<span id="cb10-40"><a href="#cb10-40"></a>                              lagoon_old, tot_area_km)) <span class="op">%&gt;%</span><span class="st"> </span><span class="co"># Use total lagoon area</span></span>
+<span id="cb10-41"><a href="#cb10-41"></a><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">select</span>(region_id, habitat, year, zone, <span class="dt">area_km =</span> tot_area_km, status)</span>
+<span id="cb10-42"><a href="#cb10-42"></a></span>
+<span id="cb10-43"><a href="#cb10-43"></a><span class="co"># Save to output</span></span>
+<span id="cb10-44"><a href="#cb10-44"></a><span class="kw">write_csv</span>(coral_status, <span class="kw">file.path</span>(dir_goal, <span class="st">&quot;output/coral_status.csv&quot;</span>))</span></code></pre></div>
 </div>
 <div id="coral-habitat-extent" class="section level2">
 <h2>Coral Habitat Extent</h2>
