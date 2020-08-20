@@ -1,6 +1,6 @@
-### Ocean Health Index goal prep folders
+## Ocean Health Index Goal Prep Folders
 
-This folder contains sub-folders fo all goals and sub-goals in the Palmyra Ocean Health Index.  
+This folder contains sub-folders for all goals and sub-goals in the Palmyra Ocean Health Index assessment.  
 
 | Goal                        | Folder |
 | --------------------------- | ------ |
