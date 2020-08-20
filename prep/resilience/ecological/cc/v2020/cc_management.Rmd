@@ -1,8 +1,10 @@
 ---
-title: 'OHI+ Palmyra 2020: Climate Change Management Resilience Layer'
+title: 'Climate Change Management'
+subtitle: 'OHI+ Palmyra 2020 Assessment'
 author: "*Compiled on `r date()` by `r Sys.info()['user']`*"
 output: 
   html_document:
+    code_folding: show
     toc: true
     toc_depth: 3 
     toc_float: yes
@@ -10,7 +12,7 @@ output:
     theme: cerulean
     highlight: haddock
     includes: 
-     in_header: '../../../src/templates/ohi_hdr.html' 
+     in_header: '~/github/pal-prep/src/templates/pal_hdr.html' 
   pdf_document:
     toc: true
 ---
@@ -27,8 +29,7 @@ Citation: The Nature Conservancy. (2019). Climate Adaptation + Resilience Labora
 
 # Setup 
 
-```{r setup, message = F, warning = F}
-knitr::opts_chunk$set(echo = FALSE)
+```{r setup, message=F, warning=F, results='hide'}
 
 library(tidyverse)
 library(here)
@@ -63,6 +64,7 @@ The 2019 report outlines threats to terrestrial and marine systems from climate 
 The plan was established in 2019 so for years before 2019, an in-development score of 0.5 will be assigned to the management plan category. Since monitoring of the marine environment for climate variables like ocean acidification and sea surface temperature, has been ongoing since 2000, the monitoring category score will remain 1.         
 
 ```{r management, eval=F}
+
 # Pre 2019 scores 
 mgmt_14 <- data.frame(
   region_id = rep(1, 5),
