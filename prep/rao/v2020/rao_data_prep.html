@@ -9,7 +9,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
-<meta name="author" content="Compiled on Tue Aug 18 13:41:46 2020 by orofino" />
+<meta name="author" content="Compiled on Thu Aug 20 12:05:31 2020 by orofino" />
 
 
 <title>Resource Access Opportunities</title>
@@ -1651,7 +1651,7 @@ div.tocify {
 
 <h1 class="title toc-ignore">Resource Access Opportunities</h1>
 <h3 class="subtitle">OHI+ Palmyra 2020 Assessment</h3>
-<h4 class="author"><em>Compiled on Tue Aug 18 13:41:46 2020 by orofino</em></h4>
+<h4 class="author"><em>Compiled on Thu Aug 20 12:05:31 2020 by orofino</em></h4>
 
 </div>
 
@@ -1694,18 +1694,24 @@ div.tocify {
 <div id="calculate-status" class="section level2">
 <h2>Calculate Status</h2>
 <p><strong>Reference Point:</strong> Up to 20 fish caught for sustenance by residents of Palmyra Atoll per year.</p>
-<p>The current status will be calculated as the number of fish caught per year over the reference point, as in the following equation:</p>
-<p><span class="math inline">\(status~=~catch_{y}~/~catch_{ref,y}\)</span></p>
-<p>Where <span class="math inline">\(catch_{y}\)</span> is the catch in each year (y) and <span class="math inline">\(catch_{ref,y}\)</span> is the reference point catch in year (y).</p>
+<p>The current status will be scaled to the reference point, where three times the target catch will be given a score of zero using the following equation:</p>
+<p><span class="math inline">\(status~=~1~-~[(catch_{y}~-catch_{ref,y})~/~s]\)</span></p>
+<p>Where <span class="math inline">\(catch_{y}\)</span> is the catch in each year (y), <span class="math inline">\(catch_{ref,y}\)</span> is the reference point catch in year (y), and <span class="math inline">\(s\)</span> is the scaling coefficient. Any value greater than one will be given a status of one, and any value less than zero will be given a zero. This gives a perfect score to any year where the number of fish caught is at or below the reference point and a zero if the number of fish caught is three times or more than three times the reference point. This method of scoring is based on The Nature Conservancy’s management goals to keep fishing at or below the reference point level and reflective of the view that fishing at more than three times the reference point would cause unnecessary damage to the ecosystem.</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>catch &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="kw">file.path</span>(dir_goal, <span class="st">&quot;raw/catch_raw.csv&quot;</span>))</span>
 <span id="cb3-2"><a href="#cb3-2"></a></span>
-<span id="cb3-3"><a href="#cb3-3"></a>rao_status &lt;-<span class="st"> </span>catch <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb3-4"><a href="#cb3-4"></a><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">ref =</span> <span class="dv">20</span>,</span>
-<span id="cb3-5"><a href="#cb3-5"></a>         <span class="dt">status =</span> catch <span class="op">/</span><span class="st"> </span>ref) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb3-6"><a href="#cb3-6"></a><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">select</span>(region_id, year, status)</span>
-<span id="cb3-7"><a href="#cb3-7"></a></span>
-<span id="cb3-8"><a href="#cb3-8"></a><span class="co"># Save to output folder</span></span>
-<span id="cb3-9"><a href="#cb3-9"></a><span class="kw">write_csv</span>(rao_status, <span class="kw">file.path</span>(dir_goal, <span class="st">&quot;output/rao_status.csv&quot;</span>))</span></code></pre></div>
+<span id="cb3-3"><a href="#cb3-3"></a><span class="co"># Set reference point and scaling coefficient</span></span>
+<span id="cb3-4"><a href="#cb3-4"></a>ref &lt;-<span class="st"> </span><span class="dv">20</span></span>
+<span id="cb3-5"><a href="#cb3-5"></a>s   &lt;-<span class="st"> </span><span class="dv">40</span></span>
+<span id="cb3-6"><a href="#cb3-6"></a></span>
+<span id="cb3-7"><a href="#cb3-7"></a><span class="co"># Calculate status </span></span>
+<span id="cb3-8"><a href="#cb3-8"></a>rao_status &lt;-<span class="st"> </span>catch <span class="op">%&gt;%</span><span class="st"> </span></span>
+<span id="cb3-9"><a href="#cb3-9"></a><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">status =</span> <span class="dv">1</span> <span class="op">-</span><span class="st"> </span>((catch <span class="op">-</span><span class="st"> </span>ref) <span class="op">/</span><span class="st"> </span>s)) <span class="op">%&gt;%</span><span class="st"> </span></span>
+<span id="cb3-10"><a href="#cb3-10"></a><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">status =</span> <span class="kw">ifelse</span>(status <span class="op">&gt;</span><span class="st"> </span><span class="dv">1</span>, <span class="dv">1</span>, status),</span>
+<span id="cb3-11"><a href="#cb3-11"></a>         <span class="dt">status =</span> <span class="kw">ifelse</span>(status <span class="op">&lt;</span><span class="st"> </span><span class="dv">0</span>, <span class="dv">0</span>, status)) <span class="op">%&gt;%</span><span class="st"> </span></span>
+<span id="cb3-12"><a href="#cb3-12"></a><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">select</span>(region_id, year, status)</span>
+<span id="cb3-13"><a href="#cb3-13"></a></span>
+<span id="cb3-14"><a href="#cb3-14"></a><span class="co"># Save to output folder</span></span>
+<span id="cb3-15"><a href="#cb3-15"></a><span class="kw">write_csv</span>(rao_status, <span class="kw">file.path</span>(dir_goal, <span class="st">&quot;output/rao_status.csv&quot;</span>))</span></code></pre></div>
 </div>
 <div id="save-to-toolbox" class="section level2">
 <h2>Save to Toolbox</h2>

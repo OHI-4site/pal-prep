@@ -63,20 +63,25 @@ write_csv(catch_raw, file.path(dir_goal, "raw/catch_raw.csv"))
 
 **Reference Point:** Up to 20 fish caught for sustenance by residents of Palmyra Atoll per year. 
 
-The current status will be scaled to the reference point using the following equation:      
+The current status will be scaled to the reference point, where three times the target catch will be given a score of zero using the following equation:      
 
-$status~=~1~-~[(catch_{y}~-catch_{ref,y})~/~catch_{ref,y}]$   
+$status~=~1~-~[(catch_{y}~-catch_{ref,y})~/~s]$   
 
-Where $catch_{y}$ is the catch in each year (y) and $catch_{ref,y}$ is the reference point catch in year (y). Any value greater than one will be given a status of one, and any value less than zero will be given a zero. This gives a perfect score to any year where the number of fish caught is at or below the reference point and a zero if the number of fish caught is double or more than double the reference point. This method of scoring is based on The Nature Conservancy's management goals to keep fishing at or below the reference point level and reflective of the view that fishing at more than twice the reference point would cause serious damage to the ecosystem.        
+Where $catch_{y}$ is the catch in each year (y), $catch_{ref,y}$ is the reference point catch in year (y), and $s$ is the scaling coefficient. Any value greater than one will be given a status of one, and any value less than zero will be given a zero. This gives a perfect score to any year where the number of fish caught is at or below the reference point and a zero if the number of fish caught is three times or more than three times the reference point. This method of scoring is based on The Nature Conservancy's management goals to keep fishing at or below the reference point level and reflective of the view that fishing at more than three times the reference point would cause unnecessary damage to the ecosystem.        
 
 ```{r calculate-status, eval=F}
 
 catch <- read_csv(file.path(dir_goal, "raw/catch_raw.csv"))
 
+# Set reference point and scaling coefficient
+ref <- 20
+s   <- 40
+
+# Calculate status 
 rao_status <- catch %>% 
-  mutate(ref = 20,
-         status = 1 - (catch - ref) / ref) %>% 
-  mutate(status = ifelse(status > 1, 1, status)) %>% 
+  mutate(status = 1 - ((catch - ref) / s)) %>% 
+  mutate(status = ifelse(status > 1, 1, status),
+         status = ifelse(status < 0, 0, status)) %>% 
   dplyr::select(region_id, year, status)
 
 # Save to output folder

@@ -63,24 +63,29 @@ write_csv(visits_raw, file.path(dir_goal, "raw/boat_visits_raw.csv"))
 
 **Reference Point:** Up to 6 private vessels visiting Palmyra Atoll per year. 
 
-The current status will be scaled to the reference point using the following equation:      
+The current status will be scaled to the reference point, where three times the number of visiting vessels will be given a score of zero using the following equation:      
 
-$status~=~1~-~[(vessels_{y}~-vessels_{ref,y})~/~vessels_{ref,y}]$   
+$status~=~1~-~[(v_{y}~-v_{ref,y})~/~s]$   
 
-Where $vessels_{y}$ is the number of private vessels coming to the island in each year (y) and $vessel_{ref,y}$ is the reference point number of private vessels coming to the island in year (y). Any value greater than one will be given a status of one, and any value less than zero will be given a zero. This gives a perfect score to any year where the number of visiting vessels is at or below the reference point and a zero if the number of visiting vessels is double or more than double the reference point. This method of scoring is based on The Nature Conservancy's management goals to keep tourism at or below the reference point level and reflective of the view that having double the number of private vessels visiting each year would cause serious damage to the ecosystem.        
+Where $v_{y}$ is the number of private vessels coming to the island in each year (y), $v_{ref,y}$ is the reference point number of private vessels coming to the island in year (y), and $s$ is the scaling coefficient. Any value greater than one will be given a status of one, and any value less than zero will be given a zero. This gives a perfect score to any year where the number of visiting vessels is at or below the reference point and a zero if the number of visiting vessels is three times or more than three times the reference point. This method of scoring is based on The Nature Conservancy's management goals to keep tourism at or below the reference point level and reflective of the view that having triple the number of private vessels visiting each year would incur undesirable biosecurity risks and/or divert resources away from TNC's core mission.           
 
 ```{r calculate-status, eval=F}
 
 vessels <- read_csv(file.path(dir_goal, "raw/boat_visits_raw.csv"))
 
+# Set reference point and scaling coefficient
+ref <- 6
+s   <- 12
+
+# Calculate status 
 tr_status <- vessels %>% 
-  mutate(ref = 3,
-         status = 1 - (visits - ref) / ref) %>% 
-  mutate(status = ifelse(status > 1, 1, status)) %>% 
+  mutate(status = 1 - ((visits - ref) / s)) %>% 
+  mutate(status = ifelse(status > 1, 1, status),
+         status = ifelse(status < 0 , 0 , status)) %>% 
   dplyr::select(region_id, year, status)
 
 # Save to output folder
-write_csv(rao_status, file.path(dir_goal, "output/tr_status.csv"))
+write_csv(tr_status, file.path(dir_goal, "output/tr_status.csv"))
 ```
 
 ## Save to Toolbox
