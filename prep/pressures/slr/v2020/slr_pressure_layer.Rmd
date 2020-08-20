@@ -1,16 +1,18 @@
 ---
-title: 'OHI+ Palmyra 2020: Sea Level Rise Pressure Layer'
+title: 'Sea Level Rise Pressure'
+subtitle: 'OHI+ Palmyra 2020 Assessment'
 author: "*Compiled on `r date()` by `r Sys.info()['user']`*"
 output: 
   html_document:
+    code_folding: show
     toc: true
-    toc_depth: 2 
+    toc_depth: 3 
     toc_float: yes
     number_sections: false
     theme: cerulean
     highlight: haddock
     includes: 
-     in_header: '../../../src/templates/ohi_hdr.html' 
+     in_header: '~/github/pal-prep/src/templates/pal_hdr.html' 
   pdf_document:
     toc: true
 ---
@@ -30,27 +32,23 @@ This process is completed entirely within this script. The raw data is downloade
 
 # Data
 
-The source data are monthly mean sea level anomalies, in meters. These anomalies are calculated by subtracting the current absolute sea level for each month from the average sea level for that month calculated from 1993 - 2019.
+The source data are monthly mean sea level anomalies, in meters. These anomalies are calculated by subtracting the current absolute sea level for each month from the average sea level for that month calculated from 1993 - 2019.   
 
-**Reference**: AVISO [Monthly mean Maps of Sea Level Anomaly](https://www.aviso.altimetry.fr/data/products/sea-surface-height-products/global/gridded-sea-level-anomalies-mean-and-climatology.html)
+**Reference**: AVISO [Monthly mean Maps of Sea Level Anomaly](https://www.aviso.altimetry.fr/data/products/sea-surface-height-products/global/gridded-sea-level-anomalies-mean-and-climatology.html)   
 
-**Downloaded**: 
+**Description**: Monthly mean sea level anomaly (meters above mean sea level)   
 
-**Description**: Monthly mean sea level anomaly (meters above mean sea level)
+**Native data resolution**: 0.25 degree grid cells   
 
-**Native data resolution**: 0.25 degree grid cells
+**Time range**: January 1993 - 20??, monthly data provided for each year   
 
-**Time range**: January 1993 - 20??, monthly data provided for each year
-
-**Format**: NetCDF
+**Format**: NetCDF   
 
 ***
 
 # Setup 
 
-```{r setup, message = F, warning = F}
-
-knitr::opts_chunk$set(fig.width = 10, fig.height = 8, fig.path = 'figs/', message = FALSE, warning = FALSE)
+```{r setup, message=F, warning=F, results='hide'}
 
 library(raster)
 library(tidyverse)
@@ -96,7 +94,7 @@ plot(raster(slr_msla_annual_files[1]), col = cols, axes = F,
 
 Since we are only interested in the increase in sea level near the coasts, we apply a mask to the raster layers that removes all cells farther than 3nm offshore. This mask was created previously for another part of this assessment. We also re-project to US Albers for consistency with the rest of the assessment.   
 
-```{r projection-masking, results = 'hide'}
+```{r projection-masking, eval=F}
 
 ## 3nm offshore raster to select only nearshore cells
 three_nm <- ocean_rast3_100
@@ -113,15 +111,17 @@ foreach(file = slr_msla_annual_files) %dopar% {
   rast_data <- raster(file)
   
   rast_data_reproj <- projectRaster(from=rast_data, to=three_nm, crs=us_alb, method = "ngb", over=FALSE) %>% 
-    #projectRaster(crs = us_alb, over = FALSE, progress="text") %>% #problem in this line - goes from having values to values being NA
     raster::resample(three_nm, method = "ngb", 
              filename = sprintf("%s/dataprep/prs_slr/int/msla_annual_us_albers/mlsa_annual_us_albers_%s.tif", 
                                 dir_anx, yr), overwrite = TRUE) %>% 
-    mask(three_nm, filename = sprintf("%s/dataprep/prs_slr/int/msla_annual_us_albers_coastal/msla_annual_us_albers_coastal_%s.tif", dir_anx, yr), overwrite = TRUE)
+    mask(three_nm,
+         filename = sprintf("%s/dataprep/prs_slr/int/msla_annual_us_albers_coastal/msla_annual_us_albers_coastal_%s.tif",
+                            dir_anx, yr), overwrite = TRUE)
 }
 
 # Plot 2018 raster to check:
-plot(raster(file.path(dir_anx, "dataprep/prs_slr/int/msla_annual_us_albers_coastal/msla_annual_us_albers_coastal_2018.tif")))
+plot(raster(file.path(dir_anx,
+                      "dataprep/prs_slr/int/msla_annual_us_albers_coastal/msla_annual_us_albers_coastal_2018.tif")))
 
 ```
 
@@ -132,7 +132,8 @@ We are using a reference point 1.1 times larger than the maximum value in Palmyr
 
 ```{r reference-point, eval=F}
 
-coastal_rasts <- list.files(file.path(dir_anx, "dataprep/prs_slr/int/msla_annual_us_albers_coastal"), pattern = "tif", full.names = TRUE)
+coastal_rasts <- list.files(file.path(dir_anx, "dataprep/prs_slr/int/msla_annual_us_albers_coastal"),
+                            pattern = "tif", full.names = TRUE)
 
 # Get data across all years
 registerDoParallel(8)
@@ -151,14 +152,14 @@ ref <- 1.1*max(vals)
 
 ```
 
-The reference point is `r ref` meters.
+The reference point is 0.149 meters.   
 
 
 ## Rescale
 
 We use the reference point to rescale all values from 0 to 1. If a value is greater than the reference point, it is automatically given a value of 1.
 
-```{r rescale, results='hide'}
+```{r rescale, eval=F}
 
 registerDoParallel(10) 
 
@@ -169,8 +170,9 @@ foreach(file = coastal_rasts) %dopar% {
   
     raster::raster(file) %>%
     calc(fun = function(x){ifelse(x < 0, 0, x)}) %>% # Set all negative values to 0
-    calc(fun = function(x){ifelse(x > ref, 1, x/ref)}, # Set equal to 1 if greater than ref, otherwise scale
-         filename = sprintf("%s/dataprep/prs_slr/output/msla_rescaled/slr_%s.tif", dir_anx, yr), overwrite = TRUE)
+    calc(fun = function(x){ifelse(x > ref, 1, x/ref)}, # Set equal to 1 if greater than ref
+         filename = sprintf("%s/dataprep/prs_slr/output/msla_rescaled/slr_%s.tif", dir_anx, yr),
+         overwrite = TRUE)
     
 }
 
@@ -178,11 +180,47 @@ foreach(file = coastal_rasts) %dopar% {
 
 ***
 
+## Extract Scores
+
+Extract data per year for the entire Palmyra region.  
+
+```{r extract-scores, eval=F}
+
+## Read in raster files
+pressure_stack <- lapply(list.files(file.path(dir_anx, 'dataprep/prs_slr/output/msla_rescaled'),
+                                    full.names=T), raster) %>%
+  brick()
+
+# Extract data for Palmyra:
+slr_data <- cellStats(pressure_stack, mean)%>% 
+  as.data.frame() %>% 
+  rename(pressure_score = ".") %>% 
+  tibble::rownames_to_column("file_name") %>% 
+  mutate(year = substr(file_name, 5, 8)) %>% 
+  dplyr::select(-file_name) %>% 
+  mutate(region_id = 1, 
+         year = as.numeric(year)) %>% 
+  filter(year != 2019) %>%  # incomplete data
+  dplyr::select(region_id, year, pressure_score)
+
+# Save to output folder
+write.csv(slr_data, file.path(dir_prs, "output/slr_pressure.csv"))
+```
+
+## Save To Toolbox
+
+```{r save-to-toolbox, eval=F}
+slr_pressure <- read_csv(file.path(dir_prs, "output/slr_pressure.csv")) %>% 
+  dplyr::select(-X1)
+write.csv(slr_pressure, file.path(dir_scores, "layers/prs_cc_slr.csv"))
+```
+
 # Results
 
-```{r gif-results, eval=F}
+```{r gif-results, message=F, warning=F}
 
-coastal_rasts <- list.files(file.path(dir_anx, 'dataprep/prs_slr/output/msla_rescaled'), full.names = T) %>% 
+coastal_rasts <- list.files(file.path(dir_anx, 'dataprep/prs_slr/output/msla_rescaled'),
+                            full.names = T) %>% 
                            stack()
                          
 names(coastal_rasts) <- paste0("Year_", substr(names(coastal_rasts),5,8))
@@ -204,38 +242,11 @@ animation::saveGIF({
 
 <img src="slr_annual_rescaled.gif"/>
 
-
-## Extract Scores
-
-Extract data per year for the entire Palmyra region.  
-
-```{r extract-scores, eval=F}
-
-## Read in raster files
-pressure_stack <- lapply(list.files(file.path(dir_anx, 'dataprep/prs_slr/output/msla_rescaled'), full.names=T), raster) %>%
-  brick()
-
-# Extract data for Palmyra:
-slr_data <- cellStats(pressure_stack, mean)%>% 
-  as.data.frame() %>% 
-  rename(pressure_score = ".") %>% 
-  tibble::rownames_to_column("file_name") %>% 
-  mutate(year = substr(file_name, 5, 8)) %>% 
-  dplyr::select(-file_name) %>% 
-  mutate(region_id = 1, 
-         year = as.numeric(year)) %>% 
-  filter(year != 2019) %>%  # incomplete data
-  dplyr::select(region_id, year, pressure_score)
-
-# Save to output folder
-write.csv(slr_data, file.path(dir_prs, "output/slr_pressure.csv"))
-```
-
 ## 2018 scores
 
 Check the scores for 2018, the last full year of available data
 
-```{r map-scores, eval=F}
+```{r map-scores, message=F, warning=F, results='hide'}
 
 # Source the plot scores function 
 source(here('src/R/plot_scores.R'))
@@ -247,7 +258,10 @@ last_year <- slr_data %>%
   filter(year==2018)
 
 ## map_scores is a function to plot a tmap map of the scores
-map_scores(score_obj = last_year, score_var = last_year$pressure_score, scale_label = "Pressure Score", map_title = "Sea Level Rise")
+map_scores(score_obj = last_year,
+           score_var = last_year$pressure_score,
+           scale_label = "Pressure Score",
+           map_title = "Sea Level Rise")
 
 ```
 
@@ -256,24 +270,17 @@ map_scores(score_obj = last_year, score_var = last_year$pressure_score, scale_la
 
 ```{r graph-scores-overtime}
 
+# Slr overtime graph 
 slr_overtime <- ggplot(slr_data) +
   geom_line(aes(x=year, y = pressure_score), color="dodgerblue4")+
   ggtitle("Sea Level Rise Pressure Score") +
   ylab("Score") +
   xlab("Year") +
   theme_classic() 
+
+#ggsave(file.path(dir_prs, "figs/scores_2005-2020.png"), width=7, height=5, dpi=300)
+
+# View graph
 slr_overtime
-
-
-ggsave(file.path(dir_prs, "figs/scores_2005-2020.png"), width=7, height=5, dpi=300)
-
 ```
 
-
-## Save To Toolbox
-
-```{r save-to-toolbox, eval=F}
-slr_pressure <- read_csv(file.path(dir_prs, "output/slr_pressure.csv")) %>% 
-  dplyr::select(-X1)
-write.csv(slr_pressure, file.path(dir_scores, "layers/prs_cc_slr.csv"))
-```

@@ -1,23 +1,25 @@
 ---
-title: 'OHI+ Palmyra 2020: Management Pressure'
+title: 'Management Pressure'
+subtitle: 'OHI+ Palmyra 2020 Assessment'
 author: "*Compiled on `r date()` by `r Sys.info()['user']`*"
 output: 
   html_document:
+    code_folding: show
     toc: true
-    toc_depth: 2 
+    toc_depth: 3 
     toc_float: yes
     number_sections: false
     theme: cerulean
     highlight: haddock
     includes: 
-     in_header: '../../../src/templates/ohi_hdr.html' 
+     in_header: '~/github/pal-prep/src/templates/pal_hdr.html' 
   pdf_document:
     toc: true
 ---
 
 # Summary 
 
-This script calculates the pressures from a lack of management on Palmyra Atoll. This layer is the inverse of the management resilience layer. 
+This script calculates the pressures from a lack of management on Palmyra Atoll. This layer is the inverse of the habitat management resilience layer, which includes both terrestrial and marine habitats.    
 
 # Data 
 
@@ -25,8 +27,7 @@ Data to inform this layer was obtained from verbal communications with Alex Wegm
 
 # Setup 
 
-```{r setup, message = F, warning = F}
-knitr::opts_chunk$set(echo = FALSE)
+```{r setup, message=F, warning=F, results='hide'}
 
 library(tidyverse)
 library(here)
@@ -42,7 +43,7 @@ dir_mgmt  <- '~/github/pal-prep/prep/resilience/ecological/habitat_destruction/v
 
 ## Pressure Score 
 
-This layer is the inverse of the habitat destruction management resilience layer. This layer includes management scores for both inland and offshore areas. Information on how the score for the management resilience layer was derived can be found in the regulatory resiliences script.   
+This layer is the inverse of the habitat destruction management resilience layer. This layer includes management scores for both inland and offshore areas. Information on how the score for the management resilience layer was derived can be found in the regulatory resilience script.   
 
 ```{r pressure-score, eval=F}
 # Read in management score layers 

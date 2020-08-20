@@ -1,16 +1,18 @@
 ---
-title: 'OHI+ Palmyra 2020: Sea Surface Temperature Pressure Layer'
+title: 'Sea Surface Temperature Pressure'
+subtitle: 'OHI+ Palmyra 2020 Assessment'
 author: "*Compiled on `r date()` by `r Sys.info()['user']`*"
 output: 
   html_document:
+    code_folding: show
     toc: true
-    toc_depth: 2 
+    toc_depth: 3 
     toc_float: yes
     number_sections: false
     theme: cerulean
     highlight: haddock
     includes: 
-     in_header: '../../../src/templates/ohi_hdr.html' 
+     in_header: '~/github/pal-prep/src/templates/pal_hdr.html' 
   pdf_document:
     toc: true
 ---
@@ -45,9 +47,7 @@ This time we have decided to use a reference point that represents a regime shif
 
 # Setup 
 
-```{r setup, message = F, warning = F}
-
-knitr::opts_chunk$set(echo = FALSE)
+```{r setup, message=F, warning=F, results='hide'}
 
 library(tidyverse)
 library(raster)
@@ -73,10 +73,12 @@ We will use the global data that was processed for OHI Global 2020, which includ
 
 ```{r get-global-sst-data, eval=F}
 
-sst_global_files <- list.files(file.path(dir_M,'git-annex/globalprep/prs_sst/v2018/int'), pattern = 'annual_pos_anomalies', full.names=T)
+sst_global_files <- list.files(file.path(dir_M,'git-annex/globalprep/prs_sst/v2018/int'),
+                               pattern = 'annual_pos_anomalies', full.names=T)
 
 # Plot the most recent year of data:
-plot(raster(sst_global_files[36]),col=cols,main = "Sea Surface Temperature 2017",box=F,axes=F,
+plot(raster(sst_global_files[36]),col=cols,
+     main = "Sea Surface Temperature 2017",box=F,axes=F,
      legend.args=list(text='Anomalous Weeks', side=4, font=2, line=2.5, cex=0.8))
 
 ```
@@ -95,27 +97,33 @@ foreach(f = sst_global_files) %dopar% {
   raster(f) %>%                     
     projectRaster(ocean_rast3_100) %>% # reproject to us_alb ocean rast
     crop(usalb_ext3) %>% # Crop to Palmyra extent
-    mask(ocean_rast3_100, filename = paste0(file.path(dir_anx),'/dataprep/prs_sst/output/sst_annual_anoms/annual_anoms_',
-                                            substr(basename(f), 25, 28),'.tif'), overwrite = T)
+    mask(ocean_rast3_100, filename = paste0(file.path(dir_anx),
+                                            '/dataprep/prs_sst/output/sst_annual_anoms/annual_anoms_',
+                                            substr(basename(f), 25, 28),'.tif'),
+         overwrite = T)
 }
 
 ```
 
 Check the rasters to make sure it makes sense:  
 
-```{r check, eval=F, include=F}
+```{r check, eval=F}
 
 # Check a few rasters to make sure this makes sense:
-check82 <- raster(file.path(dir_anx, '/dataprep/prs_sst/output/sst_annual_anoms/annual_anoms_1982.tif'))
-check17 <- raster(file.path(dir_anx, '/dataprep/prs_sst/output/sst_annual_anoms/annual_anoms_2017.tif'))
+check82 <- raster(file.path(dir_anx,
+                            '/dataprep/prs_sst/output/sst_annual_anoms/annual_anoms_1982.tif'))
+check17 <- raster(file.path(dir_anx,
+                            '/dataprep/prs_sst/output/sst_annual_anoms/annual_anoms_2017.tif'))
     
 plot(check82, col=cols, 
      main = "Sea Surface Temperature 1982", 
-     legend.args=list(text='Anomalous Weeks', side=4, font=2, line=2.5, cex=0.8))
+     legend.args=list(text='Anomalous Weeks', 
+                      side=4, font=2, line=2.5, cex=0.8))
 
 plot(check17, col=cols, 
      main = "Sea Surface Temperature 2017",
-     legend.args=list(text='Anomalous Weeks', side=4, font=2, line=2.5, cex=0.8))
+     legend.args=list(text='Anomalous Weeks', 
+                      side=4, font=2, line=2.5, cex=0.8))
 
 ```
 
@@ -125,7 +133,8 @@ Visualize the change in sea surface temperature anomalies over time.
 
 ```{r gif1, eval=F}
 
-l <- lapply(list.files(file.path(dir_anx, '/dataprep/prs_sst/output/sst_annual_anoms'), full.names=T), raster) %>%
+l <- lapply(list.files(file.path(dir_anx, '/dataprep/prs_sst/output/sst_annual_anoms'),
+                       full.names=T), raster) %>%
   brick()
 
 names(l) <- paste0("Years_",(substr(names(l), 14, 17))) # Rename each layer for plotting
@@ -154,7 +163,8 @@ Calculate total anomalous weeks for each 5-year period from 1982 - 2017.
 
 ```{r five-year, eval=F}
 
-l <- list.files(file.path(dir_anx, '/dataprep/prs_sst/output/sst_annual_anoms'), full.names=T)
+l <- list.files(file.path(dir_anx, '/dataprep/prs_sst/output/sst_annual_anoms'),
+                full.names=T)
 
 # Last 5 year period will start in 2015
 for(i in 1982:2013){ 
@@ -164,7 +174,9 @@ for(i in 1982:2013){
   s   <- raster::stack(l[substr(l,100,103) %in% yrs]) %>%
     sum(.)
   
-  writeRaster(s, filename = paste0(dir_anx, '/dataprep/prs_sst/output/sst_5yr_anom_sums/sum_anoms_', min(yrs), '-', max(yrs), '.tif'), overwrite=T)
+  writeRaster(s, filename = paste0(dir_anx,
+                                   '/dataprep/prs_sst/output/sst_5yr_anom_sums/sum_anoms_',
+                                   min(yrs), '-', max(yrs), '.tif'), overwrite=T)
 }
 
 ```
@@ -177,7 +189,8 @@ This time we have decided to use a reference point that represents a regime shif
 
 ```{r rescale, eval=F}
 
-sst_aggs <- list.files(file.path(dir_anx, '/dataprep/prs_sst/output/sst_5yr_anom_sums'), full.names=T) 
+sst_aggs <- list.files(file.path(dir_anx, '/dataprep/prs_sst/output/sst_5yr_anom_sums'),
+                       full.names=T) 
 
 # Define the rescale function
 resc_func <- function(x){
@@ -185,10 +198,12 @@ resc_func <- function(x){
   # Get the year from the file for naming the output raster
   yrs <- substr(x, 98, 106)
  
-  # If a cell value is greater than or equal to the reference point (130 weeks), we assign a value of 1, otherwise it is divided by the reference point
+  # If a cell value is greater than or equal to the reference point (130 weeks),
+  # we assign a value of 1, otherwise it is divided by the reference point
   raster(x) %>%
   calc(., fun=function(x){ifelse(x < 0, 0, ifelse(x > 130, 1, x/130))},
-         filename = paste0(dir_anx, '/dataprep/prs_sst/output/sst_rescale/sst_rescale_', yrs, '.tif'), overwrite=T)
+         filename = paste0(dir_anx, '/dataprep/prs_sst/output/sst_rescale/sst_rescale_', yrs, '.tif'),
+       overwrite=T)
 }
 
 # Rescale
@@ -204,7 +219,8 @@ Visualize the change in aggregated sea surface temperature anomalies over time.
 
 ```{r gif-rescale, eval=F}
 
-resc <- lapply(list.files(file.path(dir_anx, '/dataprep/prs_sst/output/sst_rescale'), full.names=T), raster) %>%
+resc <- lapply(list.files(file.path(dir_anx, '/dataprep/prs_sst/output/sst_rescale'),
+                          full.names=T), raster) %>%
   brick()
 
 names(resc) <- paste0("Years_",(substr(names(resc),13,21))) # Rename layers for plotting
@@ -227,18 +243,18 @@ saveGIF({
 
 ***
 
-# Results
-
-## Scores
+## Calculate Scores
 
 ```{r sst-score, eval=F}
 
 # Use the rescaled files for scores
-sst_stack <- lapply(list.files(file.path(dir_anx, '/dataprep/prs_sst/output/sst_rescale'),full.names=T), raster) %>%
+sst_stack <- lapply(list.files(file.path(dir_anx, '/dataprep/prs_sst/output/sst_rescale'),
+                               full.names=T), raster) %>%
   brick()
 
 # Find the mean 
-pal_stats <- zonal(sst_stack, ocean_rast3_100, fun="mean", na.rm=TRUE, progress="text") %>%
+pal_stats <- zonal(sst_stack, ocean_rast3_100, fun="mean",
+                   na.rm=TRUE, progress="text") %>%
              data.frame() %>% 
              clean_names()
 
@@ -246,8 +262,7 @@ pal_stats <- zonal(sst_stack, ocean_rast3_100, fun="mean", na.rm=TRUE, progress=
 sst_data <- pivot_longer(pal_stats,
                          cols = sst_rescale_1982_1986:sst_rescale_2013_2017,
                          names_to = "years", values_to = "pressure_score") %>% 
-  mutate(
-    year = as.numeric(substr(years, 18,21))) %>% 
+  mutate(year = as.numeric(substr(years, 18,21))) %>% 
   dplyr::select(region_id = zone, year, pressure_score)
 
 # Save to output folder
@@ -260,14 +275,15 @@ write_csv(sst_data, file.path(dir_prs, "output/sst_pressure.csv"))
 ```{r save-to-toolbox, eval=F}
 
 sst_pressure <- read_csv(file.path(dir_prs, "output/sst_pressure.csv"))
-
 write_csv(sst_pressure, file.path(dir_scores, "layers/prs_cc_sst.csv"))
 
 ```
 
+# Results
+
 ## Final Visualization
 
-```{r sst-viz}
+```{r sst-viz, message=F, warning=F}
 
 sst_data <- read_csv(file.path(dir_prs, "output/sst_pressure.csv"))
 
@@ -281,9 +297,11 @@ ggplot(sst_data, aes(x = year, y = pressure_score)) +
 
 ```
 
+## Google Visualization 
+
 This code chunk creates a google visualization of the scores through time. It unfortunately does not allow the google chart to show up in the RMarkdown knitted document.
 
-```{r googlevis}
+```{r googlevis, eval=F}
 
 library(googleVis)
 
@@ -297,95 +315,3 @@ plot(Motion)
 print(Motion, file='sst.html')
 
 ```
-
-############# Local Data ###########
-
-*Might not keep this part*   
-
-# Data 
-
-The sea surface temperature layer uses data from [NOAA's Coral Health and Monitoring Program](https://www.coral.noaa.gov/champportal/).   
-
-**Version**: v1.12, released September 12, 2018
-**Values**: Sea surface temperature (Celsius)      
-**Time Range**: Daily data from January 1, 1998 - December 31, 2019     
-**Format**: csv  
-
-Data were downloaded on July 22, 2020.  
-
-Citation: National Oceanic and Atmospheric Administration (2018). Coral Health and Monitoring Program v1.12. Accessed [June 22, 2020]. 
-
-# Methods
-
-## Raw Data 
-
-There are two sensors collecting temperature data on Palmyra Atoll. We will average the readings from both sensors to get a single temperature value for each day from 1998 - 2019.  
-
-```{r get-raw-data, eval=F}
-temp_raw <- read_csv(file.path(dir_anx, "_raw_data/NOAA_data/champPortal-2020-07-22-1832-r089.csv")) %>% 
-  clean_names()
-
-# Wrangle dates and find the average of temperature readings
-temp_data <- temp_raw %>% 
-  mutate(date = as.Date(temp_raw$datetime),
-         year = year(date),
-         avg_temp = (pacp1_oisst_mwsst_degc + ppst1_oisst_mwsst_degc) / 2,
-         obs_id = seq(1:nrow(temp_raw))) %>% 
-  dplyr::select(obs_id, date, year, avg_temp)
-
-## Assign first 7 days to Week 1, next 7 days to Week 2 etc. 
-# Group by year and each year should have 52 weeks, plus one extra day, leap years will have 2 extra days
-wk <- c(rep(1:52, each = 7), 53)
-wk_leap <- c(rep(1:52, each = 7), 53, 53)
-
-# Define which years were leap years from 1998-2019
-leap_yrs <- c(2000,2004,2008,2012,2016)
-
-# Add days of the week and the week number
-temp_dates <- temp_data %>% 
-  group_by(year) %>% 
-  mutate(wk = ifelse(year %in% leap_yrs, wk_leap, wk))
-
-
-# Save to int folder
-write_csv(temp_dates, file.path(dir_prs, "int/sst_daily.csv"))
-```
-
-## Weekly Average Temperatures
-
-Using the daily temperature data, find the mean weekly temperature. 
-
-```{r weekly-avg-temps, eval=F}
-sst_daily <- read_csv(file.path(dir_prs, "int/sst_daily.csv"))
-
-# Find weekly mean 
-sst_wk <- sst_daily %>% 
-  group_by(year, wk) %>% 
-  mutate(wk_avg_temp = mean(avg_temp)) %>% 
-  ungroup() %>% 
-  dplyr::select(obs_id, year, wk, wk_avg_temp)
-
-# Save to int folder
-write_csv(sst_wk, file.path(dir_prs, "int/sst_wkly_avg.csv"))
-```
-
-## Weekly SST Standard Deviations
-
-Using the weekly average temperatures for all years of the data, we will find the weekly standard deviation of the average sea surface temperature (SST) for Weeks 1-53 across all years.  
-
-```{r weekly-sd, eval=F}
-sst_wk <- read_csv(file.path(dir_prs, "int/sst_wkly_avg.csv"))
-
-# Find weekly SST standard deviation 
-sst_sd <- sst_wk %>% 
-  group_by(wk) %>% 
-  summarize(wkly_sd = sd(wk_avg_temp)) 
-
-# Save to int folder
-write_csv(sst_sd, file.path(dir_prs, "int/sst_wkly_sd.csv"))
-```
-
-## Weekly Anomalies 
-
-Weekly temperature anomalies are calculated as the difference between the average weekly temperature and the weekly climatological mean. The weekly climatological mean is the 21-year average (1998-2018) of the weekly average sea surface temperature (SST).   
-
