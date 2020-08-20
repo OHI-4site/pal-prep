@@ -1,6 +1,13 @@
-### Palmyra Ocean Health Index: Sea Level Rise Pressure 
+## Palmyra Ocean Health Index: Sea Level Rise 2020
 
-This folder describes the methods used to prepare data for the sea level rise pressure layer for the Palmyra OHI+ assessment.
+Click on the layers to see data preparation:  
+
+#### [Sea Level Rise](https://raw.githack.com/OHI-4site/pal-prep/gh-pages/prep/pressures/slr/v2020/slr_pressure_layer.html)    
+
+### Layers Created
+
+- `slr_pressure.csv`  pressure score for sea level rise     
+
 
 Please see our [citation policy](http://ohi-science.org/citation-policy/) if you use OHI data or methods.
 

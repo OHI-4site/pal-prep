@@ -1,7 +1,14 @@
-### Palmyra Ocean Health Index: Ocean Acidification Pressure 
+## Palmyra Ocean Health Index: Ocean Acidification 2020 
 
-This folder describes the methods used to prepare data for the ocean acidification pressure layer for the Palmyra OHI+ assessment.
+Click on the layers to see data preparation:  
 
-Please see our [citation policy](http://ohi-science.org/citation-policy/) if you use OHI data or methods.
+#### [Ocean Acidification](https://raw.githack.com/OHI-4site/pal-prep/gh-pages/prep/pressures/oa/v2020/oa_pressure_layer.html)    
+
+### Layers Created
+
+- `oa_pressure.csv`  pressure score for ocean acidification         
+
+
+Please see our [citation policy](http://ohi-science.org/citation-policy/) if you use OHI data or methods.   
 
 Thank you!
