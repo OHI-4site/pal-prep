@@ -1,8 +1,10 @@
 ---
-title: 'OHI+ Palmyra 2020: Fishing Management Resilience Layer'
+title: 'Fishing/Offshore Management'
+subtitle: 'OHI+ Palmyra 2020 Assessment'
 author: "*Compiled on `r date()` by `r Sys.info()['user']`*"
 output: 
   html_document:
+    code_folding: show
     toc: true
     toc_depth: 3 
     toc_float: yes
@@ -10,7 +12,7 @@ output:
     theme: cerulean
     highlight: haddock
     includes: 
-     in_header: '../../../src/templates/ohi_hdr.html' 
+     in_header: '~/github/pal-prep/src/templates/pal_hdr.html' 
   pdf_document:
     toc: true
 ---
@@ -26,8 +28,7 @@ Data to inform the preparation of these layers was obtained through verbal commu
 
 # Setup 
 
-```{r setup, message = F, warning = F}
-knitr::opts_chunk$set(echo = FALSE)
+```{r setup, message=F, warning=F, results='hide'}
 
 library(tidyverse)
 library(here)
@@ -53,6 +54,7 @@ A resilience layer is created for management of offshore areas based on three cr
 Only marine areas will be evaluated as part of the fishing pressure resilience layer. A yes will be assigned a value of 1, in-development will be assigned a value of 0.5, a no will be assigned a value of 0. The final score will be the sum over 3. The status is assigned based on information from Alex Wegmann at The Nature Conservancy.  
 
 Offshore areas are managed by the U.S. Fish and Wildlife Service. A management plan is currently in development for the Palmyra Atoll National Wildlife Refuge. Currently, there isn't monitoring of the management plan as there is no management plan. However, NOAA does monitor coral reefs, oceanography parameters, and other key elements within the wildlife refuges on periodic scientific voyages. While this may not be the most robust form of management, the status of the area as fully protected and the remoteness have allowed for this to be fairly effective despite the absence of a formal management plan. For this assessment we will assign the effective category a score of 0.5.    
+<br>   
 
 | Category         | Response         | Score | 
 |------------------|------------------|-------|

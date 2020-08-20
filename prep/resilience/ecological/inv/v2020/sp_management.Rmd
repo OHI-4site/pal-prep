@@ -1,8 +1,10 @@
 ---
-title: 'OHI+ Palmyra 2020: Invasive Species Management Resilience Layer'
+title: 'Invasive Species Management'
+subtitle: 'OHI+ Palmyra 2020 Assessment'
 author: "*Compiled on `r date()` by `r Sys.info()['user']`*"
 output: 
   html_document:
+    code_folding: show
     toc: true
     toc_depth: 3 
     toc_float: yes
@@ -10,7 +12,7 @@ output:
     theme: cerulean
     highlight: haddock
     includes: 
-     in_header: '../../../src/templates/ohi_hdr.html' 
+     in_header: '~/github/pal-prep/src/templates/pal_hdr.html' 
   pdf_document:
     toc: true
 ---
@@ -29,8 +31,7 @@ Citation: Hathaway, S.A. and Fisher, R.N. (2010). Biosecurity Plan for Palmyra A
 
 # Setup 
 
-```{r setup, message = F, warning = F}
-knitr::opts_chunk$set(echo = FALSE)
+```{r setup, message=F, warning=F, results='hide'}
 
 library(tidyverse)
 library(here)
@@ -53,6 +54,7 @@ A resilience layer is created for management of invasive species based on three 
  - Is the management plan effective?  
 
 A yes will be assigned a value of 1, in-development will be assigned a value of 0.5, a no will be assigned a value of 0. The Palmyra Atoll Biosecurity Plan established in 2010 details a series of adaptive management plans designed to achieve TNC’s mission toward the protection and enhancement of native wildlife and habitat. Since the established of the plan, major actions to remove priority species, such as invasive rats (*Rattus rattus*) have been undertaken. Monitoring for invasive species continues to take place and there are additional plans to continue removal of other high priority species like coconut palm (*Cocos nucifera*).   
+ <br>   
  
 | Category         | Response         | Score | 
 |------------------|------------------|-------|

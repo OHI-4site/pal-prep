@@ -54,6 +54,7 @@ A resilience layer is created for management of offshore and inland areas based 
 A yes will be assigned a value of 1, in-development will be assigned a value of 0.5, a no will be assigned a value of 0. The final score will be the sum over 3. The status is assigned based on information contained in the Climate Adaptation and Resilience Laboratory report and additional information from Alex Wegmann at The Nature Conservancy.     
 
 The 2019 report outlines threats to terrestrial and marine systems from climate change. The report includes a four year science strategy to strengthen the resilience of Palmyra's ecosystems to global and anthropogenic stressors including methods for monitoring long-term change. Further, the report includes milestones which will serve as points to evaluate effectiveness. However, since the program is in its first year of implementation we will assign the effective category a score of 0.5. 
+<br>     
 
 | Category         | Response         | Score | 
 |------------------|------------------|-------|
