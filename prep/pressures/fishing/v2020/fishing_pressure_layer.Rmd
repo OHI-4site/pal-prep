@@ -1,23 +1,25 @@
 ---
-title: 'OHI+ Palmyra 2020: Fishing Pressure'
+title: 'Fishing Pressure'
+subtitle: 'OHI+ Palmyra 2020 Assessment'
 author: "*Compiled on `r date()` by `r Sys.info()['user']`*"
 output: 
   html_document:
+    code_folding: show
     toc: true
-    toc_depth: 2 
+    toc_depth: 3 
     toc_float: yes
     number_sections: false
     theme: cerulean
     highlight: haddock
     includes: 
-     in_header: '../../../src/templates/ohi_hdr.html' 
+     in_header: '~/github/pal-prep/src/templates/pal_hdr.html' 
   pdf_document:
     toc: true
 ---
 
 # Summary 
 
-This script calculates the pressure from fishing activity on Palmyra Atoll. Fishing pressures include bycatch from artisinal and commercial fishing and target harvest, typically of cetaceans and marine turtles. There is no commercial fishing permitted in the waters around Palmyra Atoll. Recreational fishing for bone fish is catch and release and only about 20 days of fishing occur in any given year. Limited amounts of sustenence fishing is permitted on Palmyra Atoll, which amounts to approximately 10 days of fishing per year. The risk of bycatch from these activities is very low.       
+This script calculates the pressure from fishing activity on Palmyra Atoll. Fishing pressures include bycatch from artisinal and commercial fishing and target harvest, typically of cetaceans and marine turtles. There is no commercial fishing permitted in the waters around Palmyra Atoll. Recreational fishing for bone fish is catch and release and only about 20 days of fishing occur in any given year. Limited amounts of sustenance fishing is permitted on Palmyra Atoll, which amounts to approximately 10 days of fishing per year. The risk of bycatch from these activities is very low.       
 
 # Data 
 
@@ -25,8 +27,7 @@ Data to inform this layer was obtained from verbal communications with Alex Wegm
 
 # Setup 
 
-```{r setup, message = F, warning = F}
-knitr::opts_chunk$set(echo = FALSE)
+```{r setup, message=F, warning=F, results='hide'}
 
 library(tidyverse)
 library(here)
