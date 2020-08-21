@@ -9,7 +9,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
-<meta name="author" content="Compiled on Fri Aug 21 10:55:32 2020 by orofino" />
+<meta name="author" content="Compiled on Fri Aug 21 11:11:26 2020 by orofino" />
 
 
 <title>Climate Change Management</title>
@@ -1651,7 +1651,7 @@ div.tocify {
 
 <h1 class="title toc-ignore">Climate Change Management</h1>
 <h3 class="subtitle">OHI+ Palmyra 2020 Assessment</h3>
-<h4 class="author"><em>Compiled on Fri Aug 21 10:55:32 2020 by orofino</em></h4>
+<h4 class="author"><em>Compiled on Fri Aug 21 11:11:26 2020 by orofino</em></h4>
 
 </div>
 
@@ -1679,7 +1679,7 @@ div.tocify {
 <h1>Methods</h1>
 <div id="management" class="section level2">
 <h2>Management</h2>
-<p>A resilience layer is created for management of offshore and inland areas based on three criteria:</p>
+<p>A resilience layer is created for climate change management based on three criteria:</p>
 <ul>
 <li>Is there a management plan in place?<br />
 </li>
@@ -1687,8 +1687,9 @@ div.tocify {
 </li>
 <li>Is the management plan effective?</li>
 </ul>
-<p>A yes will be assigned a value of 1, in-development will be assigned a value of 0.5, a no will be assigned a value of 0. The final score will be the sum over 3. The status is assigned based on information contained in the Climate Adaptation and Resilience Laboratory report and additional information from Alex Wegmann at The Nature Conservancy.</p>
-<p>The 2019 report outlines threats to terrestrial and marine systems from climate change. The report includes a four year science strategy to strengthen the resilience of Palmyra’s ecosystems to global and anthropogenic stressors including methods for monitoring long-term change. Further, the report includes milestones which will serve as points to evaluate effectiveness. However, since the program is in its first year of implementation we will assign the effective category a score of 0.5. <br></p>
+<p>A yes will be assigned a value of 1, in-development will be assigned a value of 0.5, a no will be assigned a value of 0. The final score will be the sum over 3. The status is assigned based on information contained in the Climate Adaptation and Resilience Laboratory report.</p>
+<p>The 2019 report outlines threats to terrestrial and marine systems from climate change. The report includes a four year science strategy to strengthen the resilience of Palmyra’s ecosystems to global and anthropogenic stressors including methods for monitoring long-term change.<br />
+<br></p>
 <table>
 <thead>
 <tr class="header">
@@ -1710,24 +1711,24 @@ div.tocify {
 </tr>
 <tr class="odd">
 <td>Effective?</td>
-<td>Yes</td>
-<td>0.5</td>
+<td>No</td>
+<td>0</td>
 </tr>
 </tbody>
 </table>
-<p>The plan was established in 2019 so for years before 2019, an in-development score of 0.5 will be assigned to the management plan category. Since monitoring of the marine environment for climate variables like ocean acidification and sea surface temperature, has been ongoing since 2000, the monitoring category score will remain 1.</p>
+<p>The plan was established in 2019 so for years before 2019, an in-development score of 0.5 will be assigned to the management plan category. Since monitoring of the marine environment for climate variables like ocean acidification and sea surface temperature, has been ongoing since 2000, the monitoring category score will remain 1. A score of zero is assigned for effectiveness because the establishment of a climate adaptation plan and monitoring of climate impacts are not necessarily expected to be effective in actually mitigating climate pressures (sea surface temperature, ocean acidification, uv radiation, and sea level rise).</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="co"># Pre 2019 scores </span></span>
 <span id="cb2-2"><a href="#cb2-2"></a>mgmt_<span class="dv">14</span> &lt;-<span class="st"> </span><span class="kw">data.frame</span>(</span>
 <span id="cb2-3"><a href="#cb2-3"></a>  <span class="dt">region_id =</span> <span class="kw">rep</span>(<span class="dv">1</span>, <span class="dv">5</span>),</span>
 <span id="cb2-4"><a href="#cb2-4"></a>  <span class="dt">year =</span> <span class="kw">c</span>(<span class="dv">2014</span><span class="op">:</span><span class="dv">2018</span>),</span>
-<span id="cb2-5"><a href="#cb2-5"></a>  <span class="dt">resilience_score =</span> <span class="kw">rep</span>(<span class="dv">2</span><span class="op">/</span><span class="dv">3</span>, <span class="dv">5</span>)</span>
+<span id="cb2-5"><a href="#cb2-5"></a>  <span class="dt">resilience_score =</span> <span class="kw">rep</span>(<span class="fl">1.5</span><span class="op">/</span><span class="dv">3</span>, <span class="dv">5</span>)</span>
 <span id="cb2-6"><a href="#cb2-6"></a>)</span>
 <span id="cb2-7"><a href="#cb2-7"></a></span>
 <span id="cb2-8"><a href="#cb2-8"></a><span class="co"># 2019 and 2020 scores </span></span>
 <span id="cb2-9"><a href="#cb2-9"></a>mgmt_<span class="dv">19</span> &lt;-<span class="st"> </span><span class="kw">data.frame</span>(</span>
 <span id="cb2-10"><a href="#cb2-10"></a>  <span class="dt">region_id =</span> <span class="kw">rep</span>(<span class="dv">1</span>,<span class="dv">2</span>), </span>
 <span id="cb2-11"><a href="#cb2-11"></a>  <span class="dt">year =</span> <span class="kw">c</span>(<span class="dv">2019</span>, <span class="dv">2020</span>),</span>
-<span id="cb2-12"><a href="#cb2-12"></a>  <span class="dt">resilience_score =</span> <span class="kw">rep</span>(<span class="fl">2.5</span><span class="op">/</span><span class="dv">3</span>,<span class="dv">2</span>)</span>
+<span id="cb2-12"><a href="#cb2-12"></a>  <span class="dt">resilience_score =</span> <span class="kw">rep</span>(<span class="dv">2</span><span class="op">/</span><span class="dv">3</span>,<span class="dv">2</span>)</span>
 <span id="cb2-13"><a href="#cb2-13"></a>)</span>
 <span id="cb2-14"><a href="#cb2-14"></a></span>
 <span id="cb2-15"><a href="#cb2-15"></a><span class="co"># Combine for overall mgmt layer </span></span>
