@@ -35,7 +35,7 @@ library(here)
 # Source and set file paths
 source(here('src/R/common.R'))
 
-dir_prs   <- '~/github/pal-prep/prep/pressures/habitat/v2020'
+dir_prs   <- '~/github/pal-prep/prep/pressures/hd/v2020'
 ```
 
 # Methods 
