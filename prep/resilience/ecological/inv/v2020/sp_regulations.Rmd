@@ -39,7 +39,7 @@ library(here)
 # Source and set file paths
 source(here('src/R/common.R'))
 
-dir_res   <- '~/github/pal-prep/prep/resilience/ecological/invasive_species/v2020'
+dir_res   <- '~/github/pal-prep/prep/resilience/ecological/inv/v2020'
 ```
 
 

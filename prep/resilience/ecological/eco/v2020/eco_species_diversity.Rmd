@@ -35,7 +35,7 @@ library(here)
 # Source and set file paths
 source(here('src/R/common.R'))
 
-dir_res   <- '~/github/pal-prep/prep/resilience/ecological/ecosystem/v2020'
+dir_res   <- '~/github/pal-prep/prep/resilience/ecological/eco/v2020'
 dir_spp   <- '~/github/pal-prep/prep/bd/spp/v2020'
 ```
 
