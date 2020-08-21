@@ -4,5 +4,5 @@ This folder contains sub-folders for all social resilience layers in the Palmyra
 
 | Resilience                  | Folder |
 | --------------------------- | ------ |
-|                |        |
+| Management                  | mgmt   |
 
