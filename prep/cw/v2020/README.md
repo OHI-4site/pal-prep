@@ -12,4 +12,9 @@ Click on the layers to see data preparation:
 - `debris_status.csv`  status of marine debris relative to the reference point   
 - `po_contamination.csv`  soil contamination pressure layer, using the inverse of the contamination status score   
 - `po_debris.csv`  marine debris pressure layer, using the inverse of the marine debris status score   
+
+
+Please see our [citation policy](http://ohi-science.org/citation-policy/) if you use OHI data or methods.   
+
+Thank you! 
  

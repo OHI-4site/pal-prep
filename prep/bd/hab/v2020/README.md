@@ -18,3 +18,8 @@ Click on the layers to see data preparation:
 - `rainforest_extent.csv` area of rainforest for most recent year of data (2019)   
 - `rainforest_status.csv` current status of rainforest habitat compared to the reference point   
 - `rainforest_trend.csv` trend in rainforest habitat condition   
+
+
+Please see our [citation policy](http://ohi-science.org/citation-policy/) if you use OHI data or methods.   
+
+Thank you! 

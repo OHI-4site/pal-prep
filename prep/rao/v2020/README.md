@@ -6,4 +6,9 @@ Click on the layers to see data preparation:
 
 ### Layers Created
 
-- `rao_status_placeholder` placeholder layer with a status 'NA'   
+- `rao_status_placeholder` status of sustenance fishing relative to the reference point      
+
+
+Please see our [citation policy](http://ohi-science.org/citation-policy/) if you use OHI data or methods.   
+
+Thank you! 

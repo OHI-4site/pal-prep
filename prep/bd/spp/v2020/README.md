@@ -13,4 +13,9 @@ Click on the layers to see data preparation:
 ### Layers Created
 
 - `spp_status.csv` extinction risk scores for all species based on IUCN conservation status      
-- `spp_trend.csv` trend in species extinction risk scores        
+- `spp_trend.csv` trend in species extinction risk scores    
+
+
+Please see our [citation policy](http://ohi-science.org/citation-policy/) if you use OHI data or methods.   
+
+Thank you! 

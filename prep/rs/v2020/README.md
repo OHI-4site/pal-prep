@@ -10,3 +10,8 @@ Click on the layers to see data preparation:
 
 - `emp_status.csv` status of employment in conservation science relative to the reference point   
 - `sci_status.csv` status of scientific publications relative to the reference point   
+
+
+Please see our [citation policy](http://ohi-science.org/citation-policy/) if you use OHI data or methods.   
+
+Thank you! 

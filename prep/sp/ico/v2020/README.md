@@ -8,3 +8,8 @@ Click on the layers to see data preparation:
 
 - `ico_spp_scores.csv` The conservation status score for each of the iconic species from 2014 - 2020     
 - `ico_status.csv`     Overall iconic species status score from 2014 - 2020     
+
+
+Please see our [citation policy](http://ohi-science.org/citation-policy/) if you use OHI data or methods.   
+
+Thank you! 
