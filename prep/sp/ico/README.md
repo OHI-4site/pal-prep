@@ -10,7 +10,8 @@ The folders in this file include the metadata, R scripts, and data for each asse
 - `output` folder containing layers generated in the script that are necessary to calculate the goal score     
 - `raw` folder contains raw data of species lists compiled from USFWS or pulled from the IUCN   
 
-Click [add link here to the scores/metadata_documentation/ohi-model/goal_descriptions/ *specific_goal.rmd*] to learn more about how the [name of goal/sub-goal] is calculated. 
+To learn more about how the Iconic Species sub-goal is calculated, refer the project's [Supplemental Methods](https://raw.githack.com/OHI-4site/pal-scores/master/documents/methods-results/Supplement.html) document.   
+
 
 
 

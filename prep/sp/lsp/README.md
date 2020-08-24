@@ -8,7 +8,8 @@ The folders in this file include the metadata, R scripts, and data for each asse
 - `int` folder contains all intermediate files created by running through the `lsp_data_prep.Rmd` file   
 - `output` folder with the layers generated in the script that are required to calculate the status score     
 
-Click [add link here to the scores/metadata_documentation/ohi-model/goal_descriptions/ *specific_goal.rmd*] to learn more about how the [name of goal/sub-goal] is calculated. 
+To learn more about how the Lasting Special Places sub-goal is calculated, refer the project's [Supplemental Methods](https://raw.githack.com/OHI-4site/pal-scores/master/documents/methods-results/Supplement.html) document.   
+
 
 
 

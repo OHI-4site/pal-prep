@@ -11,7 +11,7 @@ The folders in this file include the metadata, R scripts, and data for each asse
 - `output` folder with the layers generated in the script that are required to calculate the status score    
 - `raw` folder contains debris data provided by The Nature Conservancy   
 
-Click [add link here to the scores/metadata_documentation/ohi-model/goal_descriptions/ *specific_goal.rmd*] to learn more about how the [name of goal/sub-goal] is calculated. 
+To learn more about how the Clean Waters goal is calculated, refer the project’s [Supplemental Methods](https://raw.githack.com/OHI-4site/pal-scores/master/documents/methods-results/Supplement.html) document.    
 
 
 

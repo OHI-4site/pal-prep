@@ -7,7 +7,7 @@ This folder contains the following sub-folders:
 - `hab` folder contains all data prep for the habitats sub-goal  
 - `spp` folder contains all data prep for the species sub-goal  
 
-Click [add link here to the scores/metadata_documentation/ohi-model/goal_descriptions/ *specific_goal.rmd*] to learn more about how the [name of goal/sub-goal] is calculated. 
+To learn more about how the Biodiversity goal is calculated, refer the project’s [Supplemental Methods](https://raw.githack.com/OHI-4site/pal-scores/master/documents/methods-results/Supplement.html) document.    
 
 
 
