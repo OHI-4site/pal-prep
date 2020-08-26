@@ -9,7 +9,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
-<meta name="author" content="Compiled on Thu Aug 13 16:49:09 2020 by orofino" />
+<meta name="author" content="Compiled on Wed Aug 26 13:22:08 2020 by orofino" />
 
 
 <title>Coastal Protection Trend</title>
@@ -1331,6 +1331,103 @@ window.initializeCodeFolding = function(show) {
 </p>
 
 
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css" data-origin="pandoc">
+code.sourceCode > span { display: inline-block; line-height: 1.25; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; } /* Alert */
+code span.an { color: #008000; } /* Annotation */
+code span.at { } /* Attribute */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #0000ff; } /* ControlFlow */
+code span.ch { color: #008080; } /* Char */
+code span.cn { } /* Constant */
+code span.co { color: #008000; } /* Comment */
+code span.cv { color: #008000; } /* CommentVar */
+code span.do { color: #008000; } /* Documentation */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.im { } /* Import */
+code span.in { color: #008000; } /* Information */
+code span.kw { color: #0000ff; } /* Keyword */
+code span.op { } /* Operator */
+code span.ot { color: #ff4000; } /* Other */
+code span.pp { color: #ff4000; } /* Preprocessor */
+code span.sc { color: #008080; } /* SpecialChar */
+code span.ss { color: #008080; } /* SpecialString */
+code span.st { color: #008080; } /* String */
+code span.va { } /* Variable */
+code span.vs { color: #008080; } /* VerbatimString */
+code span.wa { color: #008000; font-weight: bold; } /* Warning */
+
+.sourceCode .row {
+  width: 100%;
+}
+.sourceCode {
+  overflow-x: auto;
+}
+.code-folding-btn {
+  margin-right: -30px;
+}
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
 
 
 <style type="text/css">
@@ -1554,26 +1651,67 @@ div.tocify {
 
 <h1 class="title toc-ignore">Coastal Protection Trend</h1>
 <h3 class="subtitle">OHI+ Palmyra 2020 Assessment</h3>
-<h4 class="author"><em>Compiled on Thu Aug 13 16:49:09 2020 by orofino</em></h4>
+<h4 class="author"><em>Compiled on Wed Aug 26 13:22:08 2020 by orofino</em></h4>
 
 </div>
 
 
 <div id="summary" class="section level1">
 <h1>Summary</h1>
-<p>This script calculates the trend in coastal protection based on the trend in the condition of coral reef habitats.</p>
+<p>This script calculates the trend in coastal protection based on the trend in the condition of coral reef and rainforest habitats.</p>
 </div>
 <div id="data" class="section level1">
 <h1>Data</h1>
-<p><em>Coral Reef Condition Trend</em></p>
-<p>The coastal protection trend will use the same data as the coral condition trend calculated for the Biodiversity Habitats sub-goal.</p>
-<p>Coral condition is lacking historic data for all areas of the reef used to estimate current status (fore reef, reef crest, back reef, and lagoon). Therefore, the trend of coral condition will be estimated using the OHI global data. The OHI global trend data are calculated as a linear trend in coral condition, calculated on a per country basis across all available data from 1975-2006. More information on the coral trend method can be found in the <a href="https://raw.githack.com/OHI-Science/ohi-global/published/documents/methods/Supplement.html#62_biodiversity">OHI Global Methods</a> documentation, Section 6.2.1.</p>
+<p>The coastal protection trend will use the same data as the coral condition trend and the rainforest condition trend calculated for the Biodiversity Habitats sub-goal. Refer to the <a href="https://raw.githack.com/OHI-4site/pal-prep/gh-pages/prep/bd/hab/v2020/coral_trend.html">coral trend data prep</a> and the <a href="https://raw.githack.com/OHI-4site/pal-prep/gh-pages/prep/bd/hab/v2020/rainforest_trend.html">rainforest trend data prep</a> for additional information.</p>
+</div>
+<div id="setup" class="section level1">
+<h1>Setup</h1>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="kw">library</span>(tidyverse)</span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="kw">library</span>(here)</span>
+<span id="cb1-3"><a href="#cb1-3"></a></span>
+<span id="cb1-4"><a href="#cb1-4"></a><span class="co"># Source and set file paths</span></span>
+<span id="cb1-5"><a href="#cb1-5"></a><span class="kw">source</span>(<span class="kw">here</span>(<span class="st">&#39;src/R/common.R&#39;</span>))</span>
+<span id="cb1-6"><a href="#cb1-6"></a></span>
+<span id="cb1-7"><a href="#cb1-7"></a>dir_goal   &lt;-<span class="st"> &#39;~/github/pal-prep/prep/hs/cp/v2020&#39;</span></span>
+<span id="cb1-8"><a href="#cb1-8"></a>dir_hab    &lt;-<span class="st"> &#39;~/github/pal-prep/prep/bd/hab/v2020&#39;</span></span></code></pre></div>
 </div>
 <div id="methods" class="section level1">
 <h1>Methods</h1>
 <div id="coastal-protection-trend" class="section level2">
 <h2>Coastal Protection Trend</h2>
-<p>Coral reefs are the only habitat included in the coastal protection goal. Therefore, the coastal protection trend is just the coral condition trend, which was calculated for the Biodiversity Habitats sub-goal in <code>coral_trend.Rmd</code> and saved to the pal-scores toolbox as <code>hab_coral_trend.csv</code>.</p>
+<p>The coastal protection trend are based on the coral condition and rainforest condition trends, which were calculated for the Biodiversity Habitats sub-goal in <code>coral_trend.Rmd</code> and <code>rainforest_trend.Rmd</code>. The trend will be calculated using the same method as the coastal protection status.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="co"># Read in trend data</span></span>
+<span id="cb2-2"><a href="#cb2-2"></a>coral_trend      &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="kw">file.path</span>(dir_hab, <span class="st">&quot;output/coral_trend.csv&quot;</span>))</span>
+<span id="cb2-3"><a href="#cb2-3"></a>rainforest_trend &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="kw">file.path</span>(dir_hab, <span class="st">&quot;output/rainforest_trend.csv&quot;</span>)) </span>
+<span id="cb2-4"><a href="#cb2-4"></a></span>
+<span id="cb2-5"><a href="#cb2-5"></a><span class="co"># Read in cp data </span></span>
+<span id="cb2-6"><a href="#cb2-6"></a>cp_data &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="kw">file.path</span>(dir_goal, <span class="st">&quot;int/cp_data.csv&quot;</span>))</span>
+<span id="cb2-7"><a href="#cb2-7"></a></span>
+<span id="cb2-8"><a href="#cb2-8"></a><span class="co"># Combine trend data </span></span>
+<span id="cb2-9"><a href="#cb2-9"></a>trend &lt;-<span class="st"> </span>coral_trend <span class="op">%&gt;%</span><span class="st"> </span></span>
+<span id="cb2-10"><a href="#cb2-10"></a><span class="st">  </span><span class="kw">rbind</span>(rainforest_trend) </span>
+<span id="cb2-11"><a href="#cb2-11"></a></span>
+<span id="cb2-12"><a href="#cb2-12"></a><span class="co"># Add trend data to cp_data </span></span>
+<span id="cb2-13"><a href="#cb2-13"></a>cp_data_trend &lt;-<span class="st"> </span>cp_data <span class="op">%&gt;%</span><span class="st"> </span></span>
+<span id="cb2-14"><a href="#cb2-14"></a><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">full_join</span>(trend, <span class="dt">by =</span> <span class="kw">c</span>(<span class="st">&quot;region_id&quot;</span>, <span class="st">&quot;habitat&quot;</span>)) <span class="op">%&gt;%</span><span class="st"> </span></span>
+<span id="cb2-15"><a href="#cb2-15"></a><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">select</span>(<span class="op">-</span>year)</span>
+<span id="cb2-16"><a href="#cb2-16"></a></span>
+<span id="cb2-17"><a href="#cb2-17"></a><span class="co"># Calculate trend:</span></span>
+<span id="cb2-18"><a href="#cb2-18"></a>cp_trend &lt;-<span class="st"> </span>cp_data_trend <span class="op">%&gt;%</span><span class="st"> </span></span>
+<span id="cb2-19"><a href="#cb2-19"></a><span class="st">  </span><span class="kw">group_by</span>(region_id) <span class="op">%&gt;%</span></span>
+<span id="cb2-20"><a href="#cb2-20"></a><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">summarize</span>(</span>
+<span id="cb2-21"><a href="#cb2-21"></a>          <span class="dt">trend =</span> <span class="kw">sum</span>(rank <span class="op">*</span><span class="st"> </span>trend <span class="op">*</span><span class="st"> </span>extent, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>) <span class="op">/</span></span>
+<span id="cb2-22"><a href="#cb2-22"></a><span class="st">                  </span>(<span class="kw">sum</span>(extent <span class="op">*</span><span class="st"> </span>rank, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>))) <span class="op">%&gt;%</span><span class="st"> </span></span>
+<span id="cb2-23"><a href="#cb2-23"></a><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">year =</span> <span class="dv">2020</span>) <span class="op">%&gt;%</span><span class="st"> </span></span>
+<span id="cb2-24"><a href="#cb2-24"></a><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">select</span>(region_id, year, trend)</span>
+<span id="cb2-25"><a href="#cb2-25"></a></span>
+<span id="cb2-26"><a href="#cb2-26"></a><span class="co"># Save to output</span></span>
+<span id="cb2-27"><a href="#cb2-27"></a><span class="kw">write_csv</span>(cp_trend, <span class="kw">file.path</span>(dir_goal, <span class="st">&quot;output/cp_trend.csv&quot;</span>))</span></code></pre></div>
+</div>
+<div id="save-to-toolbox" class="section level2">
+<h2>Save to Toolbox</h2>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>cp_trend &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="kw">file.path</span>(dir_goal, <span class="st">&quot;output/cp_trend.csv&quot;</span>))</span>
+<span id="cb3-2"><a href="#cb3-2"></a><span class="kw">write_csv</span>(cp_trend, <span class="kw">file.path</span>(dir_scores, <span class="st">&quot;layers/hs_coastal_protection_trend.csv&quot;</span>))</span></code></pre></div>
 </div>
 </div>
 

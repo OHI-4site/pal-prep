@@ -9,7 +9,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
-<meta name="author" content="Compiled on Thu Aug 13 16:47:20 2020 by orofino" />
+<meta name="author" content="Compiled on Wed Aug 26 13:23:06 2020 by orofino" />
 
 
 <title>Coastal Protection Sub-goal</title>
@@ -1651,7 +1651,7 @@ div.tocify {
 
 <h1 class="title toc-ignore">Coastal Protection Sub-goal</h1>
 <h3 class="subtitle">OHI+ Palmyra 2020 Assessment</h3>
-<h4 class="author"><em>Compiled on Thu Aug 13 16:47:20 2020 by orofino</em></h4>
+<h4 class="author"><em>Compiled on Wed Aug 26 13:23:06 2020 by orofino</em></h4>
 
 </div>
 
@@ -1662,11 +1662,16 @@ div.tocify {
 </div>
 <div id="data" class="section level1">
 <h1>Data</h1>
-<p>Coastal protection status is found using coral reef extent and condition.</p>
+<p>Coastal protection status is found using coral reef extent and condition and rainforest extent and condition.</p>
 <p><em>Coral Reef Extent and Condition</em></p>
 <p>Coral reef extent and condition data are the same data used in the coral habitat status layer. Coral cover maps were downloaded from the National Centers for Coastal Ocean Science (NCCOS) benthic habitat mapping project for Palmyra Atoll, found <a href="https://products.coastalscience.noaa.gov/collections/benthic/e58palmyra/#horizontalTab3">here</a></p>
 <p>Habitat maps were completed in December 2011 and data were downloaded on June 30, 2020.</p>
-<p>Citation: U.S. Department of Commerce, National Oceanic and Atmospheric Administration, National Center for Coastal Ocean Sciences. (2011). Palmyra Habitat Maps [Data file]. Retrieved from <a href="https://products.coastalscience.noaa.gov/collections/benthic/e58palmyra/" class="uri">https://products.coastalscience.noaa.gov/collections/benthic/e58palmyra/</a></p>
+<p>Citation: U.S. Department of Commerce, National Oceanic and Atmospheric Administration, National Center for Coastal Ocean Sciences. (2011). Palmyra Habitat Maps [Data file]. Retrieved from <a href="https://products.coastalscience.noaa.gov/collections/benthic/e58palmyra/" class="uri">https://products.coastalscience.noaa.gov/collections/benthic/e58palmyra/</a> <br><br />
+<em>Rainforest Extent and Condition</em></p>
+<p>The most recent estimates for rainforest coverage on Palmyra Atoll comes from a 2019 study quantifying coconut palm extent.</p>
+<p>Citation: Burnett, M.W. <em>et al.</em> (2019). “Quantifying coconut palm extent on Pacific islands using spectral textural analysis of very high resolution imagery”. <em>International Journal of Remote Sensing</em> 40(19): 7329-7355<br />
+<a href="https://www.tandfonline.com/doi/epub/10.1080/01431161.2019.1594440?needAccess=true">Available here</a>.</p>
+<p>The data come from Table A1 downloaded on July 8, 2020 from <a href="https://www.tandfonline.com/doi/figure/10.1080/01431161.2019.1594440?scroll=top&amp;needAccess=true">here</a>.</p>
 </div>
 <div id="setup" class="section level1">
 <h1>Setup</h1>
@@ -1681,81 +1686,93 @@ div.tocify {
 </div>
 <div id="methods" class="section level1">
 <h1>Methods</h1>
-<div id="coral-condition" class="section level2">
-<h2>Coral Condition</h2>
-<p>Coral condition is the current condition of coral reef habitats relative to the reference point.</p>
+<div id="condition" class="section level2">
+<h2>Condition</h2>
+<p>Condition is the current condition of coral reef habitats and rainforest habitats relative to the reference point.</p>
 <p><span class="math inline">\(C_{condition}~=~C_{current}~/~C_{ref}\)</span></p>
-<p>Where <span class="math inline">\(C_{current}\)</span> is the current status of coral habitats and <span class="math inline">\(C_{ref}\)</span> is the reference point of coral habitats. This is the same as the coral status calculated in the Biodiversity Habitats sub-goal.</p>
-<p>Use the coral status calculated in the Biodiversity: Habitats sub-goal.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a>hab_status &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="kw">file.path</span>(dir_hab, <span class="st">&quot;output/coral_status.csv&quot;</span>))</span>
-<span id="cb2-2"><a href="#cb2-2"></a></span>
-<span id="cb2-3"><a href="#cb2-3"></a><span class="co"># Find a single estimate of condition by averaging the status of each zone </span></span>
-<span id="cb2-4"><a href="#cb2-4"></a>coral_condition &lt;-<span class="st"> </span>hab_status <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb2-5"><a href="#cb2-5"></a><span class="st">  </span><span class="kw">group_by</span>(region_id) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb2-6"><a href="#cb2-6"></a><span class="st">  </span><span class="kw">summarize</span>(<span class="dt">value =</span> <span class="kw">weighted.mean</span>(status, area_km)) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb2-7"><a href="#cb2-7"></a><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">dimension =</span> <span class="st">&quot;condition&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb2-8"><a href="#cb2-8"></a><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">select</span>(region_id, dimension, value)</span>
-<span id="cb2-9"><a href="#cb2-9"></a></span>
-<span id="cb2-10"><a href="#cb2-10"></a><span class="co"># Save to int </span></span>
-<span id="cb2-11"><a href="#cb2-11"></a><span class="kw">write_csv</span>(coral_condition, <span class="kw">file.path</span>(dir_goal, <span class="st">&quot;int/coral_condition.csv&quot;</span>))</span></code></pre></div>
+<p>Where <span class="math inline">\(C_{current}\)</span> is the current status of the habitat and <span class="math inline">\(C_{ref}\)</span> is the reference point. This is the same as the coral status and the rainforest status calculated in the Biodiversity Habitats sub-goal.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="co"># Habitat status layers</span></span>
+<span id="cb2-2"><a href="#cb2-2"></a>coral_status      &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="kw">file.path</span>(dir_hab, <span class="st">&quot;output/coral_status.csv&quot;</span>))</span>
+<span id="cb2-3"><a href="#cb2-3"></a>rainforest_status &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="kw">file.path</span>(dir_hab, <span class="st">&quot;output/rainforest_status.csv&quot;</span>))</span>
+<span id="cb2-4"><a href="#cb2-4"></a></span>
+<span id="cb2-5"><a href="#cb2-5"></a><span class="co"># Find a single estimate of condition by averaging the status of each zone </span></span>
+<span id="cb2-6"><a href="#cb2-6"></a>coral_condition &lt;-<span class="st"> </span>coral_status <span class="op">%&gt;%</span><span class="st"> </span></span>
+<span id="cb2-7"><a href="#cb2-7"></a><span class="st">  </span><span class="kw">group_by</span>(region_id) <span class="op">%&gt;%</span><span class="st"> </span></span>
+<span id="cb2-8"><a href="#cb2-8"></a><span class="st">  </span><span class="kw">summarize</span>(<span class="dt">status =</span> <span class="kw">weighted.mean</span>(status, area_km)) <span class="op">%&gt;%</span><span class="st"> </span></span>
+<span id="cb2-9"><a href="#cb2-9"></a><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">habitat =</span> <span class="st">&quot;coral&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span></span>
+<span id="cb2-10"><a href="#cb2-10"></a><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">select</span>(region_id, habitat, <span class="dt">condition =</span> status)</span>
+<span id="cb2-11"><a href="#cb2-11"></a></span>
+<span id="cb2-12"><a href="#cb2-12"></a><span class="co"># Rainforest status </span></span>
+<span id="cb2-13"><a href="#cb2-13"></a>rainforest_condition &lt;-<span class="st"> </span>rainforest_status <span class="op">%&gt;%</span><span class="st"> </span></span>
+<span id="cb2-14"><a href="#cb2-14"></a><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">select</span>(region_id, habitat, <span class="dt">condition =</span> status)</span>
+<span id="cb2-15"><a href="#cb2-15"></a></span>
+<span id="cb2-16"><a href="#cb2-16"></a><span class="co"># Combine condition layers </span></span>
+<span id="cb2-17"><a href="#cb2-17"></a>condition &lt;-<span class="st"> </span>coral_condition <span class="op">%&gt;%</span><span class="st"> </span></span>
+<span id="cb2-18"><a href="#cb2-18"></a><span class="st">  </span><span class="kw">rbind</span>(rainforest_condition)</span>
+<span id="cb2-19"><a href="#cb2-19"></a></span>
+<span id="cb2-20"><a href="#cb2-20"></a><span class="co"># Save to int </span></span>
+<span id="cb2-21"><a href="#cb2-21"></a><span class="kw">write_csv</span>(condition, <span class="kw">file.path</span>(dir_goal, <span class="st">&quot;int/cp_condition.csv&quot;</span>))</span></code></pre></div>
 </div>
-<div id="coral-extent" class="section level2">
-<h2>Coral Extent</h2>
-<p>Use the coral extent calculated as parts of the Biodiversity: Habitats sub-goal.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a><span class="co"># Use the extent calculated as part of the habitats sub-goal</span></span>
-<span id="cb3-2"><a href="#cb3-2"></a>coral_extent &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="kw">file.path</span>(dir_hab, <span class="st">&quot;output/coral_extent.csv&quot;</span>))</span>
-<span id="cb3-3"><a href="#cb3-3"></a></span>
-<span id="cb3-4"><a href="#cb3-4"></a></span>
-<span id="cb3-5"><a href="#cb3-5"></a><span class="co"># Save to int folder</span></span>
-<span id="cb3-6"><a href="#cb3-6"></a><span class="kw">write_csv</span>(coral_extent, <span class="kw">file.path</span>(dir_goal, <span class="st">&quot;int/coral_extent.csv&quot;</span>))</span></code></pre></div>
+<div id="extent" class="section level2">
+<h2>Extent</h2>
+<p>Use the extent calculated as parts of the Biodiversity: Habitats sub-goal.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a><span class="co"># Habitat extents</span></span>
+<span id="cb3-2"><a href="#cb3-2"></a>coral_extent      &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="kw">file.path</span>(dir_hab, <span class="st">&quot;output/coral_extent.csv&quot;</span>))</span>
+<span id="cb3-3"><a href="#cb3-3"></a>rainforest_extent &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="kw">file.path</span>(dir_hab, <span class="st">&quot;output/rainforest_extent.csv&quot;</span>)) <span class="op">%&gt;%</span><span class="st"> </span></span>
+<span id="cb3-4"><a href="#cb3-4"></a><span class="st">  </span><span class="kw">filter</span>(year <span class="op">==</span><span class="st"> </span><span class="dv">2019</span>)</span>
+<span id="cb3-5"><a href="#cb3-5"></a></span>
+<span id="cb3-6"><a href="#cb3-6"></a><span class="co"># Combine extent layers</span></span>
+<span id="cb3-7"><a href="#cb3-7"></a>extent &lt;-<span class="st"> </span>coral_extent <span class="op">%&gt;%</span><span class="st"> </span></span>
+<span id="cb3-8"><a href="#cb3-8"></a><span class="st">  </span><span class="kw">rbind</span>(rainforest_extent) <span class="op">%&gt;%</span><span class="st"> </span></span>
+<span id="cb3-9"><a href="#cb3-9"></a><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">select</span>(region_id, habitat, <span class="dt">extent =</span> km2) </span>
+<span id="cb3-10"><a href="#cb3-10"></a></span>
+<span id="cb3-11"><a href="#cb3-11"></a><span class="co"># Save to int folder</span></span>
+<span id="cb3-12"><a href="#cb3-12"></a><span class="kw">write_csv</span>(extent, <span class="kw">file.path</span>(dir_goal, <span class="st">&quot;int/cp_extent.csv&quot;</span>))</span></code></pre></div>
+</div>
+<div id="add-protectiveness-ranks" class="section level2">
+<h2>Add Protectiveness Ranks</h2>
+<p>Combine the condition and extent layers and add protectiveness ranks for use in calculating the status.</p>
+<p>Protectiveness ranks are based on those used in the <a href="http://htmlpreview.github.io/?https://github.com/OHI-Science/ohi-global/published/documents/methods/Supplement.html#63_coastal_protection">OHI Global assessment</a>. Although the OHI global does not include native atoll forest as a category, we ranked it equal to mangroves or salt marshes given they occupy similar shoreline regions.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a><span class="co"># Read in the combined condition and extent files</span></span>
+<span id="cb4-2"><a href="#cb4-2"></a>condition &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="kw">file.path</span>(dir_goal, <span class="st">&quot;int/cp_condition.csv&quot;</span>))</span>
+<span id="cb4-3"><a href="#cb4-3"></a>extent    &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="kw">file.path</span>(dir_goal, <span class="st">&quot;int/cp_extent.csv&quot;</span>))</span>
+<span id="cb4-4"><a href="#cb4-4"></a></span>
+<span id="cb4-5"><a href="#cb4-5"></a><span class="co"># Define protectiveness ranks</span></span>
+<span id="cb4-6"><a href="#cb4-6"></a>ranks &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&#39;coral&#39;</span> =<span class="st"> </span><span class="dv">3</span>, <span class="st">&#39;rainforest&#39;</span> =<span class="st"> </span><span class="dv">4</span>)</span>
+<span id="cb4-7"><a href="#cb4-7"></a></span>
+<span id="cb4-8"><a href="#cb4-8"></a><span class="co"># Combine data </span></span>
+<span id="cb4-9"><a href="#cb4-9"></a>cp_data &lt;-<span class="st">  </span>extent <span class="op">%&gt;%</span></span>
+<span id="cb4-10"><a href="#cb4-10"></a><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">full_join</span>(condition, <span class="dt">by =</span> <span class="kw">c</span>(<span class="st">&quot;region_id&quot;</span>, <span class="st">&quot;habitat&quot;</span>)) <span class="op">%&gt;%</span><span class="st"> </span></span>
+<span id="cb4-11"><a href="#cb4-11"></a><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">rank =</span> ranks[habitat])</span>
+<span id="cb4-12"><a href="#cb4-12"></a></span>
+<span id="cb4-13"><a href="#cb4-13"></a><span class="co"># Save to int folder</span></span>
+<span id="cb4-14"><a href="#cb4-14"></a><span class="kw">write_csv</span>(cp_data, <span class="kw">file.path</span>(dir_goal, <span class="st">&quot;int/cp_data.csv&quot;</span>))</span></code></pre></div>
 </div>
 <div id="calculate-status" class="section level2">
 <h2>Calculate Status</h2>
-<p><strong>Reference Point:</strong> The coral condition will use the same reference points as the coral habitats sub-goal.</p>
-<ul>
-<li>Back Reef: 10-50%<br />
-</li>
-<li>Reef Crest: 10-50%<br />
-</li>
-<li>Fore Reef: 50-90%<br />
-</li>
-<li>Lagoon: 10-50%</li>
-</ul>
+<p><strong>Reference Point:</strong> The coral and rainforest condition will use the same reference points as the Habitats sub-goal.</p>
 <p>The coastal protection status is calculated as the relative health of the habitats that provide coastal protection weighted by their area and protectiveness rank. Coral reefs are the only habitat included in the coastal protection goal for Palmyra, and the status is found by the following equation:</p>
-<p><span class="math inline">\(status~=~(C_{condition}~x~A~x~w)~/~(A~x~w)\)</span></p>
-<p>Where <span class="math inline">\(C_{condition}\)</span> is the condition of coral habitats as defined above, <span class="math inline">\(A\)</span> is the area of coral reef habitat, and <span class="math inline">\(w\)</span> is the protectiveness rank for coral reefs. Coral reefs are the only habitat included in the coastal protection goal for Palmyra so there is no protectiveness rank and the area cancels out. Therefore, the current status for coastal protection is equivalent to the coral reef condition calculated in the Biodiversity Habitats sub-goal.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a>condition &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="kw">file.path</span>(dir_goal, <span class="st">&quot;int/coral_condition.csv&quot;</span>))</span>
-<span id="cb4-2"><a href="#cb4-2"></a>extent    &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="kw">file.path</span>(dir_goal, <span class="st">&quot;int/coral_extent.csv&quot;</span>))</span>
-<span id="cb4-3"><a href="#cb4-3"></a></span>
-<span id="cb4-4"><a href="#cb4-4"></a><span class="co"># Assign values:</span></span>
-<span id="cb4-5"><a href="#cb4-5"></a>C &lt;-<span class="st"> </span>condition<span class="op">$</span>value</span>
-<span id="cb4-6"><a href="#cb4-6"></a>A &lt;-<span class="st"> </span>extent<span class="op">$</span>km2</span>
-<span id="cb4-7"><a href="#cb4-7"></a>w &lt;-<span class="st"> </span><span class="dv">3</span></span>
-<span id="cb4-8"><a href="#cb4-8"></a></span>
-<span id="cb4-9"><a href="#cb4-9"></a><span class="co"># Define function to calculate the status </span></span>
-<span id="cb4-10"><a href="#cb4-10"></a>status &lt;-<span class="st"> </span><span class="cf">function</span>(C,A,w) {</span>
-<span id="cb4-11"><a href="#cb4-11"></a>  (C <span class="op">*</span><span class="st"> </span>A <span class="op">*</span><span class="st"> </span>w) <span class="op">/</span><span class="st"> </span>(A <span class="op">*</span><span class="st"> </span>w)</span>
-<span id="cb4-12"><a href="#cb4-12"></a>}</span>
-<span id="cb4-13"><a href="#cb4-13"></a></span>
-<span id="cb4-14"><a href="#cb4-14"></a><span class="co"># Find status - should be the same as the condition</span></span>
-<span id="cb4-15"><a href="#cb4-15"></a><span class="co"># Area and weighting cancel out)</span></span>
-<span id="cb4-16"><a href="#cb4-16"></a>c_status &lt;-<span class="st"> </span><span class="kw">status</span>(<span class="dt">C=</span>C, <span class="dt">A=</span>A, <span class="dt">w=</span>w)   </span>
-<span id="cb4-17"><a href="#cb4-17"></a></span>
-<span id="cb4-18"><a href="#cb4-18"></a><span class="co"># Create status data frame </span></span>
-<span id="cb4-19"><a href="#cb4-19"></a>cp_status &lt;-<span class="st"> </span><span class="kw">data.frame</span>(</span>
-<span id="cb4-20"><a href="#cb4-20"></a>  <span class="dt">region_id =</span> <span class="dv">1</span>,</span>
-<span id="cb4-21"><a href="#cb4-21"></a>  <span class="dt">habitat =</span> <span class="st">&#39;coral&#39;</span>,</span>
-<span id="cb4-22"><a href="#cb4-22"></a>  <span class="dt">year =</span> <span class="dv">2011</span>, </span>
-<span id="cb4-23"><a href="#cb4-23"></a>  <span class="dt">status =</span> c_status</span>
-<span id="cb4-24"><a href="#cb4-24"></a>)</span>
-<span id="cb4-25"><a href="#cb4-25"></a></span>
-<span id="cb4-26"><a href="#cb4-26"></a><span class="co"># Save to output</span></span>
-<span id="cb4-27"><a href="#cb4-27"></a><span class="kw">write_csv</span>(cp_status, <span class="kw">file.path</span>(dir_goal, <span class="st">&quot;output/cp_status.csv&quot;</span>))</span></code></pre></div>
+<p><span class="math inline">\(status = \frac { \displaystyle\sum _{ k=1 }^{ N }{ { (h }_{ k } } \times { w }_{ k }\times { A }_{ k }) }{ \displaystyle\sum _{ k=1 }^{ N }{ { (w }_{ k }\times { A }_{ k }) } }\)</span></p>
+<p>where <span class="math inline">\(w\)</span> is the rank weight of the habitat’s protective ability, <span class="math inline">\(A\)</span> is the area within a region for each <span class="math inline">\(k\)</span> habitat type, and <span class="math inline">\(h\)</span> is a measure of each habitat’s condition.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a><span class="co"># Read in cp data</span></span>
+<span id="cb5-2"><a href="#cb5-2"></a>cp_data &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="kw">file.path</span>(dir_goal, <span class="st">&quot;int/cp_data.csv&quot;</span>))</span>
+<span id="cb5-3"><a href="#cb5-3"></a></span>
+<span id="cb5-4"><a href="#cb5-4"></a><span class="co"># Calculate status </span></span>
+<span id="cb5-5"><a href="#cb5-5"></a>cp_status &lt;-<span class="st"> </span>cp_data <span class="op">%&gt;%</span><span class="st"> </span></span>
+<span id="cb5-6"><a href="#cb5-6"></a><span class="st">  </span><span class="kw">group_by</span>(region_id) <span class="op">%&gt;%</span></span>
+<span id="cb5-7"><a href="#cb5-7"></a><span class="st">  </span><span class="kw">summarize</span>(<span class="dt">status =</span> <span class="kw">pmin</span>(<span class="dv">1</span>, <span class="kw">sum</span>(rank <span class="op">*</span><span class="st"> </span>condition <span class="op">*</span><span class="st"> </span>extent, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>) <span class="op">/</span></span>
+<span id="cb5-8"><a href="#cb5-8"></a><span class="st">                            </span>(<span class="kw">sum</span>(extent <span class="op">*</span><span class="st"> </span>rank, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)))) <span class="op">%&gt;%</span><span class="st"> </span></span>
+<span id="cb5-9"><a href="#cb5-9"></a><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">year =</span> <span class="dv">2020</span>) <span class="op">%&gt;%</span><span class="st"> </span></span>
+<span id="cb5-10"><a href="#cb5-10"></a><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">select</span>(region_id, year, status)</span>
+<span id="cb5-11"><a href="#cb5-11"></a></span>
+<span id="cb5-12"><a href="#cb5-12"></a></span>
+<span id="cb5-13"><a href="#cb5-13"></a><span class="co"># Save to output</span></span>
+<span id="cb5-14"><a href="#cb5-14"></a><span class="kw">write_csv</span>(cp_status, <span class="kw">file.path</span>(dir_goal, <span class="st">&quot;output/cp_status.csv&quot;</span>))</span></code></pre></div>
 </div>
 <div id="save-to-toolbox" class="section level2">
 <h2>Save to Toolbox</h2>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>cp_status &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="kw">file.path</span>(dir_goal, <span class="st">&quot;output/cp_status.csv&quot;</span>))</span>
-<span id="cb5-2"><a href="#cb5-2"></a><span class="kw">write_csv</span>(cp_status, <span class="kw">file.path</span>(dir_scores, <span class="st">&#39;layers/hs_coastal_protection_status.csv&#39;</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>cp_status &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="kw">file.path</span>(dir_goal, <span class="st">&quot;output/cp_status.csv&quot;</span>))</span>
+<span id="cb6-2"><a href="#cb6-2"></a><span class="kw">write_csv</span>(cp_status, <span class="kw">file.path</span>(dir_scores, <span class="st">&#39;layers/hs_coastal_protection_status.csv&#39;</span>))</span></code></pre></div>
 </div>
 </div>
 

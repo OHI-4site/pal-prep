@@ -23,7 +23,7 @@ This script calculates the status of coastal protection from coral reef habitats
 
 # Data 
 
-Coastal protection status is found using coral reef extent and condition.    
+Coastal protection status is found using coral reef extent and condition and rainforest extent and condition.    
 
 *Coral Reef Extent and Condition*   
 
@@ -31,7 +31,16 @@ Coral reef extent and condition data are the same data used in the coral habitat
 
 Habitat maps were completed in December 2011 and data were downloaded on June 30, 2020.  
 
-Citation: U.S. Department of Commerce, National Oceanic and Atmospheric Administration, National Center for Coastal Ocean Sciences. (2011). Palmyra Habitat Maps [Data file]. Retrieved from https://products.coastalscience.noaa.gov/collections/benthic/e58palmyra/     
+Citation: U.S. Department of Commerce, National Oceanic and Atmospheric Administration, National Center for Coastal Ocean Sciences. (2011). Palmyra Habitat Maps [Data file]. Retrieved from https://products.coastalscience.noaa.gov/collections/benthic/e58palmyra/
+<br>    
+*Rainforest Extent and Condition*
+
+The most recent estimates for rainforest coverage on Palmyra Atoll comes from a 2019 study quantifying coconut palm extent.  
+
+Citation: Burnett, M.W. *et al.* (2019). "Quantifying coconut palm extent on Pacific islands using spectral textural analysis of very high resolution imagery". *International Journal of Remote Sensing* 40(19): 7329-7355   
+  [Available here](https://www.tandfonline.com/doi/epub/10.1080/01431161.2019.1594440?needAccess=true). 
+  
+The data come from Table A1 downloaded on July 8, 2020 from [here](https://www.tandfonline.com/doi/figure/10.1080/01431161.2019.1594440?scroll=top&needAccess=true).
 
 # Setup 
 
@@ -50,85 +59,107 @@ dir_hab    <- '~/github/pal-prep/prep/bd/hab/v2020'
 
 # Methods 
 
-## Coral Condition
+## Condition
 
-Coral condition is the current condition of coral reef habitats relative to the reference point.   
+Condition is the current condition of coral reef habitats and rainforest habitats relative to the reference point.   
 
 $C_{condition}~=~C_{current}~/~C_{ref}$   
 
-Where $C_{current}$ is the current status of coral habitats and $C_{ref}$ is the reference point of coral habitats. This is the same as the coral status calculated in the Biodiversity Habitats sub-goal.   
+Where $C_{current}$ is the current status of the habitat and $C_{ref}$ is the reference point. This is the same as the coral status and the rainforest status calculated in the Biodiversity Habitats sub-goal.   
 
-Use the coral status calculated in the Biodiversity: Habitats sub-goal.      
+```{r condition, eval=F}
 
-```{r coral-condition, eval=F}
-
-hab_status <- read_csv(file.path(dir_hab, "output/coral_status.csv"))
+# Habitat status layers
+coral_status      <- read_csv(file.path(dir_hab, "output/coral_status.csv"))
+rainforest_status <- read_csv(file.path(dir_hab, "output/rainforest_status.csv"))
 
 # Find a single estimate of condition by averaging the status of each zone 
-coral_condition <- hab_status %>% 
+coral_condition <- coral_status %>% 
   group_by(region_id) %>% 
-  summarize(value = weighted.mean(status, area_km)) %>% 
-  mutate(dimension = "condition") %>% 
-  dplyr::select(region_id, dimension, value)
+  summarize(status = weighted.mean(status, area_km)) %>% 
+  mutate(habitat = "coral") %>% 
+  dplyr::select(region_id, habitat, condition = status)
+
+# Rainforest status 
+rainforest_condition <- rainforest_status %>% 
+  dplyr::select(region_id, habitat, condition = status)
+
+# Combine condition layers 
+condition <- coral_condition %>% 
+  rbind(rainforest_condition)
 
 # Save to int 
-write_csv(coral_condition, file.path(dir_goal, "int/coral_condition.csv"))
+write_csv(condition, file.path(dir_goal, "int/cp_condition.csv"))
 ```
 
-## Coral Extent 
+## Extent 
 
-Use the coral extent calculated as parts of the Biodiversity: Habitats sub-goal.    
+Use the extent calculated as parts of the Biodiversity: Habitats sub-goal.    
 
-```{r coral-extent, eval=F}
+```{r extent, eval=F}
 
-# Use the extent calculated as part of the habitats sub-goal
-coral_extent <- read_csv(file.path(dir_hab, "output/coral_extent.csv"))
+# Habitat extents
+coral_extent      <- read_csv(file.path(dir_hab, "output/coral_extent.csv"))
+rainforest_extent <- read_csv(file.path(dir_hab, "output/rainforest_extent.csv")) %>% 
+  filter(year == 2019)
 
+# Combine extent layers
+extent <- coral_extent %>% 
+  rbind(rainforest_extent) %>% 
+  dplyr::select(region_id, habitat, extent = km2) 
 
 # Save to int folder
-write_csv(coral_extent, file.path(dir_goal, "int/coral_extent.csv"))
+write_csv(extent, file.path(dir_goal, "int/cp_extent.csv"))
 ```
+
+## Add Protectiveness Ranks 
+
+Combine the condition and extent layers and add protectiveness ranks for use in calculating the status.   
+
+Protectiveness ranks are based on those used in the [OHI Global assessment](http://htmlpreview.github.io/?https://github.com/OHI-Science/ohi-global/published/documents/methods/Supplement.html#63_coastal_protection). Although the OHI global does not include native atoll forest as a category, we ranked it equal to mangroves or salt marshes given they occupy similar shoreline regions.   
+
+```{r protectiveness-ranks, eval=F}
+
+# Read in the combined condition and extent files
+condition <- read_csv(file.path(dir_goal, "int/cp_condition.csv"))
+extent    <- read_csv(file.path(dir_goal, "int/cp_extent.csv"))
+
+# Define protectiveness ranks
+ranks <- c('coral' = 3, 'rainforest' = 4)
+
+# Combine data 
+cp_data <-  extent %>%
+  dplyr::full_join(condition, by = c("region_id", "habitat")) %>% 
+  mutate(rank = ranks[habitat])
+
+# Save to int folder
+write_csv(cp_data, file.path(dir_goal, "int/cp_data.csv"))
+```
+
 
 ## Calculate Status
 
-**Reference Point:** The coral condition will use the same reference points as the coral habitats sub-goal. 
-
- - Back Reef:  10-50%   
- - Reef Crest: 10-50%      
- - Fore Reef:  50-90%     
- - Lagoon:     10-50%    
+**Reference Point:** The coral and rainforest condition will use the same reference points as the Habitats sub-goal.    
 
 The coastal protection status is calculated as the relative health of the habitats that provide coastal protection weighted by their area and protectiveness rank. Coral reefs are the only habitat included in the coastal protection goal for Palmyra, and the status is found by the following equation:  
 
-$status~=~(C_{condition}~x~A~x~w)~/~(A~x~w)$   
+$status = \frac { \displaystyle\sum _{ k=1 }^{ N }{ { (h }_{ k } } \times { w }_{ k }\times { A }_{ k }) }{ \displaystyle\sum _{ k=1 }^{ N }{ { (w }_{ k }\times { A }_{ k }) }  }$   
 
-Where $C_{condition}$ is the condition of coral habitats as defined above, $A$ is the area of coral reef habitat, and $w$ is the protectiveness rank for coral reefs. Coral reefs are the only habitat included in the coastal protection goal for Palmyra so there is no protectiveness rank and the area cancels out. Therefore, the current status for coastal protection is equivalent to the coral reef condition calculated in the Biodiversity Habitats sub-goal.   
+where $w$ is the rank weight of the habitat’s protective ability, $A$ is the area within a region for each $k$ habitat type, and $h$ is a measure of each habitat's condition.   
 
 ```{r calculate-status, eval=F}
-condition <- read_csv(file.path(dir_goal, "int/coral_condition.csv"))
-extent    <- read_csv(file.path(dir_goal, "int/coral_extent.csv"))
+ 
+# Read in cp data
+cp_data <- read_csv(file.path(dir_goal, "int/cp_data.csv"))
 
-# Assign values:
-C <- condition$value
-A <- extent$km2
-w <- 3
+# Calculate status 
+cp_status <- cp_data %>% 
+  group_by(region_id) %>%
+  summarize(status = pmin(1, sum(rank * condition * extent, na.rm = TRUE) /
+                            (sum(extent * rank, na.rm = TRUE)))) %>% 
+  mutate(year = 2020) %>% 
+  dplyr::select(region_id, year, status)
 
-# Define function to calculate the status 
-status <- function(C,A,w) {
-  (C * A * w) / (A * w)
-}
-
-# Find status - should be the same as the condition
-# Area and weighting cancel out)
-c_status <- status(C=C, A=A, w=w)   
-
-# Create status data frame 
-cp_status <- data.frame(
-  region_id = 1,
-  habitat = 'coral',
-  year = 2011, 
-  status = c_status
-)
 
 # Save to output
 write_csv(cp_status, file.path(dir_goal, "output/cp_status.csv"))

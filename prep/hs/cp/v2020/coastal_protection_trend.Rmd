@@ -19,20 +19,67 @@ output:
 
 # Summary 
 
-This script calculates the trend in coastal protection based on the trend in the condition of coral reef habitats.        
+This script calculates the trend in coastal protection based on the trend in the condition of coral reef and rainforest habitats.        
 
 # Data 
 
-*Coral Reef Condition Trend*   
+The coastal protection trend will use the same data as the coral condition trend and the rainforest condition trend calculated for the Biodiversity Habitats sub-goal. Refer to the [coral trend data prep](https://raw.githack.com/OHI-4site/pal-prep/gh-pages/prep/bd/hab/v2020/coral_trend.html) and the [rainforest trend data prep](https://raw.githack.com/OHI-4site/pal-prep/gh-pages/prep/bd/hab/v2020/rainforest_trend.html) for additional information.   
 
-The coastal protection trend will use the same data as the coral condition trend calculated for the Biodiversity Habitats sub-goal. 
+# Setup 
 
-Coral condition is lacking historic data for all areas of the reef used to estimate current status (fore reef, reef crest, back reef, and lagoon). Therefore, the trend of coral condition will be estimated using the OHI global data. The OHI global trend data are calculated as a linear trend in coral condition, calculated on a per country basis across all available data from 1975-2006. More information on the coral trend method can be found in the [OHI Global Methods](https://raw.githack.com/OHI-Science/ohi-global/published/documents/methods/Supplement.html#62_biodiversity) documentation, Section 6.2.1. 
+```{r setup, message=F, warning=F, results='hide'}
+
+library(tidyverse)
+library(here)
+
+# Source and set file paths
+source(here('src/R/common.R'))
+
+dir_goal   <- '~/github/pal-prep/prep/hs/cp/v2020'
+dir_hab    <- '~/github/pal-prep/prep/bd/hab/v2020'
+```
 
 # Methods 
 
 ## Coastal Protection Trend 
 
-Coral reefs are the only habitat included in the coastal protection goal. Therefore, the coastal protection trend is just the coral condition trend, which was calculated for the Biodiversity Habitats sub-goal in `coral_trend.Rmd` and saved to the pal-scores toolbox as `hab_coral_trend.csv`.    
+The coastal protection trend are based on the coral condition and rainforest condition trends, which were calculated for the Biodiversity Habitats sub-goal in `coral_trend.Rmd` and `rainforest_trend.Rmd`. The trend will be calculated using the same method as the coastal protection status.   
+
+```{r cp-trend, eval=F}
+
+# Read in trend data
+coral_trend      <- read_csv(file.path(dir_hab, "output/coral_trend.csv"))
+rainforest_trend <- read_csv(file.path(dir_hab, "output/rainforest_trend.csv")) 
+
+# Read in cp data 
+cp_data <- read_csv(file.path(dir_goal, "int/cp_data.csv"))
+
+# Combine trend data 
+trend <- coral_trend %>% 
+  rbind(rainforest_trend) 
+
+# Add trend data to cp_data 
+cp_data_trend <- cp_data %>% 
+  dplyr::full_join(trend, by = c("region_id", "habitat")) %>% 
+  dplyr::select(-year)
+
+# Calculate trend:
+cp_trend <- cp_data_trend %>% 
+  group_by(region_id) %>%
+  dplyr::summarize(
+          trend = sum(rank * trend * extent, na.rm = TRUE) /
+                  (sum(extent * rank, na.rm = TRUE))) %>% 
+  mutate(year = 2020) %>% 
+  dplyr::select(region_id, year, trend)
+
+# Save to output
+write_csv(cp_trend, file.path(dir_goal, "output/cp_trend.csv"))
+```
+
+## Save to Toolbox 
+```{r save-to-toolbox, eval=F}
+cp_trend <- read_csv(file.path(dir_goal, "output/cp_trend.csv"))
+write_csv(cp_trend, file.path(dir_scores, "layers/hs_coastal_protection_trend.csv"))
+```
 
 
