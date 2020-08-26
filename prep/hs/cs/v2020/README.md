@@ -8,7 +8,7 @@ Click on the layers to see data preparation:
 
 ### Layers Created
 
-- `cs_status.csv` carbon storage status relative to the reference point    
+- `cs_status_placeholder.csv` a carbon storage status placeholder with score 'NA'   
 
 
 Please see our [citation policy](http://ohi-science.org/citation-policy/) if you use OHI data or methods.   

@@ -9,7 +9,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
-<meta name="author" content="Compiled on Thu Aug 13 16:31:12 2020 by orofino" />
+<meta name="author" content="Compiled on Wed Aug 26 08:55:43 2020 by orofino" />
 
 
 <title>Carbon Storage Sub-goal</title>
@@ -1651,204 +1651,47 @@ div.tocify {
 
 <h1 class="title toc-ignore">Carbon Storage Sub-goal</h1>
 <h3 class="subtitle">OHI+ Palmyra 2020 Assessment</h3>
-<h4 class="author"><em>Compiled on Thu Aug 13 16:31:12 2020 by orofino</em></h4>
+<h4 class="author"><em>Compiled on Wed Aug 26 08:55:43 2020 by orofino</em></h4>
 
 </div>
 
 
 <div id="summary" class="section level1">
 <h1>Summary</h1>
-<p>This script classifies tree species into native and nonnative groups and finds the percent of total area occupied by native tree species in 2016. The carbon storage status is based on the percent of land occupied by native tree species.</p>
+<p>This script creates a placeholder layer for the Carbon Storage goal. Little is known about the carbon sequestration rates of atoll rainforests and currently there is not information to calculate a meaningful status score.</p>
 </div>
 <div id="data" class="section level1">
 <h1>Data</h1>
-<p><em>Rainforest Tree Maps</em></p>
-<p>Tree cover maps were downloaded from the U.S. Geological Survey vegetation community mapping project for Palmyra Atoll, found <a href="https://www.sciencebase.gov/catalog/item/5c66fc5be4b0fe48cb3aca49">here</a>.</p>
-<p>Vegetation maps were completed in October 2016 and published in June 2019. Data were downloaded on July 7, 2020.</p>
-<p>Citation: Struckhoff, M.A., 2019, Woody species crown and vegetation community data, Palmyra Atoll, 2016: U.S. Geological Survey data release, <a href="https://doi.org/10.5066/P9GMPVIO" class="uri">https://doi.org/10.5066/P9GMPVIO</a>.</p>
+<p>Data from this layer is meant to come from tree cover maps from U.S. Geological Survey vegetation community mapping project for Palmyra Atoll, available <a href="https://www.sciencebase.gov/catalog/item/5c66fc5be4b0fe48cb3aca49">here</a>. However, there is not enough accompanying information on carbon sequestration rates to calculate a complete status score.</p>
 </div>
 <div id="setup" class="section level1">
 <h1>Setup</h1>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="kw">library</span>(tidyverse)</span>
-<span id="cb1-2"><a href="#cb1-2"></a><span class="kw">library</span>(sf)</span>
-<span id="cb1-3"><a href="#cb1-3"></a><span class="kw">library</span>(rgdal)</span>
-<span id="cb1-4"><a href="#cb1-4"></a><span class="kw">library</span>(lwgeom)</span>
-<span id="cb1-5"><a href="#cb1-5"></a><span class="kw">library</span>(here)</span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="kw">library</span>(here)</span>
+<span id="cb1-3"><a href="#cb1-3"></a></span>
+<span id="cb1-4"><a href="#cb1-4"></a><span class="co"># Source and set file paths</span></span>
+<span id="cb1-5"><a href="#cb1-5"></a><span class="kw">source</span>(<span class="kw">here</span>(<span class="st">&#39;src/R/common.R&#39;</span>))</span>
 <span id="cb1-6"><a href="#cb1-6"></a></span>
-<span id="cb1-7"><a href="#cb1-7"></a><span class="co"># Source and set file paths</span></span>
-<span id="cb1-8"><a href="#cb1-8"></a><span class="kw">source</span>(<span class="kw">here</span>(<span class="st">&#39;src/R/common.R&#39;</span>))</span>
-<span id="cb1-9"><a href="#cb1-9"></a></span>
-<span id="cb1-10"><a href="#cb1-10"></a>dir_goal   &lt;-<span class="st"> &#39;~/github/pal-prep/prep/hs/cs/v2020&#39;</span></span></code></pre></div>
+<span id="cb1-7"><a href="#cb1-7"></a>dir_goal   &lt;-<span class="st"> &#39;~/github/pal-prep/prep/hs/cs/v2020&#39;</span></span></code></pre></div>
 </div>
 <div id="methods" class="section level1">
 <h1>Methods</h1>
-<div id="get-tree-cover-maps" class="section level2">
-<h2>Get Tree Cover Maps</h2>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a>trees &lt;-<span class="st"> </span><span class="kw">st_read</span>(<span class="kw">file.path</span>(dir_anx, <span class="st">&#39;_raw_data/USGS_data/Woody_Crowns_Palmyra_Atoll_2016&#39;</span>),</span>
-<span id="cb2-2"><a href="#cb2-2"></a>                   <span class="dt">layer =</span> <span class="st">&quot;Woody_Crowns_Palmyra_Atoll_2016&quot;</span>)</span>
-<span id="cb2-3"><a href="#cb2-3"></a></span>
-<span id="cb2-4"><a href="#cb2-4"></a><span class="co"># Warning that some polygons don&#39;t have four points</span></span>
-<span id="cb2-5"><a href="#cb2-5"></a><span class="co"># Check geometry validity</span></span>
-<span id="cb2-6"><a href="#cb2-6"></a>validity &lt;-<span class="st"> </span><span class="kw">st_is_valid</span>(trees)</span>
-<span id="cb2-7"><a href="#cb2-7"></a>trees<span class="op">$</span>valid &lt;-<span class="st"> </span>validity</span>
-<span id="cb2-8"><a href="#cb2-8"></a></span>
-<span id="cb2-9"><a href="#cb2-9"></a><span class="co"># Find invalid polygons</span></span>
-<span id="cb2-10"><a href="#cb2-10"></a>invalid &lt;-<span class="st"> </span>trees <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb2-11"><a href="#cb2-11"></a><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">filter</span>(valid <span class="op">!=</span><span class="st"> </span><span class="ot">TRUE</span>) <span class="co"># 16 invalid polygons</span></span>
-<span id="cb2-12"><a href="#cb2-12"></a></span>
-<span id="cb2-13"><a href="#cb2-13"></a><span class="co"># Check reason for invalid geometries</span></span>
-<span id="cb2-14"><a href="#cb2-14"></a><span class="kw">st_is_valid</span>(invalid, <span class="dt">reason =</span> <span class="ot">TRUE</span>) <span class="co"># All have self-intersection</span></span>
-<span id="cb2-15"><a href="#cb2-15"></a></span>
-<span id="cb2-16"><a href="#cb2-16"></a><span class="co"># Fix self intersections using st_make_valid</span></span>
-<span id="cb2-17"><a href="#cb2-17"></a>make_valid &lt;-<span class="st"> </span>sf<span class="op">::</span><span class="kw">st_make_valid</span>(invalid) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb2-18"><a href="#cb2-18"></a><span class="st">  </span><span class="kw">st_cast</span>(<span class="st">&quot;MULTIPOLYGON&quot;</span>) <span class="co"># Retain geometry type multipolygon</span></span>
-<span id="cb2-19"><a href="#cb2-19"></a></span>
-<span id="cb2-20"><a href="#cb2-20"></a><span class="co"># Check if it worked</span></span>
-<span id="cb2-21"><a href="#cb2-21"></a><span class="kw">st_is_valid</span>(make_valid) <span class="co"># Get all true now </span></span>
-<span id="cb2-22"><a href="#cb2-22"></a></span>
-<span id="cb2-23"><a href="#cb2-23"></a><span class="co"># Bind back together</span></span>
-<span id="cb2-24"><a href="#cb2-24"></a>trees_edit &lt;-<span class="st"> </span>trees <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb2-25"><a href="#cb2-25"></a><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">filter</span>(trees<span class="op">$</span>valid <span class="op">==</span><span class="st"> </span><span class="ot">TRUE</span>) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb2-26"><a href="#cb2-26"></a><span class="st">  </span><span class="kw">rbind</span>(make_valid) <span class="op">%&gt;%</span><span class="st"> </span><span class="co"># Still missing three observations</span></span>
-<span id="cb2-27"><a href="#cb2-27"></a><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">select</span>(<span class="op">-</span>valid)</span>
-<span id="cb2-28"><a href="#cb2-28"></a></span>
-<span id="cb2-29"><a href="#cb2-29"></a><span class="co"># Save to the raw folder </span></span>
-<span id="cb2-30"><a href="#cb2-30"></a><span class="kw">st_write</span>(trees_edit, <span class="kw">file.path</span>(dir_goal, <span class="st">&#39;raw/tree_map.shp&#39;</span>),</span>
-<span id="cb2-31"><a href="#cb2-31"></a>         <span class="dt">driver =</span> <span class="st">&quot;ESRI Shapefile&quot;</span>)</span>
-<span id="cb2-32"><a href="#cb2-32"></a></span>
-<span id="cb2-33"><a href="#cb2-33"></a><span class="co"># Check for NA valid geometries instead of False</span></span>
-<span id="cb2-34"><a href="#cb2-34"></a><span class="co"># Not sure what to do about these </span></span>
-<span id="cb2-35"><a href="#cb2-35"></a>geom_na &lt;-<span class="st"> </span>trees <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb2-36"><a href="#cb2-36"></a><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">filter</span>(<span class="kw">is.na</span>(valid)) <span class="co"># Found missing ones - corrupt not invalid</span></span></code></pre></div>
-</div>
-<div id="categorize-nativenonnative-species" class="section level2">
-<h2>Categorize Native/Nonnative Species</h2>
-<p>The carbon storage goal is based on percent coverage of native tree species, we need to identify which of the mapped species are native vs. nonnative.</p>
-<p>The following tree species are included in the mapping project and we have designated if they are native or nonnative. Category designations were assigned based species lists found in Tables 1 and 2 of the U.S. Geological Survey 2011 Terrestrial Forest Management Plan for Palmyra Atoll, found <a href="https://permanent.fdlp.gov/gpo119875/ofr20111007.pdf">here</a>.</p>
-<ul>
-<li><em>Araucaria</em>, species unknown: Nonnative<br />
-</li>
-<li><em>Artocarpus altilis</em>: Nonnative<br />
-</li>
-<li><em>Barringtonia asiatica</em>: Native<br />
-</li>
-<li><em>Calophyllum inophyllum</em>: Nonnative<br />
-</li>
-<li><em>Casuarina equisetifolia</em>: Nonnative<br />
-</li>
-<li><em>Coccoloba uvifera</em>: Nonnative<br />
-</li>
-<li><em>Cocos nucifera</em>: Nonnative<br />
-</li>
-<li><em>Cordia subcordata</em>: Native<br />
-</li>
-<li><em>Guettarda speciosa</em>: Native<br />
-</li>
-<li><em>Heliotropium foertherianum</em> also known as <em>Tournefortia argentea</em>: Native<br />
-</li>
-<li><em>Hernandia nymphaeifolia</em>: Native (not on the lists but <em>Hernandia sonora</em> is native)<br />
-</li>
-<li><em>Hibiscus tiliaceus</em>: Nonnative<br />
-</li>
-<li><em>Ipomoea</em>: Native but excluded because it’s a ground vine not a tree<br />
-</li>
-<li><em>Nephrolepis</em>: Nonnative, but excluded because it’s a fern not a tree<br />
-</li>
-<li><em>Pandanus tectorius</em> updated from <em>Pandanus fischerianus</em>: Native<br />
-</li>
-<li><em>Phymatosorus scolopendria</em>: Native</li>
-<li><em>Pisonia grandis</em>: Native<br />
-</li>
-<li><em>Premna serratifolia</em>: Native<br />
-</li>
-<li><em>Scaevola taccada</em>: Native<br />
-</li>
-<li><em>Terminalia catappa</em>: Nonnative<br />
-</li>
-<li>Unknown: excluded from analysis<br />
-</li>
-<li>Water, standing water: excluded from analysis</li>
-</ul>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a><span class="co"># Read in the shp with fixed geometries </span></span>
-<span id="cb3-2"><a href="#cb3-2"></a>tree_map &lt;-<span class="st"> </span><span class="kw">st_read</span>(<span class="kw">file.path</span>(dir_goal, <span class="st">&quot;raw&quot;</span>), <span class="dt">layer =</span> <span class="st">&quot;tree_map&quot;</span>)</span>
-<span id="cb3-3"><a href="#cb3-3"></a></span>
-<span id="cb3-4"><a href="#cb3-4"></a><span class="co"># List of native plants:</span></span>
-<span id="cb3-5"><a href="#cb3-5"></a>natives &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Barringtonia asiatica&quot;</span>, <span class="st">&quot;Cordia subcordata&quot;</span>,</span>
-<span id="cb3-6"><a href="#cb3-6"></a>             <span class="st">&quot;Guettarda speciosa&quot;</span>,<span class="st">&quot;Heliotropium foertherianum&quot;</span>,</span>
-<span id="cb3-7"><a href="#cb3-7"></a>             <span class="st">&quot;Hernandia nymphaeifolia&quot;</span>, <span class="st">&quot;Ipomoea&quot;</span>,</span>
-<span id="cb3-8"><a href="#cb3-8"></a>             <span class="st">&quot;Pandanus tectorius&quot;</span>, <span class="st">&quot;Pisonia grandis&quot;</span>,</span>
-<span id="cb3-9"><a href="#cb3-9"></a>             <span class="st">&quot;Phymatosorus scolopendria&quot;</span>, <span class="st">&quot;Premna serratifolia&quot;</span>,</span>
-<span id="cb3-10"><a href="#cb3-10"></a>             <span class="st">&quot;Scaevola taccada&quot;</span>)</span>
-<span id="cb3-11"><a href="#cb3-11"></a></span>
-<span id="cb3-12"><a href="#cb3-12"></a><span class="co"># Add status:</span></span>
-<span id="cb3-13"><a href="#cb3-13"></a>tree_cat &lt;-<span class="st"> </span>tree_map <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb3-14"><a href="#cb3-14"></a><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">category =</span> <span class="kw">ifelse</span>(species <span class="op">%in%</span><span class="st"> </span>natives,</span>
-<span id="cb3-15"><a href="#cb3-15"></a>                           <span class="st">&quot;native&quot;</span>, <span class="st">&quot;nonnative&quot;</span>)) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb3-16"><a href="#cb3-16"></a><span class="st">  </span><span class="kw">filter</span>(species <span class="op">!=</span><span class="st"> &quot;Ipomoea&quot;</span> <span class="op">&amp;</span><span class="st"> </span>species <span class="op">!=</span><span class="st"> &quot;Nephrolepis&quot;</span>)</span>
-<span id="cb3-17"><a href="#cb3-17"></a></span>
-<span id="cb3-18"><a href="#cb3-18"></a><span class="co"># Save to int folder</span></span>
-<span id="cb3-19"><a href="#cb3-19"></a><span class="kw">write_sf</span>(tree_cat, <span class="kw">file.path</span>(dir_goal, <span class="st">&#39;int/tree_category.shp&#39;</span>),</span>
-<span id="cb3-20"><a href="#cb3-20"></a>         <span class="dt">driver =</span> <span class="st">&quot;ESRI Shapefile&quot;</span>)</span></code></pre></div>
-</div>
-<div id="calculate-area" class="section level2">
-<h2>Calculate Area</h2>
-<p>Find the area of native vs. nonnative trees on the islands</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a>tree_cat &lt;-<span class="st"> </span><span class="kw">st_read</span>(<span class="kw">file.path</span>(dir_goal, <span class="st">&quot;int&quot;</span>),</span>
-<span id="cb4-2"><a href="#cb4-2"></a>                    <span class="dt">layer =</span> <span class="st">&quot;tree_category&quot;</span>) </span>
-<span id="cb4-3"><a href="#cb4-3"></a></span>
-<span id="cb4-4"><a href="#cb4-4"></a><span class="co"># Change area in square meters to area in square km </span></span>
-<span id="cb4-5"><a href="#cb4-5"></a><span class="co"># Find area of native and nonnative species</span></span>
-<span id="cb4-6"><a href="#cb4-6"></a>tree_area &lt;-<span class="st"> </span>tree_cat <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb4-7"><a href="#cb4-7"></a><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">area_km =</span> Area <span class="op">*</span><span class="st"> </span><span class="fl">0.000001</span>) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb4-8"><a href="#cb4-8"></a><span class="st">  </span><span class="kw">group_by</span>(category) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb4-9"><a href="#cb4-9"></a><span class="st">  </span><span class="kw">summarize</span>(<span class="dt">geometry =</span> <span class="kw">st_union</span>(geometry),</span>
-<span id="cb4-10"><a href="#cb4-10"></a>            <span class="dt">area_km =</span> <span class="kw">sum</span>(area_km))</span>
-<span id="cb4-11"><a href="#cb4-11"></a></span>
-<span id="cb4-12"><a href="#cb4-12"></a><span class="co"># Check aggregation </span></span>
-<span id="cb4-13"><a href="#cb4-13"></a><span class="kw">plot</span>(tree_area)</span>
-<span id="cb4-14"><a href="#cb4-14"></a></span>
-<span id="cb4-15"><a href="#cb4-15"></a><span class="co"># Save to int folder</span></span>
-<span id="cb4-16"><a href="#cb4-16"></a><span class="kw">write_sf</span>(tree_area, <span class="kw">file.path</span>(dir_goal, <span class="st">&quot;int/tree_area.shp&quot;</span>),</span>
-<span id="cb4-17"><a href="#cb4-17"></a>         <span class="dt">driver =</span> <span class="st">&quot;ESRI Shapefile&quot;</span>, <span class="dt">overwrite =</span> <span class="ot">TRUE</span>)</span></code></pre></div>
-</div>
-<div id="calculate-status" class="section level2">
-<h2>Calculate Status</h2>
-<p><strong>Reference Point:</strong> 95% of the forest area dominated by native trees</p>
-<p>The status is calculated as the current percent of forest dominated by native trees over the reference point percentage as in the following equation:</p>
-<p><span class="math inline">\(status~=~percent~cover~/~reference~point~percent~cover\)</span></p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>tree_area &lt;-<span class="st"> </span><span class="kw">st_read</span>(<span class="kw">file.path</span>(dir_goal, <span class="st">&quot;int&quot;</span>), <span class="dt">layer =</span> <span class="st">&quot;tree_area&quot;</span>) </span>
-<span id="cb5-2"><a href="#cb5-2"></a></span>
-<span id="cb5-3"><a href="#cb5-3"></a><span class="co"># Define reference point</span></span>
-<span id="cb5-4"><a href="#cb5-4"></a>ref_point &lt;-<span class="st"> </span><span class="fl">0.95</span> </span>
-<span id="cb5-5"><a href="#cb5-5"></a></span>
-<span id="cb5-6"><a href="#cb5-6"></a><span class="co"># Find total area</span></span>
-<span id="cb5-7"><a href="#cb5-7"></a>total_area_km &lt;-<span class="st"> </span><span class="kw">sum</span>(tree_area<span class="op">$</span>area_km)</span>
-<span id="cb5-8"><a href="#cb5-8"></a></span>
-<span id="cb5-9"><a href="#cb5-9"></a><span class="co"># Find percent area for both native and nonnative species</span></span>
-<span id="cb5-10"><a href="#cb5-10"></a>percent_area &lt;-<span class="st"> </span>tree_area <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb5-11"><a href="#cb5-11"></a><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">total_area =</span> total_area_km) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb5-12"><a href="#cb5-12"></a><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">percent_area =</span> area_km <span class="op">/</span><span class="st"> </span>total_area)</span>
-<span id="cb5-13"><a href="#cb5-13"></a></span>
-<span id="cb5-14"><a href="#cb5-14"></a><span class="co"># Calculate status </span></span>
-<span id="cb5-15"><a href="#cb5-15"></a>cs_status &lt;-<span class="st"> </span>percent_area <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb5-16"><a href="#cb5-16"></a><span class="st">  </span><span class="kw">filter</span>(category <span class="op">==</span><span class="st"> &quot;native&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb5-17"><a href="#cb5-17"></a><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">status =</span> percent_area <span class="op">/</span><span class="st"> </span>ref_point,</span>
-<span id="cb5-18"><a href="#cb5-18"></a>         <span class="dt">region_id =</span> <span class="dv">1</span>,</span>
-<span id="cb5-19"><a href="#cb5-19"></a>         <span class="dt">year =</span> <span class="dv">2016</span>,</span>
-<span id="cb5-20"><a href="#cb5-20"></a>         <span class="dt">habitat =</span> <span class="st">&#39;rainforest&#39;</span>) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb5-21"><a href="#cb5-21"></a><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">select</span>(region_id, habitat, year, status)</span>
-<span id="cb5-22"><a href="#cb5-22"></a></span>
-<span id="cb5-23"><a href="#cb5-23"></a><span class="co"># Don&#39;t need to save the geometries in the output</span></span>
-<span id="cb5-24"><a href="#cb5-24"></a>cs_status &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(cs_status) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb5-25"><a href="#cb5-25"></a><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">select</span>(<span class="op">-</span>geometry)</span>
-<span id="cb5-26"><a href="#cb5-26"></a></span>
-<span id="cb5-27"><a href="#cb5-27"></a><span class="co"># Save as csv to output</span></span>
-<span id="cb5-28"><a href="#cb5-28"></a><span class="kw">write_csv</span>(cs_status, <span class="kw">file.path</span>(dir_goal, <span class="st">&quot;output/cs_status.csv&quot;</span>))</span></code></pre></div>
+<p>Since there is not enough information on the carbon sequestration rates of atoll rainforests, we will use a placeholder layer with a status score of ‘NA’. There is an ongoing carbon accounting project on Palmyra Atoll which could be used to inform this goal in the future.</p>
+<div id="create-placeholder-layer" class="section level2">
+<h2>Create Placeholder Layer</h2>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a>cs_status &lt;-<span class="st"> </span><span class="kw">data.frame</span>(</span>
+<span id="cb2-2"><a href="#cb2-2"></a>  <span class="dt">region_id =</span> <span class="dv">1</span>, </span>
+<span id="cb2-3"><a href="#cb2-3"></a>  <span class="dt">year =</span> <span class="dv">2020</span>, </span>
+<span id="cb2-4"><a href="#cb2-4"></a>  <span class="dt">status =</span> <span class="ot">NA</span></span>
+<span id="cb2-5"><a href="#cb2-5"></a>)</span>
+<span id="cb2-6"><a href="#cb2-6"></a></span>
+<span id="cb2-7"><a href="#cb2-7"></a><span class="co"># Save to output folder</span></span>
+<span id="cb2-8"><a href="#cb2-8"></a><span class="kw">write_csv</span>(cs_status, <span class="kw">file.path</span>(dir_goal, <span class="st">&quot;output/cs_status_placeholder.csv&quot;</span>))</span></code></pre></div>
 </div>
 <div id="save-to-toolbox" class="section level2">
 <h2>Save to Toolbox</h2>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>cs_status &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="kw">file.path</span>(dir_goal, <span class="st">&quot;output/cs_status.csv&quot;</span>))</span>
-<span id="cb6-2"><a href="#cb6-2"></a><span class="kw">write_csv</span>(cs_status, <span class="kw">file.path</span>(dir_scores, <span class="st">&#39;layers/hs_carbon_storage_status.csv&#39;</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>cs_status &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="kw">file.path</span>(dir_goal, <span class="st">&quot;output/cs_status_placeholder.csv&quot;</span>))</span>
+<span id="cb3-2"><a href="#cb3-2"></a><span class="kw">write_csv</span>(cs_status, <span class="kw">file.path</span>(dir_scores, <span class="st">&#39;layers/hs_carbon_storage_status_placeholder.csv&#39;</span>))</span></code></pre></div>
 </div>
 </div>
 
