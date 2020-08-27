@@ -9,4 +9,5 @@ This folder contains sub-folders for all ecological resilience layers in the Pal
 | Fishing Pressure       | fp     |
 | Habitat Destruction    | hd     |
 | Invasive Species       | inv    |
+| Pollution              | po     |
 
