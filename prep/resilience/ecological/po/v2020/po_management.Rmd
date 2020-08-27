@@ -1,0 +1,88 @@
+---
+title: 'Pollution Management'
+subtitle: 'OHI+ Palmyra 2020 Assessment'
+author: "*Compiled on `r date()` by `r Sys.info()['user']`*"
+output: 
+  html_document:
+    code_folding: show
+    toc: true
+    toc_depth: 3 
+    toc_float: yes
+    number_sections: false
+    theme: cerulean
+    highlight: haddock
+    includes: 
+     in_header: '~/github/pal-prep/src/templates/pal_hdr.html' 
+  pdf_document:
+    toc: true
+---
+
+# Summary 
+
+Regulatory resilience is meant to describe the institutional measures (e.g., rules, regulations, and laws) designed to address ecological pressures. This script calculates resilience from management strategies to reduce pollution on Palmyra Atoll.     
+
+# Data 
+
+Data to inform the preparation of this layer was obtained verbally from Alex Wegmann of The Nature Conservancy on August 25, 2020.  
+
+# Setup 
+
+```{r setup, message=F, warning=F, results='hide'}
+
+library(tidyverse)
+library(here)
+
+# Source and set file paths
+source(here('src/R/common.R'))
+
+dir_res   <- '~/github/pal-prep/prep/resilience/ecological/po/v2020'
+```
+
+
+# Methods 
+
+## Management 
+
+A resilience layer is created for pollution management based on three criteria:  
+
+ - Is there a management plan in place?  
+ - Is there monitoring and assessment?   
+ - Is the management plan effective?  
+ 
+A yes will be assigned a value of 1, in-development will be assigned a value of 0.5, a no will be assigned a value of 0. The final score will be the sum over 3. The status is assigned based on information obtained from Alex Wegmann at The Nature Conservancy.           
+
+<br>     
+
+| Category         | Response         | Score | 
+|------------------|------------------|-------|
+| Management Plan? | In Development   | 0.5   |
+| Monitoring?      | No               | 0     |
+| Effective?       | No               | 0     |   
+
+A marine debris management plan is currently being developed for Palmyra Atoll. This would allow researchers on Palmyra to obtain satellite locations of fishing aggregation devices (FADs) once they enter the Marine National Monument boundary. If the devices get within a certain distance from shore, staff will go collect the devices to prevent them from washing ashore. The marine debris layer of the Clean Waters goal is based on the number of FADs washed ashore per year, so this management plan would improve the Clean Waters score. For more information on the Clean Waters refer to the marine debris [data prep](https://raw.githack.com/OHI-4site/pal-prep/gh-pages/prep/cw/v2020/debris_data_prep.html).   
+
+A score of 0.5 is assigned since the plan is in development, but a score of 0 is assigned for both monitoring and effectiveness since the strategy has not been implemented yet.     
+
+```{r po-management, eval=F}
+
+years <- 2014:2020
+
+# Create scores
+po_mgmt <- data.frame(
+  region_id = rep(1, length(years)),
+  year = years,
+  resilience_score = rep(.5/3, length(years))
+)
+
+# Save output layers
+write_csv(po_mgmt, file.path(dir_res, "output/po_mgmt.csv"))
+```
+
+
+## Save to Toolbox
+
+```{r ave-to-toolbox, eval=F}
+po_mgmt <- read_csv(file.path(dir_res, "output/po_mgmt.csv"))
+write_csv(po_mgmt, file.path(dir_scores, "layers/res_po_mgmt.csv"))
+```
+
