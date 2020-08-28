@@ -9,7 +9,7 @@ The folders in this file include the metadata, R scripts, and data for each asse
 - `output` folder with the layers generated in the script that are required for running the score calculation       
 - `raw`  folder containing raw data on invasive species presence   
 
-To learn more about the ecological pressure layers, refer the project's [Supplemental Methods](https://raw.githack.com/OHI-4site/pal-scores/master/documents/methods-results/Supplement.html) document.   
+To learn more about the ecological pressure layers, refer the project's [Supplemental Methods](https://ohi-4site.github.io/pal-scores/documents/methods-results/Supplement.html) document.   
 
 
 

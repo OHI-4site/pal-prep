@@ -8,7 +8,7 @@ The folders in this file include the metadata, R scripts, and data for each asse
 - `tr_data_prep.rmd` script to generate the status score for tourism and recreation   
 - `output`           folder containing layers generated in the script that are necessary to calculate the goal score      
 
-To learn more about how the Tourism and Recreation goal is calculated, refer the project's [Supplemental Methods](https://raw.githack.com/OHI-4site/pal-scores/master/documents/methods-results/Supplement.html) document.   
+To learn more about how the Tourism and Recreation goal is calculated, refer the project's [Supplemental Methods](https://ohi-4site.github.io/pal-scores/documents/methods-results/Supplement.html) document.   
 
 
 

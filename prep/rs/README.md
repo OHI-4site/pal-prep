@@ -11,7 +11,7 @@ The folders in this file include the metadata, R scripts, and data for each asse
 - `output` folder with the layers generated in the script that are required to calculate the status score    
 - `raw` folder contains raw employment data and the Palmyra scientific library compiled by The Nature Conservancy   
 
-To learn more about how the Research goal is calculated, refer the project's [Supplemental Methods](https://raw.githack.com/OHI-4site/pal-scores/master/documents/methods-results/Supplement.html) document.   
+To learn more about how the Research goal is calculated, refer the project's [Supplemental Methods](https://ohi-4site.github.io/pal-scores/documents/methods-results/Supplement.html) document.   
 
 
 

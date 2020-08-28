@@ -11,7 +11,7 @@ The folders in this file include the metadata, R scripts, and data for each asse
 - `int` folder with all intermediate data generated in the script    
 - `output` folder with the layers generated in the script that are required for running the score calculation       
 
-To learn more about the ecological pressure layers, refer the project's [Supplemental Methods](https://raw.githack.com/OHI-4site/pal-scores/master/documents/methods-results/Supplement.html) document.   
+To learn more about the ecological pressure layers, refer the project's [Supplemental Methods](https://ohi-4site.github.io/pal-scores/documents/methods-results/Supplement.html) document.   
 
 
 
