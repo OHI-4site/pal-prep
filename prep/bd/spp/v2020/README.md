@@ -2,13 +2,13 @@
 
 Click on the layers to see data preparation:  
 
-#### [IUCN Species List](https://raw.githack.com/OHI-4site/pal-prep/gh-pages/prep/bd/spp/v2020/1_iucn_spp_lists.html)  
+#### [IUCN Species List](https://ohi-4site.github.io/pal-prep/prep/bd/spp/v2020/1_iucn_spp_lists.html)  
 
-#### [Palmyra Species List](https://raw.githack.com/OHI-4site/pal-prep/gh-pages/prep/bd/spp/v2020/2_pal_spp_lists.html)
+#### [Palmyra Species List](https://ohi-4site.github.io/pal-prep/prep/bd/spp/v2020/2_pal_spp_lists.html)
 
-#### [Species Status](https://raw.githack.com/OHI-4site/pal-prep/gh-pages/prep/bd/spp/v2020/3_spp_status.html)   
+#### [Species Status](https://ohi-4site.github.io/pal-prep/prep/bd/spp/v2020/3_spp_status.html)   
 
-#### [Species Trend](https://raw.githack.com/OHI-4site/pal-prep/gh-pages/prep/bd/spp/v2020/4_spp_trend.html)   
+#### [Species Trend](https://ohi-4site.github.io/pal-prep/prep/bd/spp/v2020/4_spp_trend.html)   
 
 ### Layers Created
 

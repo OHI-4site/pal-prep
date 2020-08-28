@@ -2,7 +2,7 @@
 
 Click on the layers to see data preparation:  
 
-#### [Management](https://raw.githack.com/OHI-4site/pal-prep/gh-pages/prep/pressures/mgmt/v2020/mgmt_pressure_layer.html)    
+#### [Management](https://ohi-4site.github.io/pal-prep/prep/pressures/mgmt/v2020/mgmt_pressure_layer.html)    
 
 ### Layers Created
 

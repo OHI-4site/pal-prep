@@ -2,11 +2,11 @@
 
 Click on the layers to see data preparation:  
 
-#### [Resource Access Opportunity](https://raw.githack.com/OHI-4site/pal-prep/gh-pages/prep/rao/v2020/rao_data_prep.html)   
+#### [Resource Access Opportunity](https://ohi-4site.github.io/pal-prep/prep/rao/v2020/rao_data_prep.html)   
 
 ### Layers Created
 
-- `rao_status_placeholder` status of sustenance fishing relative to the reference point      
+- `rao_status` status of sustenance fishing relative to the reference point      
 
 
 Please see our [citation policy](http://ohi-science.org/citation-policy/) if you use OHI data or methods.   

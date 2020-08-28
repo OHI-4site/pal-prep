@@ -2,7 +2,7 @@
 
 Click on the layers to see data preparation:  
 
-#### [Invasive Species](https://raw.githack.com/OHI-4site/pal-prep/gh-pages/prep/pressures/inv/v2020/inv_spp_pressure.html)    
+#### [Invasive Species](https://ohi-4site.github.io/pal-prep/prep/pressures/inv/v2020/inv_spp_pressure.html)    
 
 ### Layers Created
 

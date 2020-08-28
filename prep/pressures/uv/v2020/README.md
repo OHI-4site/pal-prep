@@ -2,7 +2,7 @@
 
 Click on the layers to see data preparation:  
 
-#### [UV Radiation](https://raw.githack.com/OHI-4site/pal-prep/gh-pages/prep/pressures/uv/v2020/uv_pressure_layer.html)    
+#### [UV Radiation](https://ohi-4site.github.io/pal-prep/prep/pressures/uv/v2020/uv_pressure_layer.html)    
 
 ### Layers Created
 

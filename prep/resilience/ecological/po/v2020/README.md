@@ -2,7 +2,7 @@
 
 Click on the layers to see data preparation:  
 
-#### [Pollution Management](https://raw.githack.com/OHI-4site/pal-prep/gh-pages/prep/resilience/ecological/po/v2020/po_management.html)    
+#### [Pollution Management](https://ohi-4site.github.io/pal-prep/prep/resilience/ecological/po/v2020/po_management.html)    
 
 ### Layers Created
 

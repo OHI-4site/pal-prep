@@ -2,9 +2,9 @@
 
 Click on the layers to see data preparation:  
 
-#### [Invasive Species Management](https://raw.githack.com/OHI-4site/pal-prep/gh-pages/prep/resilience/ecological/inv/v2020/sp_management.html)    
+#### [Invasive Species Management](https://ohi-4site.github.io/pal-prep/prep/resilience/ecological/inv/v2020/sp_management.html)    
 
-#### [Invasive Species Regulations](https://raw.githack.com/OHI-4site/pal-prep/gh-pages/prep/resilience/ecological/inv/v2020/sp_regulations.html)
+#### [Invasive Species Regulations](https://ohi-4site.github.io/pal-prep/prep/resilience/ecological/inv/v2020/sp_regulations.html)
 
 ### Layers Created
 

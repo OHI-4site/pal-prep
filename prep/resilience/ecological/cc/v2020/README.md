@@ -2,7 +2,7 @@
 
 Click on the layers to see data preparation:  
 
-#### [Climate Change Management](https://raw.githack.com/OHI-4site/pal-prep/gh-pages/prep/resilience/ecological/cc/v2020/cc_management.html)    
+#### [Climate Change Management](https://ohi-4site.github.io/pal-prep/prep/resilience/ecological/cc/v2020/cc_management.html)    
 
 ### Layers Created
 

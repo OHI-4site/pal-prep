@@ -2,7 +2,7 @@
 
 Click on the layers to see data preparation:  
 
-#### [Habitat Destruction](https://raw.githack.com/OHI-4site/pal-prep/gh-pages/prep/pressures/hd/v2020/habitat_pressure_layer.html)    
+#### [Habitat Destruction](https://ohi-4site.github.io/pal-prep/prep/pressures/hd/v2020/habitat_pressure_layer.html)    
 
 ### Layers Created
 

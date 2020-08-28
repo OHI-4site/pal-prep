@@ -2,7 +2,7 @@
 
 Click on the layers to see data preparation:  
 
-#### [Habitat Regulations](https://raw.githack.com/OHI-4site/pal-prep/gh-pages/prep/resilience/ecological/hd/v2020/hd_regulations.html)
+#### [Habitat Regulations](https://ohi-4site.github.io/pal-prep/prep/resilience/ecological/hd/v2020/hd_regulations.html)
 
 ### Layers Created
 

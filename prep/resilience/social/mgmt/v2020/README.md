@@ -2,7 +2,7 @@
 
 Click on the layers to see data preparation:  
 
-#### [Habitat Management](https://raw.githack.com/OHI-4site/pal-prep/gh-pages/prep/resilience/social/mgmt/v2020/ss_management.html)    
+#### [Habitat Management](https://ohi-4site.github.io/pal-prep/prep/resilience/social/mgmt/v2020/ss_management.html)    
 
 ### Layers Created
 

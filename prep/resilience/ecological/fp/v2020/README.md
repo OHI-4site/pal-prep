@@ -2,9 +2,9 @@
 
 Click on the layers to see data preparation:  
 
-#### [Fishing / Offshore Management](https://raw.githack.com/OHI-4site/pal-prep/gh-pages/prep/resilience/ecological/fp/v2020/fp_management.html)    
+#### [Fishing / Offshore Management](https://ohi-4site.github.io/pal-prep/prep/resilience/ecological/fp/v2020/fp_management.html)    
 
-#### [Fishing / Offshore Regulations](https://raw.githack.com/OHI-4site/pal-prep/gh-pages/prep/resilience/ecological/fp/v2020/fp_regulations.html)
+#### [Fishing / Offshore Regulations](https://ohi-4site.github.io/pal-prep/prep/resilience/ecological/fp/v2020/fp_regulations.html)
 
 ### Layers Created
 

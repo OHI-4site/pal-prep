@@ -2,9 +2,9 @@
 
 Click on the layers to see data preparation:  
 
-#### [Marine Debris](https://raw.githack.com/OHI-4site/pal-prep/gh-pages/prep/cw/v2020/debris_data_prep.html)    
+#### [Marine Debris](https://ohi-4site.github.io/pal-prep/prep/cw/v2020/debris_data_prep.html)    
 
-#### [Soil Contamination](https://raw.githack.com/OHI-4site/pal-prep/gh-pages/prep/cw/v2020/soil_contamination_data_prep.html)   
+#### [Soil Contamination](https://ohi-4site.github.io/pal-prep/prep/cw/v2020/soil_contamination_data_prep.html)   
 
 ### Layers Created
 

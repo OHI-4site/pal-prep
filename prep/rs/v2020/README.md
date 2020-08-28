@@ -2,9 +2,9 @@
 
 Click on the layers to see data preparation:  
 
-#### [Employment](https://raw.githack.com/OHI-4site/pal-prep/gh-pages/prep/rs/v2020/employment_data_prep.html)   
+#### [Employment](https://ohi-4site.github.io/pal-prep/prep/rs/v2020/employment_data_prep.html)   
 
-#### [Scientific Papers](https://raw.githack.com/OHI-4site/pal-prep/gh-pages/prep/rs/v2020/sci_papers_data_prep.html)   
+#### [Scientific Papers](https://ohi-4site.github.io/pal-prep/prep/rs/v2020/sci_papers_data_prep.html)   
 
 ### Layers Created
 

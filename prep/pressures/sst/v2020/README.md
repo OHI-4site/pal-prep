@@ -2,7 +2,7 @@
 
 Click on the layers to see data preparation:  
 
-#### [Sea Surface Temperature](https://raw.githack.com/OHI-4site/pal-prep/gh-pages/prep/pressures/sst/v2020/sst_pressure_layer.html)    
+#### [Sea Surface Temperature](https://ohi-4site.github.io/pal-prep/prep/pressures/sst/v2020/sst_pressure_layer.html)    
 
 ### Layers Created
 

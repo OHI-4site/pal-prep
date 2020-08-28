@@ -2,7 +2,7 @@
 
 Click on the layers to see data preparation:  
 
-#### [Ocean Acidification](https://raw.githack.com/OHI-4site/pal-prep/gh-pages/prep/pressures/oa/v2020/oa_pressure_layer.html)    
+#### [Ocean Acidification](https://ohi-4site.github.io/pal-prep/prep/pressures/oa/v2020/oa_pressure_layer.html)    
 
 ### Layers Created
 

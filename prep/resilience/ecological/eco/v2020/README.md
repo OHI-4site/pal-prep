@@ -2,7 +2,7 @@
 
 Click on the layers to see data preparation:  
 
-#### [Ecosystem Resilience](https://raw.githack.com/OHI-4site/pal-prep/gh-pages/prep/resilience/ecological/eco/v2020/eco_species_diversity.html)    
+#### [Ecosystem Resilience](https://ohi-4site.github.io/pal-prep/prep/resilience/ecological/eco/v2020/eco_species_diversity.html)    
 
 ### Layers Created
 

@@ -2,7 +2,7 @@
 
 Click on the layers to see data preparation:  
 
-#### [Sea Level Rise](https://raw.githack.com/OHI-4site/pal-prep/gh-pages/prep/pressures/slr/v2020/slr_pressure_layer.html)    
+#### [Sea Level Rise](https://ohi-4site.github.io/pal-prep/prep/pressures/slr/v2020/slr_pressure_layer.html)    
 
 ### Layers Created
 

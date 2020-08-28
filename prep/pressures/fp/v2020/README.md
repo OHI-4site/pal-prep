@@ -2,7 +2,7 @@
 
 Click on the layers to see data preparation:  
 
-#### [Fishing Pressure](https://raw.githack.com/OHI-4site/pal-prep/gh-pages/prep/pressures/fp/v2020/fishing_pressure_layer.html)    
+#### [Fishing Pressure](https://ohi-4site.github.io/pal-prep/prep/pressures/fp/v2020/fishing_pressure_layer.html)    
 
 ### Layers Created
 
